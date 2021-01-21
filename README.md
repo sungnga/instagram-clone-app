@@ -1,39 +1,34 @@
 # NOTES WHILE BUILDING THIS APPLICATION
 
-## 1. Breaking Down the Instagram-Clone UI
+### 1. Breaking Down the Instagram-Clone UI
 
-### Routes
+#### Routes
 - / (feed page)
-
-Components:
-- FeedPost
-- FeedPostSkeleton
-- FeedSideSuggestions
+- Components:
+  - FeedPost
+  - FeedPostSkeleton
+  - FeedSideSuggestions
 
 - /explore (explore page)
-
-Components:
-- ExploreSuggestions
-- ExploreGrid
+- Components:
+  - ExploreSuggestions
+  - ExploreGrid
 
 - /p/:postId (post page)
-
-Components:
-- Post
-- PostSkeleton
-- PostModal
-- MorePostsFromUser
+- Components:
+  - Post
+  - PostSkeleton
+  - PostModal
+  - MorePostsFromUser
 
 - notification
-
-Components:
-- NotificationList
-- NotificationToolTip
+- Components:
+  - NotificationList
+  - NotificationToolTip
 
 - /:username (profile page)
-
-Components:
-- ProfileTabs
+- Components:
+  - ProfileTabs
 
 - /accounts/edit (edit profile page)
 
@@ -43,7 +38,7 @@ Components:
 
 - * (not found page)
 
-### Shared Components
+#### Shared components
 - Navbar
 - FollowSuggestions
 - FollowButton
@@ -53,3 +48,12 @@ Components:
 - ProfilePicture
 - Layout
 - SEO
+
+
+## Building Accounts Pages
+
+### 1. Creating routes for our pages:
+- In App.js file
+  - Import: `import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';`
+  - We begin by creating the individual routes that we've laid out. We're using the package react-router-dom to create the individual routes
+  - There are a total of 8 routes
