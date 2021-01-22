@@ -106,7 +106,52 @@
     - if they already have an IG account, add a Link that takes user to the LoginPage. The Link path is `/accounts/login`
 
 
+## MAKING FEED PAGE
+- The FeedPage is made visible when a user is logged in and it lives at the root path of our application
+- The FeedPage comprises of 
+  - the Navbar at the top
+  - on the left of the page is a list of feed posts for this user and within it is a list of suggested users to follow
+  - fixed to the right hand side is the sidebar which has some information about the authenticated user and below that is a list of suggested users to follow
 
+### 7. Building the FeedPage component:
+- In src/pages/feed.js file:
+  - Import and render the Layout component. This will provide the page structure and render the Navbar and SEO components
+  - Now we will create more structure to the FeedPage
+  - On the left side of the page contains a list of FeedPost. For now, we'll generate an array of dummy feed posts as a placeholder
+  - On the right side is the sidebar which contains the UserCard component and beneath that is the FeedSideSuggestions component
+  - At large-size screen we see the list FeedPost on the left and the sidebar on the right. At a small-size screen we want to hide the sidebar. To do this, Material UI has a Hidden component we can use
+
+
+
+
+
+
+
+
+
+
+## COMMON DESIGN PATTERNS AND JS TRICKS
+#### 1. Generate an array of dummy data, map over it and display each item
+  ```js
+  function getDefaultPost() {
+    return {
+      id: uuid(),
+      likes: 10,
+      caption: `<span class="">Do you know the 10 JavaScript concepts you need to learn React?</span>`,
+      user: defaultUser,
+      media:
+        "https://scontent-ort2-2.cdninstagram.com/v/t51.2885-15/",
+      comments: [],
+      created_at: "2020-02-28T03:08:14.522421+00:00"
+    };
+  }
+
+  <div>
+    {Array.from({ length: 5 }, () => getDefaultPost()).map(post => (
+      <FeedPost key={post.id} post={post} />
+    ))}
+  </div>
+  ```
 
 ## NPM PACKAGES USED
 - react-router-dom
