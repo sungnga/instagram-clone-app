@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
-import { useLoginPageStyles } from '../styles';
-import SEO from '../components/shared/Seo';
+import { Link } from 'react-router-dom';
 import {
 	Button,
 	Card,
@@ -8,7 +7,8 @@ import {
 	TextField,
 	Typography
 } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { useLoginPageStyles } from '../styles';
+import SEO from '../components/shared/Seo';
 import FacebookIconBlue from '../images/facebook-icon-blue.svg';
 import FacebookIconWhite from '../images/facebook-icon-white.png';
 
@@ -35,6 +35,7 @@ function LoginPage() {
 								fullWidth
 								variant='filled'
 								label='Password'
+								type='password'
 								margin='dense'
 								className={classes.textField}
 								autoComplete='current-password'
@@ -69,7 +70,7 @@ function LoginPage() {
 						</Typography>
 						<Link to='/accounts/emailsignup'>
 							<Button color='primary' className={classes.signUpButton}>
-								Sign Up
+								Sign up
 							</Button>
 						</Link>
 					</Card>
@@ -79,13 +80,13 @@ function LoginPage() {
 	);
 }
 
-export function LoginWithFacebook({ color, iconColor }) {
+export function LoginWithFacebook({ color, iconColor, variant }) {
 	const classes = useLoginPageStyles();
 	const facebookIcon =
 		iconColor === 'blue' ? FacebookIconBlue : FacebookIconWhite;
 
 	return (
-		<Button fullWidth color={color}>
+		<Button fullWidth color={color} variant={variant}>
 			<img
 				src={facebookIcon}
 				alt='facebook icon'

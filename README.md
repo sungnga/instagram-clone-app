@@ -95,6 +95,17 @@
     - Display the faceBookIcon color could either in white or blue
   - Render the LoginWithFacebook component inside the form element
 
+### 6. Building the SignUpPage component:
+- The route to LoginPage is: `/accounts/emailsignup`
+- The signup page doesn't have the Navbar
+- In src/pages/signup.js file:
+  - The signup form is very similar to the login form. We can copy and paste as a starter code and make changes accordingly
+  - The signup form comprises of
+    - user can signup with their Facebook account
+    - or filling out the provided text fields
+    - if they already have an IG account, add a Link that takes user to the LoginPage. The Link path is `/accounts/login`
+
+
 
 
 ## NPM PACKAGES USED
