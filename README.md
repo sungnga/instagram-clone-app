@@ -77,8 +77,24 @@
 
 ### 4. Building the NotFoundPage component:
 - This is the default page when a route a user is try to visit doesn't match one of the routes we defined 
-- This page renders to Layout component to create the page layout and add styling
-- It has a simple Navbar header with the Instagram logo and a page-not-found message to the user with a link that takes them back to homepage
+- In src/pages/not-found.js file:
+  - Import and render the Layout component to create the page layout and add styling
+  - It has a simple Navbar header with the Instagram logo and a page-not-found message to the user with a link that takes them back to homepage
+
+### 5. Building the LoginPage component:
+- The route to LoginPage is: `/accounts/login`
+- The login page doesn't have the Navbar
+- The login form comprises of 
+  - the text fields for Username and Password the user needs to provide in order to login
+  - or login with Facebook
+  - or if a user doesn't have an account, a Link that takes them to the SignUpPage. The Link path is `/accounts/emailsignup`
+- In src/pages/login.js file:
+  - Import and render the SEO component so we can see the page title in the browser tab
+  - Create and name export a LoginWithFacebook component that renders a Log In With Facebook button
+    - Import the blue and white facebook icons
+    - Display the faceBookIcon color could either in white or blue
+  - Render the LoginWithFacebook component inside the form element
+
 
 
 ## NPM PACKAGES USED
