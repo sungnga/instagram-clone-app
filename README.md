@@ -107,7 +107,7 @@
 
 
 ## MAKING FEED PAGE
-- The FeedPage is made visible when a user is logged in and it lives at the root path of our application
+- The FeedPage is made visible when a user is logged in and it lives at the root path of our application. The route to FeedPage is: `/`
 - The FeedPage comprises of 
   - the Navbar at the top
   - on the left of the page is a list of feed posts for this user and within it is a list of suggested users to follow
@@ -119,10 +119,24 @@
   - Now we will create more structure to the FeedPage
   - On the left side of the page contains a list of FeedPost. For now, we'll generate an array of dummy feed posts as a placeholder
   - On the right side is the sidebar which contains the UserCard component and beneath that is the FeedSideSuggestions component
+  - Import and render the FeedPost, UserCard, and FeedSideSuggestions components
   - At large-size screen we see the list FeedPost on the left and the sidebar on the right. At a small-size screen we want to hide the sidebar. To do this, Material UI has a Hidden component we can use
 
-
-
+### 8. Building the FeedPost component:
+- The FeedPost component is rendered by the FeedPage parent component
+- The FeedPost component comprises of 3 parts:
+  - The post header which has the UserCard and MoreIcon components
+  - The post media/image
+  - The post footer, which contains
+    - the like, comment, share, and save icon buttons
+    - the number of likes
+    - a list of collapsed-version of comment captions. When clicking on the MoreButton the comment caption will expand
+    - the View all x comments link
+    - the date when this post was created
+    - the comment section
+- In src/components/feed/FeedPost.js file:
+  - The FeedPost component receives the post object as props from FeedPage parent component. Destructure the properties of post props
+  - Write the LikeButton, SaveButton, and Comment components and render static texts for each for now
 
 
 
@@ -159,3 +173,6 @@
   - Use the Link component to link to another page
 - react-helmet
   - Enables us to change meta information
+- react-lines-ellipsis
+  - Import: `import HTMLEllipsis from 'react-lines-ellipsis/lib/html';`
+  - Allows us to collapse long lines of text, such as the comment captions
