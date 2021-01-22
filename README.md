@@ -138,6 +138,10 @@
   - The FeedPost component receives the post object as props from FeedPage parent component. Destructure the properties of post props
   - Write the LikeButton, SaveButton, and Comment components and render static texts for each for now
 
+### 9. Building the UserCard component:
+- The UserCard component receives the user object as props from the FeedPost parent component
+- Render the user's profile_image, username, and name
+- This component will be used in many places in our application. So the `username` is a link that redirects to that particular user's profile page
 
 
 
