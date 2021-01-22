@@ -50,7 +50,7 @@
 - SEO
 
 
-## BUILDING ACCOUNT PAGES
+## BUILDING ACCOUNTS PAGES
 
 ### 2. Creating routes for our pages:
 - In src/App.js file
@@ -75,7 +75,10 @@
   - The Navbar component renders the Instagram logo
   - When clicking on the IG logo, it'll take you to the homepage, which is the FeedPage
 
-
+### 4. Building the NotFoundPage component:
+- This is the default page when a route a user is try to visit doesn't match one of the routes we defined 
+- This page renders to Layout component to create the page layout and add styling
+- It has a simple Navbar header with the Instagram logo and a page-not-found message to the user with a link that takes them back to homepage
 
 
 ## NPM PACKAGES USED
