@@ -4,7 +4,7 @@ import { Avatar, Typography } from '@material-ui/core';
 import { useUserCardStyles } from '../../styles';
 import { defaultUser } from '../../data';
 
-function UserCard({ user = defaultUser, avatarSize = 44 }) {
+function UserCard({ user = defaultUser, avatarSize = 40 }) {
 	// console.log(user)
   const classes = useUserCardStyles({ avatarSize });
   const {username, name, profile_image} = user

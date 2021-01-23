@@ -160,6 +160,27 @@
     - The Post button is disabled if there's no content provided
     - Create a content state that keeps track of the content the user enters in the text input field
 
+### 11. Building the FeedSideSuggestions component:
+- The FeedSideSuggestions component is at the sidebar on the FeedPage component
+- It consists of:
+  - a list of user suggestions with their profile image, username, and name
+  - a Follow or Following button that an authenticated user can toggle between on a list of suggested users
+- In src/components/feed/FeedSideSuggestions.js file:
+  - Import and render the UserCard and FollowButton components
+  - We're going to use an array of getDefaultUser as dummy data. Map over the array and display each user with the UserCard and FollowButton components
+  - For the UserCard component, pass down as user props the user element
+  - For the FollowButton component, pass down a side props
+    - The FollowButton can either displayed as Follow in blue text or Follow in blue background
+    - For the sidebar user suggestions, we want to display the Follow button in blue text, hence we pass down the side props set to true
+- In src/components/shared/FollowButton.js file:
+  - This component enables an authenticated user to toggle between the Follow and Following button of a suggested user
+  - This component receives side props from FeedSideSuggestions parent component
+  - Create an isFollowing state to keep track of whether the authenticated user is following a suggested user or not. Initialize it to false
+  - The FollowButton component displays either a Follow or Following button depending on the isFollowing state
+    - If isFollowing state is true, the followingButton is displayed
+    - If isFollowing state is false, the followButton is displayed
+
+
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
 #### 1. Generate an array of dummy data, map over it and display each item
