@@ -143,9 +143,22 @@
 - Render the user's profile_image, username, and name
 - This component will be used in many places in our application. So the `username` is a link that redirects to that particular user's profile page
 
-
-
-
+### 10. Implement the LikeButton, SaveButton, and Comment functionalities:
+- Let's enable a user to like a post, save a post, and be able to comment on a post
+- The LikeButton, SaveButton, and Comment components are rendered in the FeedPost component
+- In src/components/feed/FeedPost.js file:
+  - The LikeButton component:
+    - We want to be able to toggle the like button of a post
+    - Create a piece of liked state that keeps track of like and not like. Initialize it to false, not like
+    - The onClick event handler executes handleLike or handleUnlike, depending on the liked state
+    - Show the red like icon when a user likes the post and show the white like icon when a user unlikes the post
+  - The SaveButton component:
+    - The save button behaves very similar to the like button
+    - We want to show the fill-black save icon if the post has been saved and show the fill-white save icon if the post hasn't been saved
+  - The Comment component:
+    - The comment text input field allows a user to post a comment on a post
+    - The Post button is disabled if there's no content provided
+    - Create a content state that keeps track of the content the user enters in the text input field
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
