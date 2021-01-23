@@ -143,7 +143,7 @@
 - Render the user's profile_image, username, and name
 - This component will be used in many places in our application. So the `username` is a link that redirects to that particular user's profile page
 
-### 10. Implement the LikeButton, SaveButton, and Comment functionalities:
+### 10. Implementing the LikeButton, SaveButton, and Comment functionalities:
 - Let's enable a user to like a post, save a post, and be able to comment on a post
 - The LikeButton, SaveButton, and Comment components are rendered in the FeedPost component
 - In src/components/feed/FeedPost.js file:
@@ -179,6 +179,23 @@
   - The FollowButton component displays either a Follow or Following button depending on the isFollowing state
     - If isFollowing state is true, the followingButton is displayed
     - If isFollowing state is false, the followButton is displayed
+
+### 12. Creating Instagram-logo loading screen and loading icons:
+- When we're fetching and loading posts data for the FeedPage, we see a brief loading screen with the Instagram logo on it
+- We also want to show the loading icon (loading spinner) when we're fetching suggested users on the sidebar of the FeedPage
+- The feed posts is an infinite scroll and when we reach the bottom of the posts, we want to show the loading icon indicating that more posts are being fetched
+- In src/components/shared/LoadingScreen.js file:
+  - Import and render the LogoLoadingIcon. The loading icon is a component
+- In src/pages/feed.js file:
+  - Import the LoadingScreen component
+  - Write a condition if loading is true, return and render the LoadingScreen component
+- In src/components/feed/FeedSideSuggestions.js file:
+  - Import the LoadingIcon component
+  - Write a ternary that if loading is true, render the LoadingIcon component. Else, render the list of suggested users
+- In src/pages/feed.js file:
+  - Import the LoadingLargeIcon component
+  - Create an isEndOfFeed state and initialize it to false
+  - Write a condition that if not isEndOfFeed, render the LoadingLargeIcon component
 
 
 
