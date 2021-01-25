@@ -198,6 +198,33 @@
   - Write a condition that if not isEndOfFeed, render the LoadingLargeIcon component
 
 
+## IMPROVING NAVBAR
+- Next step is we want to build out the Navbar component. Right now we just have an Instagram logo on it
+- We want to build out the search bar feature and 4 icons on the right that enable us to go to different routes and links
+- When screen size is xs or below, we want to hide the Search bar and the AddIcon
+- If a user is not authenticated, we want to show the minimalNavbar which hides the Search bar and the Links component
+
+### 13. More building on the Navbar component:
+- In src/components/shared/Navbar.js file:
+  - The Navbar component renders the Logo, Search, and Links components
+  - These 3 components are created in the Navbar.js file as they are used only in the Navbar component
+  - The Search component:
+    - The Search bar will be hidden on xs-screen size
+    - Write a query state that keeps track of the user input from Search bar. Initialize it to an empty string
+    - After the input is submitted, clear the content in query state
+    - Also, when loading is true, render the LoadingIcon component
+  - The Links component:
+    - The Links come in two form: in active and regular icons
+    - We want to show the active icon when the current route path the user is on matches the Link path set for that icon. For example, if a user is on the explore route we want to display the ExploreActiveIcon
+    - We can use the `useHistory` hook from react-router-dom to help us get the current path
+      ```js
+      import { Link, useHistory } from 'react-router-dom';
+
+      const history = useHistory();
+	    const path = history.location.pathname;
+      ```
+    
+
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
 #### 1. Generate an array of dummy data, map over it and display each item
@@ -221,6 +248,24 @@
     ))}
   </div>
   ```
+
+#### 2. Toggle between states
+  ```js
+  const [showList, setList] = useState(false)
+
+  function handleToggleList() {
+    setList(prev => !prev)
+  }
+  ```
+
+#### 3. Get current path using useHistory hook
+  ```js
+  import { Link, useHistory } from 'react-router-dom';
+
+  const history = useHistory();
+  const path = history.location.pathname;
+  ```
+
 
 ## NPM PACKAGES USED
 - react-router-dom
