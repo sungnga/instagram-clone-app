@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
-import { AppBar, Avatar, Hidden, InputBase } from '@material-ui/core';
+import React, { useState, useEffect } from 'react';
+import {
+	AppBar,
+	Avatar,
+	Fade,
+	Grid,
+	Hidden,
+	InputBase,
+	Typography
+} from '@material-ui/core';
 import { Link, useHistory } from 'react-router-dom';
-import { useNavbarStyles } from '../../styles';
+import { useNavbarStyles, WhiteTooltip } from '../../styles';
 import logo from '../../images/logo.png';
 import {
 	LoadingIcon,
@@ -13,7 +21,7 @@ import {
 	HomeIcon,
 	HomeActiveIcon
 } from '../../icons';
-import { defaultCurrentUser } from '../../data';
+import { defaultCurrentUser, getDefaultUser } from '../../data';
 
 function Navbar({ minimalNavbar }) {
 	const classes = useNavbarStyles();
@@ -25,7 +33,7 @@ function Navbar({ minimalNavbar }) {
 		<AppBar className={classes.appBar}>
 			<section className={classes.section}>
 				<Logo />
-				{!minimalNavbar && <Search />}
+				{!minimalNavbar && <Search history={history} />}
 				{!minimalNavbar && <Links path={path} />}
 			</section>
 		</AppBar>
@@ -46,11 +54,18 @@ function Logo() {
 	);
 }
 
-function Search() {
+function Search({ history }) {
 	const classes = useNavbarStyles();
+	const [loading, setLoading] = useState(false);
 	const [query, setQuery] = useState('');
+	const [results, setResults] = useState([]);
 
-	let loading = false;
+	const hasResults = Boolean(query) && results.length > 0;
+
+	useEffect(() => {
+		if (!query.trim()) return;
+		setResults(Array.from({ length: 5 }, () => getDefaultUser()));
+	}, [query]);
 
 	function handleClearInput() {
 		setQuery('');
@@ -58,20 +73,56 @@ function Search() {
 
 	return (
 		<Hidden xsDown>
-			<InputBase
-				onChange={(event) => setQuery(event.target.value)}
-				className={classes.input}
-				startAdornment={<span className={classes.searchIcon} />}
-				endAdornment={
-					loading ? (
-						<LoadingIcon />
-					) : (
-						<span onClick={handleClearInput} className={classes.clearIcon} />
+			<WhiteTooltip
+				arrow
+				interactive
+				TransitionComponent={Fade}
+				open={hasResults}
+				title={
+					hasResults && (
+						<Grid className={classes.resultContainer} container>
+							{results.map((result) => (
+								<Grid
+									key={result.id}
+									item
+									className={classes.resultLink}
+									onClick={() => {
+										history.push(`/${result.username}`);
+										handleClearInput();
+									}}
+								>
+									<div className={classes.resultWrapper}>
+										<div className={classes.avatarWrapper}>
+											<Avatar src={result.profile_image} alt='User avatar' />
+										</div>
+										<div className={classes.nameWrapper}>
+											<Typography variant='body1'>{result.username}</Typography>
+											<Typography variant='body2' color='textSecondary'>
+												{result.name}
+											</Typography>
+										</div>
+									</div>
+								</Grid>
+							))}
+						</Grid>
 					)
 				}
-				placeholder='Search'
-				value={query}
-			/>
+			>
+				<InputBase
+					onChange={(event) => setQuery(event.target.value)}
+					className={classes.input}
+					startAdornment={<span className={classes.searchIcon} />}
+					endAdornment={
+						loading ? (
+							<LoadingIcon />
+						) : (
+							<span onClick={handleClearInput} className={classes.clearIcon} />
+						)
+					}
+					placeholder='Search'
+					value={query}
+				/>
+			</WhiteTooltip>
 		</Hidden>
 	);
 }

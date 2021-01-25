@@ -224,6 +224,22 @@
 	    const path = history.location.pathname;
       ```
     
+### 4. Showing tooltips for Search bar:
+- We want to show a tooltip underneath the Search bar when a user starts typing something in the Search bar and we can show suggested search results
+- The search results are a list of users of their profile image, username and name
+- When clicking on one of the results, it'll redirect to that user's profile page and clear out the search input field
+- In src/components/shared/Navbar.js file and in Search component:
+  - Create a results state that keeps track of search results. Initialize it to an empty array
+  - Eventually, if there is results, we want to list the results items in the search tooltip underneath the Search bar and a user can click on the item and will take them to that user's page
+  - Use useEffect() hook to run the effect function whenever the query state changes. In the effect function, 
+    - write an if statement that if there's no content in query state, return early
+    - then call setResults() method to set the results array with defaultUsers from our data.js file for now. The defaultUser object contains the usual properties of id, username, name, and profile_image
+  - Create a hasResults variable that hold a true or false value if the query state is true (meaning, there's content in query state) AND the results array is greater than 0 (meaning, there exists at least one item in result)
+  - In the return section, import and render the WhiteTooltip component by wrapping it around the InputBase component. Then in this component, if hasResults is true, map over the results array and render each result item in a Grid of their profile_image, username, and name
+  - Also make each result item, when clicked, will redirect a user to that result user's profile page. The history object from useHistory hook has a `history.push()` method that we can use to redirect to a route
+  - Once the redirect is successful we want to call the handleClearInput method to clear the query from the Search bar
+
+
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
