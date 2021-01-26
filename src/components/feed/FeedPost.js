@@ -19,15 +19,20 @@ import {
 	Typography
 } from '@material-ui/core';
 import HTMLEllipsis from 'react-lines-ellipsis/lib/html';
+import FollowSuggestions from '../shared/FollowSuggestions';
 
-function FeedPost({ post }) {
+function FeedPost({ post, index }) {
 	const classes = useFeedPostStyles();
 	const [showCaption, setShowCaption] = useState(false);
+	const showFollowSuggestions = index === 1;
 
 	const { id, media, likes, user, caption, comments } = post;
 	return (
 		<Fragment>
-			<article className={classes.article}>
+			<article
+				className={classes.article}
+				style={{ marginBottom: showFollowSuggestions && 30 }}
+			>
 				{/* Feed Post Header */}
 				<div className={classes.postHeader}>
 					<UserCard user={user} />
@@ -118,6 +123,7 @@ function FeedPost({ post }) {
 					<Comment />
 				</Hidden>
 			</article>
+			{showFollowSuggestions && <FollowSuggestions />}
 		</Fragment>
 	);
 }
@@ -174,8 +180,8 @@ function Comment() {
 				placeholder='Add a comment...'
 				multiline
 				rowsMax={2}
-        rows={1}
-        className={classes.textField}
+				rows={1}
+				className={classes.textField}
 				InputProps={{
 					classes: {
 						root: classes.root,

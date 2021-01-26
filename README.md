@@ -280,6 +280,39 @@
     - Use these 3 values to render the progress bar
 
 
+## POST AND EXPLORE PAGES
+- In the FeedPost list, we want to show a card carousel of a list of suggested users that the account user can follow
+- For each post there's a More button at the top right corner. Implement this More button functionality
+
+### 17. Displaying follow suggestions in FeedPost list:
+- We want to display a card view within the FeedPost list of a list of suggested followers to our account owner to follow. There's a left and right arrow to scroll through the list of suggested followers
+- This suggested card will be provided on the 3rd card on the FeedPost list
+- In src/pages/feed.js file and in FeedPage component:
+  - To figure the index of a FeedPost we want to get the index when we're mapping over the array of post
+  - Then pass down the index as props to the FeedPost child component
+- In src/components/feed/FeedPost.js file and in FeedPost component:
+  - Receive the index props from the 
+  - Create a 2nd index and save it to a variable showFollowSuggestions
+  - Then in the return section, write a condition that if showFollowSuggestions is true, import and render the FollowSuggestions component. This will render the FollowSuggestions component after the 2nd index of post
+- In src/components/shared/FollowSuggestions.js file:
+  - In FollowSuggestions component:
+    - Render the follow suggestions card
+    - We're going to use the react-slick package to render the scroll carousel. The react-slick gives us the Slider component that we can use to render the carousel
+    - Import:
+      ```js
+      import Slider from 'react-slick';
+      import 'slick-carousel/slick/slick.css';
+      import 'slick-carousel/slick/slick-theme.css';
+      ```
+    - Create a loading variable and initialize it to false
+    - In the return section, if loading is true, import and render the `<LoadingLargeIcon />` component. Else, render the `<Slider />`
+    - In the `<Slider />` component, map over the defaultUser array from data.js file for now. And for each user element, render it in the FollowSuggestionsItem component. Pass down the user object as props to the FollowSuggestionsItem child component
+  - Write a FollowSuggestionsItem component that renders each individual suggested follower in a card:
+    - Show their profile_image, username, and name
+    - Import and render the `<FollowButton />` and set the side props to the value false. This will render the Follow button with blue color background
+
+
+
 
 
 
@@ -341,3 +374,11 @@
   - The useOutsideClick hook allows us to hide the NotificationList when click anywhere on the page
 - @tanem/react-nprogress
   - Showing the progress while a page is loading or when a route changes
+- react-slick
+  - Allows us to create a scroll left-right carousel
+  - Import:
+    ```js
+    import Slider from 'react-slick';
+    import 'slick-carousel/slick/slick.css';
+    import 'slick-carousel/slick/slick-theme.css';
+    ```
