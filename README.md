@@ -202,7 +202,9 @@
 - Next step is we want to build out the Navbar component. Right now we just have an Instagram logo on it
 - We want to build out the search bar feature and 4 icons on the right that enable us to go to different routes and links
 - When screen size is xs or below, we want to hide the Search bar and the AddIcon
-- If a user is not authenticated, we want to show the minimalNavbar which hides the Search bar and the Links component
+- If a user is not authenticated, we want to show the minimalNavbar which hides the Search and the Links components
+- We want to show a tooltip underneath the Search bar showing results based on what a user is querying
+- We also want to show a tooltip underneath the LikeIcon notification of how many likes they have on a given post or how many new followers
 
 ### 13. More building on the Navbar component:
 - In src/components/shared/Navbar.js file:
@@ -224,7 +226,7 @@
 	    const path = history.location.pathname;
       ```
     
-### 4. Showing tooltips for Search bar:
+### 14. Showing tooltips for Search bar:
 - We want to show a tooltip underneath the Search bar when a user starts typing something in the Search bar and we can show suggested search results
 - The search results are a list of users of their profile image, username and name
 - When clicking on one of the results, it'll redirect to that user's profile page and clear out the search input field
@@ -237,7 +239,34 @@
   - Create a hasResults variable that hold a true or false value if the query state is true (meaning, there's content in query state) AND the results array is greater than 0 (meaning, there exists at least one item in result)
   - In the return section, import and render the WhiteTooltip component by wrapping it around the InputBase component. Then in this component, if hasResults is true, map over the results array and render each result item in a Grid of their profile_image, username, and name
   - Also make each result item, when clicked, will redirect a user to that result user's profile page. The history object from useHistory hook has a `history.push()` method that we can use to redirect to a route
-  - Once the redirect is successful we want to call the handleClearInput method to clear the query from the Search bar
+  - Once the redirect is successful we want to call the handleClearInput method to clear the input from Search bar
+
+### 15. Showing tooltips for notifications:
+- When there's a new notification available, a user can hover over the notification icon (the LikeIcon) and will see a dropdown RedTooltip showing a number of new likes and a number of new followers
+- When clicking on the LikeIcon, a NotificationList is displayed. The NotificationList shows a list of various users who either liked a post or started following the account
+- In src/components/shared/Navbar.js file and in Links component:
+  - Import and render the RedTooltip by wrapping it around the LikeIcon component
+  - Create a showTooltip state that keeps track whether the RedTooltip is shown or not. Initialize it to false
+  - The RedTooltip component renders the NotificationTooltip component when the showTooltip state is true
+  - Write a handleHideTooltip function that sets the tooltip state to false. This will hide the tooltip
+  - Write a handleHideList function that sets the showList state to false. When a use clicks on the LikeIcon again or anywhere else on the place while the NotificationList is open, it will hide it
+  - In the return section, if showList is true, then render the NotificationList component. Pass down the handleHideList function as props
+- In src/components/notification/NotificationTooltip.js file:
+  - This component renders a red tooltip of a number of new followers with a user icon and a number of new likes with a heart icon
+- In src/components/notification/NotificationList.js file:
+  - Receive the handleHideList props from the Navbar parent component
+  - For now, we're going to import the defaultNotifications from data.js file to render a list of notifications in the NotificationList
+  - This list displays either a user who liked a post with their user info, how long ago they liked the post, and the on the right side is an avatar size of the post image or a user who just followed the account and how long ago and next to the follower user info is the FollowButton that enables the account owner to follow them back
+  - If clicking on the avatar post image, it'll redirect to the post page
+  - If clicking on the notification user's username, it'll redirect to the user's profile page
+
+
+
+
+
+
+
+
 
 
 
@@ -292,3 +321,5 @@
 - react-lines-ellipsis
   - Import: `import HTMLEllipsis from 'react-lines-ellipsis/lib/html';`
   - Allows us to collapse long lines of text, such as the comment captions
+- @rooks/use-outside-click
+  - The useOutsideClick hook allows us to hide the NotificationList when click anywhere on the page
