@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavbarStyles, WhiteTooltip, RedTooltip } from '../../styles';
+import React, { useState, useEffect, Fragment } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import {
 	AppBar,
 	Avatar,
@@ -10,7 +10,8 @@ import {
 	Typography,
 	Zoom
 } from '@material-ui/core';
-import { Link, useHistory } from 'react-router-dom';
+import { useNProgress } from '@tanem/react-nprogress';
+import { useNavbarStyles, WhiteTooltip, RedTooltip } from '../../styles';
 import logo from '../../images/logo.png';
 import {
 	LoadingIcon,
@@ -30,16 +31,24 @@ function Navbar({ minimalNavbar }) {
 	const classes = useNavbarStyles();
 	// the history object will tell the path we're on within our app
 	const history = useHistory();
+	const [isLoadingPage, setLoadingPage] = useState(true);
 	const path = history.location.pathname;
 
+	useEffect(() => {
+		setLoadingPage(false);
+	}, [path]);
+
 	return (
-		<AppBar className={classes.appBar}>
-			<section className={classes.section}>
-				<Logo />
-				{!minimalNavbar && <Search history={history} />}
-				{!minimalNavbar && <Links path={path} />}
-			</section>
-		</AppBar>
+		<Fragment>
+			<Progress isAnimating={isLoadingPage} />
+			<AppBar className={classes.appBar}>
+				<section className={classes.section}>
+					<Logo />
+					{!minimalNavbar && <Search history={history} />}
+					{!minimalNavbar && <Links path={path} />}
+				</section>
+			</AppBar>
+		</Fragment>
 	);
 }
 
@@ -136,7 +145,7 @@ function Links({ path }) {
 	const [showList, setList] = useState(false);
 
 	useEffect(() => {
-		const timeout = setTimeout(handleHideTooltip, 5000);
+		const timeout = setTimeout(handleHideTooltip, 2000);
 		return () => {
 			clearTimeout(timeout);
 		};
@@ -189,6 +198,34 @@ function Links({ path }) {
 						className={classes.profileImage}
 					/>
 				</Link>
+			</div>
+		</div>
+	);
+}
+
+function Progress({ isAnimating }) {
+	const classes = useNavbarStyles();
+	const { animationDuration, isFinished, progress } = useNProgress({
+		isAnimating
+	});
+
+	// 0 is invisible, 1 is visible
+	return (
+		<div
+			className={classes.progressContainer}
+			style={{
+				opacity: isFinished ? 0 : 1,
+				transition: `opacity ${animationDuration}ms linear`
+			}}
+		>
+			<div
+				className={classes.progressBar}
+				style={{
+					marginLeft: `${(-1 + progress) * 100}%`,
+					transition: `margin-left ${animationDuration}ms linear`
+				}}
+			>
+				<div className={classes.progressBackground} />
 			</div>
 		</div>
 	);

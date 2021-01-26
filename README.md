@@ -205,6 +205,7 @@
 - If a user is not authenticated, we want to show the minimalNavbar which hides the Search and the Links components
 - We want to show a tooltip underneath the Search bar showing results based on what a user is querying
 - We also want to show a tooltip underneath the LikeIcon notification of how many likes they have on a given post or how many new followers
+- Lastly, we want to create a progress bar at the top of the Navbar that animates whenever our path/route changes
 
 ### 13. More building on the Navbar component:
 - In src/components/shared/Navbar.js file:
@@ -260,8 +261,23 @@
   - If clicking on the avatar post image, it'll redirect to the post page
   - If clicking on the notification user's username, it'll redirect to the user's profile page
 
-
-
+### 16. Animating the progress bar when route changes:
+- We'll be using the package @tanem/react-nprogress to build the progress bar
+- We want to animate the progress bar when our application transitions to another route
+- In src/components/shared/Navbar.js file and in Navbar component:
+  - We already have the the `path` property from history object that tells the path we are on
+  - Use useEffect hook to run the effect function whenever the `path` changes
+  - Create a piece of state called isLoadingPage to keep track of when our page is started loading and when it finished loading. Initialize it to true
+  - When a page is first loaded and the component life cycle first mounts, isLoadingPage state is set to true. And when the component has mounted and when the loading process is completed, the effect function runs and set the isLoadingPage state to false
+  - It's while the isLoadingPage state is true is when the progress bar is animating
+  - At the top of the return section of the Navbar component, render the `<Progress />` component and pass down the isLoadingPage value to a props called isAnimating
+  - Then down at the bottom of the Navbar page, write a Progress functional component:
+    - It receives isAnimating as props from the Navbar parent component
+    - Use the useNavbarStyles() hook to style the component
+    - The way we're going to show the progress bar is with the help of a package called react-nprogress
+    - Import: `import { useNProgress } from '@tanem/react-nprogress';`
+    - Call the useNProgress() hook and pass in the isAnimating property. And what we get back from it are 3 values: animationDuration, isFinished, progress
+    - Use these 3 values to render the progress bar
 
 
 
@@ -323,3 +339,5 @@
   - Allows us to collapse long lines of text, such as the comment captions
 - @rooks/use-outside-click
   - The useOutsideClick hook allows us to hide the NotificationList when click anywhere on the page
+- @tanem/react-nprogress
+  - Showing the progress while a page is loading or when a route changes
