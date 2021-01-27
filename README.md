@@ -520,6 +520,22 @@
     - Write an if statement that if loading state is true, return and render the PostSkeleton component
     - To simulate a loading state, use setTimeout() and set the loading state to false after 2 seconds
 
+### 26. Building the profile page:
+- The route to profile page is: `/:username`
+- The profile header section consists of:
+  - a ProfilePicture on left column
+  - a ProfileNameSection that has the user's username, an Edit Profile button, and a gear icon
+  - a PostCountSection that has the count of number of posts, followers, and following for the account
+  - a NameBioSection that has the user's name and a bio description
+- **Building the ProfilePage component:**
+  - In src/pages/profile.js file:
+    - Import the Layout and ProfilePicture components
+    - Import the defaultCurrentUser object from data.js
+    - For now, we're going to use the defaultCurrentUser object to display our user info
+    - In the browser tab info, we want to display the user's name and their username handle
+    - Render the Layout component and provide the title props of the defaultCurrentUser's name and @username
+    - Inside the Layout component, render the ProfilePicture, ProfileNameSection, PostCountSection, and NameBioSection components inside a div container
+    - At the bottom of the page, create the ProfileNameSection, PostCountSection, and the NameBioSection components. And render simple text as placeholder for now
 
 
 
