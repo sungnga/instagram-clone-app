@@ -484,6 +484,33 @@
     - And we'll display 6 posts instead of 20 here
 
 
+## LOADING SKELETONS AND PROFILE PAGE
+
+### 24. Lazy loading on FeedPost component:
+- React has a feature called lazy loading to lazily load our components only when we need them. For example, we load the feed components only when we're on the feed route
+- Lazy loading is a 2-step process:
+  - Use a different syntax pattern for importing the component that we want to lazily load
+    - IMPORTANT!: This import needs to be at the very bottom of the import list. Else, we'll get an error
+  - Since it takes sometime to lazily load a component, we can wrap the component inside a `<React.Suspense />` component and provide a fallback (such as skeleton component) while the component is loading
+- In src/pages/feed.js file:
+  ```js
+  // import FeedPost from '../components/feed/FeedPost';
+  const FeedPost = React.lazy(() => import('../components/feed/FeedPost'));
+
+  // <FeedPost key={post.id} index={index} post={post} />
+  <React.Suspense key={post.id} fallback={<>loading...</>}>
+    <FeedPost index={index} post={post} />
+  </React.Suspense>
+  ```
+
+
+
+
+
+
+
+
+
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
