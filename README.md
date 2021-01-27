@@ -344,6 +344,98 @@
   - Render the post images in a grid
   - There's an overlay over each post image and it displays the number of likes and comments
 
+### 20. Setting up Route for PostModal component:
+- When we're on the explore page and click on one of the individual posts, a modal of the post pops up showing the details of the post
+- A thing to note is, when the PostModal is open, the route changes from `/explore` to `/p/:postId`
+  - And when closing the PostModal or clicking anywhere outside the modal will close the modal, it will take us back to the `/explore` explore page route
+  - Furthermore, while the PostModal is open and if we refresh the page, it will take us to the Post page `/p/:postId`
+- We will need to make use of the history object from useHistory hook from react-router-dom to keep track of our path we're on and setup the Route property
+- We will need to modify our current Router setup a little bit
+- In src/App.js file:
+  - Remove and move the BrowserRouter import from App.js file to src/index.js file
+    - `import { BrowserRouter as Router } from 'react-router-dom';`
+  - Remove the `<Router />` component from App.js file
+- In src/index.js file:
+  - Import the BrowserRouter: `import { BrowserRouter as Router } from 'react-router-dom';`
+  - Then wrap the `<Router />` component around the `<App />` component
+- The final setup in App.js file:
+  ```js
+  import React, { Fragment, useEffect, useRef } from 'react';
+  import { Switch, Route, useHistory, useLocation } from 'react-router-dom';
+  import FeedPage from './pages/feed';
+  import ExplorePage from './pages/explore';
+  import ProfilePage from './pages/profile';
+  import PostPage from './pages/post';
+  import EditProfilePage from './pages/edit-profile';
+  import LoginPage from './pages/login';
+  import SignUpPage from './pages/signup';
+  import NotFoundPage from './pages/not-found';
+  import PostModal from './components/post/PostModal';
+
+  function App() {
+    const history = useHistory();
+    const location = useLocation();
+    // console.log(history, location)
+    // Keeps track of the previous location we've visited
+    const prevLocation = useRef(location);
+    // Get modal property from location.state, if it exists
+    const modal = location.state?.modal;
+
+    useEffect(() => {
+      if (history.action !== 'POP' && !modal) {
+        prevLocation.current = location;
+      }
+    }, [location, modal, history.action]);
+
+    // If modal is true and we move to a different route
+    const isModalOpen = modal && prevLocation.current !== location;
+
+    return (
+      <Fragment>
+        <Switch location={isModalOpen ? prevLocation.current : location}>
+          <Route path='/' exact component={FeedPage} />
+          <Route path='/explore' component={ExplorePage} />
+          <Route path='/:username' exact component={ProfilePage} />
+          <Route path='/p/:postId' exact component={PostPage} />
+          <Route path='/accounts/edit' component={EditProfilePage} />
+          <Route path='/accounts/login' component={LoginPage} />
+          <Route path='/accounts/emailsignup' component={SignUpPage} />
+          <Route path='*' component={NotFoundPage} />
+        </Switch>
+        {isModalOpen && <Route exact path='/p/:postId' component={PostModal} />}
+      </Fragment>
+    );
+  }
+
+  export default App;
+  ```
+- Setup in src/components/shared/GridPost.js file:
+  - The GridPost component is rendered in ExploreGrid component
+  - When clicking on a post from the explore page, the PostModal is open and the route changes to `/p/${post.id}` and we add the modal property to location.state
+  ```js
+  import { useHistory } from 'react-router-dom';
+
+  function GridPost({ post }) {
+    const history = useHistory();
+
+    function handleOpenPostModal() {
+      history.push({
+        pathname: `/p/${post.id}`,
+        state: {
+          modal: true
+        }
+      });
+    }
+
+    return (
+      <div onClick={handleOpenPostModal} className={classes.gridPostContainer}>
+        // rest of the code...
+      </div>
+    )
+  }
+  ```
+
+
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
