@@ -20,10 +20,15 @@ import { usePostStyles } from '../../styles';
 import UserCard from '../shared/UserCard';
 import OptionsDialog from '../shared/OptionsDialog';
 import { defaultPost } from '../../data';
+import PostSkeleton from './PostSkeleton';
 
 function Post() {
 	const classes = usePostStyles();
+	const [loading, setLoading] = useState(true);
 	const [showOptionsDialog, setOptionsDialog] = useState(false);
+
+	setTimeout(() => setLoading(false), 2000);
+	if (loading) return <PostSkeleton />;
 
 	const { id, media, likes, user, caption, comments } = defaultPost;
 	return (

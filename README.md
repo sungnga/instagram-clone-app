@@ -503,9 +503,22 @@
   </React.Suspense>
   ```
 
-
-
-
+### 25. Building the FeedPostSkeleton and PostSkeleton components:
+- **Building the FeedPostSkeleton component:**
+  - In src/components/feed/FeedPostSkeleton.js file:
+    - Render the shimmer FeedPost skeleton and style using useFeedPostSkeletonStyles() hook
+  - In src/pages/feed.js file:
+    - Import the FeedPostSkeleton component
+    - Where we provide a value for `fallback` props, render the FeedPostSkeleton component there: `<React.Suspense key={post.id} fallback={<FeedPostSkeleton />}>`
+- **Building the PostSkeleton component:**
+  - In src/components/post/PostSkeleton.js file:
+    - Render the shimmer Post skeleton
+    - If the screen size is larger than 900px, we want to split the container into 2 columns of 600px and 335px
+  - In src/components/post/Post.js file:
+    - Import the PostSkeleton component
+    - Create a loading state and initialize it to true
+    - Write an if statement that if loading state is true, return and render the PostSkeleton component
+    - To simulate a loading state, use setTimeout() and set the loading state to false after 2 seconds
 
 
 
