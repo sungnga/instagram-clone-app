@@ -282,7 +282,7 @@
 
 ## POST AND EXPLORE PAGES
 - In the FeedPost list, we want to show a card carousel of a list of suggested users that the account user can follow
-- For each post there's a More button at the top right corner. Implement this More button functionality
+- For each post there's a More button at the top right corner. When clicking on it, the OptionsDialog opens showing options for the post. Implement this More button functionality
 
 ### 17. Displaying follow suggestions in FeedPost list:
 - We want to display a card view within the FeedPost list of a list of suggested followers to our account owner to follow. There's a left and right arrow to scroll through the list of suggested followers
@@ -309,12 +309,21 @@
     - In the `<Slider />` component, map over the defaultUser array from data.js file for now. And for each user element, render it in the FollowSuggestionsItem component. Pass down the user object as props to the FollowSuggestionsItem child component
   - Write a FollowSuggestionsItem component that renders each individual suggested follower in a card:
     - Show their profile_image, username, and name
-    - Import and render the `<FollowButton />` and set the side props to the value false. This will render the Follow button with blue color background
+    - Lastly, import and render the `<FollowButton />` component. Set the side props to the value of false. This will render the Follow button with blue color background
 
-
-
-
-
+### 18. Implementing the More button functionality:
+- When clicking on the More button for a given post, we see an options dialog of what we can do with the post
+- The OptionsDialog is a shared component
+- In src/components/feed/FeedPost.js file and in FeedPost component:
+  - Create a piece of state called showOptionsDialog to toggle between showing and hiding the options dialog box. Initialize to false
+  - In the `<MoreIcon />` component, add an onClick event handler and execute a callback to set the showOptionsDialog state to true
+  - At the bottom of return section, write a condition if showOptionsDialog state is true, import and render the `<OptionsDialog />` component
+  - In the OptionsDialog component, pass down the onClose as props. And the value for this props is a callback function that calls the setOptionsDialog() method to set the showOptionsDialog state to false
+- In src/components/shared/OptionsDialog.js file:
+  - Accept the onClose props from the FeedPost parent component
+  - Use the Material UI `<Dialog />` component to render the dialog box
+  - The option buttons in the Dialog are: Unfollow, Go to post, Share to..., Copy Link, and Cancel
+  - For Cancel, add an onClick event handler and set it to onClose
 
 
 

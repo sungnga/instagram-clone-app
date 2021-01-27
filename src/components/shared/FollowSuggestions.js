@@ -58,7 +58,7 @@ function FollowSuggestionsItem({ user }) {
 					<Avatar
 						src={profile_image}
 						alt={`${username}'s profile`}
-						className={{
+						classes={{
 							root: classes.avatar,
 							img: classes.avatarImg
 						}}
