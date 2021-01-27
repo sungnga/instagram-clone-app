@@ -435,6 +435,22 @@
   }
   ```
 
+### 21. Building the PostModal component:
+- We will be using the react-modal package to help us build the PostModal component
+- In src/components/post/PostModal.js file:
+  - Import the Modal component from react-modal
+  - Import useHistory and useParams hooks from react-router-dom
+  - Call the useHistory hook to get the history object
+  - Call the useParams hook to get the params of a given route. It returns an object back
+    - The route and the params that we declared for our PostModal component is `/p/:postId`
+    - So the object returned from useParams contains the postId property and we can destructure that: `const { postId } = useParams();`
+  - Render the Modal component:
+    - Set the Modal to isOpen
+    - Add an overlay and style the overlay
+    - onRequestClose, execute a callback and run the `history.goBack()` method to go back. And in our case, it's the `/explore` route
+    - Add style to the Modal
+  - Inside the Modal component, import and render the Post component. Pass down the id props and set its value to postId: `<Post id={postId} />`
+  - Outside of and below the Modal component, import and render the CloseIcon component inside a div tag. Add an onClick event handler that will execute the `history.goBack()` method when the CloseIcon is clicked on
 
 
 
@@ -500,3 +516,5 @@
     import 'slick-carousel/slick/slick.css';
     import 'slick-carousel/slick/slick-theme.css';
     ```
+- react-modal
+  - Helps us build the PostModal component
