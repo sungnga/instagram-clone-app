@@ -284,7 +284,7 @@
 - In the FeedPost list, we want to show a card carousel of a list of suggested users that the account user can follow
 - For each post there's a More button at the top right corner. When clicking on it, the OptionsDialog opens showing options for the post. Implement this More button functionality
 
-### 17. Displaying follow suggestions in FeedPost list:
+### 17. Displaying FollowSuggestions in FeedPost list:
 - We want to display a card view within the FeedPost list of a list of suggested followers to our account owner to follow. There's a left and right arrow to scroll through the list of suggested followers
 - This suggested card will be provided on the 3rd card on the FeedPost list
 - In src/pages/feed.js file and in FeedPage component:
@@ -325,7 +325,24 @@
   - The option buttons in the Dialog are: Unfollow, Go to post, Share to..., Copy Link, and Cancel
   - For Cancel, add an onClick event handler and set it to onClose
 
-
+### 19. Building the ExplorePage component:
+- The route for the explore page is `/explore`
+- The explore page consists of 2 sections:
+  - the Discover People section, which has a carousel with a list of suggested followers
+  - the Explore section, which has a grid of suggested posts. When mouse-over a post it'll show the number of likes and comments
+- In src/pages/explore.js file and in ExplorePage component:
+  - Import and render the Layout component
+  - Then inside the Layout component, import and render both the ExploreSuggestions and ExploreGrid components
+- In src/components/explore/ExploreSuggestions.js file:
+  - When the screen size is xs or smaller, the ExploreSuggestions will be hidden. Use the Material UI `<Hidden />` component and specify `xsDown` and wrap all the content inside this Hidden component
+  - Since we've already built the FollowSuggestions component we can just import and render it here
+- In src/components/explore/ExploreGrid.js file:
+  - If loading is true, import and render the LoadingLargeIcon component
+  - Else, map over the defaultPost array from our data.js file for now. And for each post element, render it in the `<GridPost />` component. Pass down the post object as post props
+- In src/components/shared/GridPost.js file:
+  - Accept the post props from the ExploreGrid parent component
+  - Render the post images in a grid
+  - There's an overlay over each post image and it displays the number of likes and comments
 
 
 
