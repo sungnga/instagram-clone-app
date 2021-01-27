@@ -452,6 +452,11 @@
   - Inside the Modal component, import and render the Post component. Pass down the id props and set its value to postId: `<Post id={postId} />`
   - Outside of and below the Modal component, import and render the CloseIcon component inside a div tag. Add an onClick event handler that will execute the `history.goBack()` method when the CloseIcon is clicked on
 
+### 22. Building the Post component:
+- In src/components/post/Post.js file:
+  - The Post component contains very similar content as the FeedPost component. So we can use that as a starter code
+  - For now, we're going to display the defaultPost coming from our data.js file. Name import the defaultPost object
+
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
