@@ -325,24 +325,28 @@
   - The option buttons in the Dialog are: Unfollow, Go to post, Share to..., Copy Link, and Cancel
   - For Cancel, add an onClick event handler and set it to onClose
 
-### 19. Building the ExplorePage component:
+### 19. Building the explore page:
 - The route for the explore page is `/explore`
 - The explore page consists of 2 sections:
   - the Discover People section, which has a carousel with a list of suggested followers
   - the Explore section, which has a grid of suggested posts. When mouse-over a post it'll show the number of likes and comments
-- In src/pages/explore.js file and in ExplorePage component:
-  - Import and render the Layout component
-  - Then inside the Layout component, import and render both the ExploreSuggestions and ExploreGrid components
-- In src/components/explore/ExploreSuggestions.js file:
-  - When the screen size is xs or smaller, the ExploreSuggestions will be hidden. Use the Material UI `<Hidden />` component and specify `xsDown` and wrap all the content inside this Hidden component
-  - Since we've already built the FollowSuggestions component we can just import and render it here
-- In src/components/explore/ExploreGrid.js file:
-  - If loading is true, import and render the LoadingLargeIcon component
-  - Else, map over the defaultPost array from our data.js file for now. And for each post element, render it in the `<GridPost />` component. Pass down the post object as post props
-- In src/components/shared/GridPost.js file:
-  - Accept the post props from the ExploreGrid parent component
-  - Render the post images in a grid
-  - There's an overlay over each post image and it displays the number of likes and comments
+- **Building the ExplorePage component:**
+  - In src/pages/explore.js file:
+    - Import and render the Layout component
+    - Then inside the Layout component, import and render both the ExploreSuggestions and ExploreGrid components
+- **Building the ExploreSuggestions component:**
+  - In src/components/explore/ExploreSuggestions.js file:
+    - When the screen size is xs or smaller, the ExploreSuggestions will be hidden. Use the Material UI `<Hidden />` component and specify `xsDown` and wrap all the content inside this Hidden component
+    - Since we've already built the FollowSuggestions component we can just import and render it here
+- **Building the ExploreGrid component:**
+  - In src/components/explore/ExploreGrid.js file:
+    - If loading is true, import and render the LoadingLargeIcon component
+    - Else, map over the defaultPost array from our data.js file for now. And for each post element, render it in the `<GridPost />` component. Pass down the post object as post props
+- **Building the GridPost component:**
+  - In src/components/shared/GridPost.js file:
+    - Accept the post props from the ExploreGrid parent component
+    - Render the post images in a grid
+    - There's an overlay over each post image and it displays the number of likes and comments
 
 ### 20. Setting up Route for PostModal component:
 - When we're on the explore page and click on one of the individual posts, a modal of the post pops up showing the details of the post
@@ -456,6 +460,29 @@
 - In src/components/post/Post.js file:
   - The Post component contains very similar content as the FeedPost component. So we can use that as a starter code
   - For now, we're going to display the defaultPost coming from our data.js file. Name import the defaultPost object
+
+### 23. Building the post page:
+- The route to the post page is: `/p/:postId`
+- The post page consists of:
+  - the Post component itself
+  - and underneath that are 6 more posts from that user in a post grid format
+  - the displayed username of that user is a link that redirect to their profile page 
+- **Building the PostPage component:**
+  - In src/pages/post.js file
+    - Import the Layout, Post, and MorePostsFromUser components
+    - Import useParams hook from react-router-dom
+    - Call the useParams() hook and destructure the postId property from the returned object: `const { postId } = useParams();`
+    - First, render the Layout component
+    - Then inside the Layout component, render the Post and MorePostsFromUser components 
+    - For the Post component, pass down the id props and set its value to postId
+- **Building the MorePostsFromUser component:**
+  - In src/components/post/MorePostsFromUser.js file:
+    - The layout, structure, and content we're building in this component is very similar to the ExploreGrid component. So we can use that as a starter code
+    - For now, we're going to use the defaultPost and defaultUser from our data.js file. Name import both objects
+    - In the Typography component, render the text: More posts from @username
+    - Make the @username as a link that redirect to their profile page. Use the Link component from react-router-dom
+    - And we'll display 6 posts instead of 20 here
+
 
 
 
