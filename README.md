@@ -1,21 +1,23 @@
 # NOTES WHILE BUILDING THIS APPLICATION
 
 ### 1. Breaking Down the Instagram-Clone UI
-
 #### Routes
 - / (feed page)
 - Components:
+
   - FeedPost
   - FeedPostSkeleton
   - FeedSideSuggestions
 
 - /explore (explore page)
 - Components:
+
   - ExploreSuggestions
   - ExploreGrid
 
 - /p/:postId (post page)
 - Components:
+
   - Post
   - PostSkeleton
   - PostModal
@@ -23,11 +25,13 @@
 
 - notification
 - Components:
+
   - NotificationList
   - NotificationToolTip
 
 - /:username (profile page)
 - Components:
+
   - ProfileTabs
 
 - /accounts/edit (edit profile page)
@@ -39,6 +43,7 @@
 - `*` (not found page)
 
 #### Shared components
+
 - Navbar
 - FollowSuggestions
 - FollowButton
@@ -48,7 +53,6 @@
 - ProfilePicture
 - Layout
 - SEO
-
 
 ## BUILDING ACCOUNTS PAGES
 
@@ -76,7 +80,7 @@
   - When clicking on the IG logo, it'll take you to the homepage, which is the FeedPage
 
 ### 4. Building the NotFoundPage component:
-- This is the default page when a route a user is try to visit doesn't match one of the routes we defined 
+- This is the default page when a route a user is try to visit doesn't match one of the routes we defined
 - In src/pages/not-found.js file:
   - Import and render the Layout component to create the page layout and add styling
   - It has a simple Navbar header with the Instagram logo and a page-not-found message to the user with a link that takes them back to homepage
@@ -84,7 +88,7 @@
 ### 5. Building the LoginPage component:
 - The route to LoginPage is: `/accounts/login`
 - The login page doesn't have the Navbar
-- The login form comprises of 
+- The login form comprises of
   - the text fields for Username and Password the user needs to provide in order to login
   - or login with Facebook
   - or if a user doesn't have an account, a Link that takes them to the SignUpPage. The Link path is `/accounts/emailsignup`
@@ -108,7 +112,7 @@
 
 ## MAKING FEED PAGE
 - The FeedPage is made visible when a user is logged in and it lives at the root path of our application. The route to FeedPage is: `/`
-- The FeedPage comprises of 
+- The FeedPage comprises of
   - the Navbar at the top
   - on the left of the page is a list of feed posts for this user and within it is a list of suggested users to follow
   - fixed to the right hand side is the sidebar which has some information about the authenticated user and below that is a list of suggested users to follow
@@ -197,7 +201,6 @@
   - Create an isEndOfFeed state and initialize it to false
   - Write a condition that if not isEndOfFeed, render the LoadingLargeIcon component
 
-
 ## IMPROVING NAVBAR
 - Next step is we want to build out the Navbar component. Right now we just have an Instagram logo on it
 - We want to build out the search bar feature and 4 icons on the right that enable us to go to different routes and links
@@ -224,9 +227,9 @@
       import { Link, useHistory } from 'react-router-dom';
 
       const history = useHistory();
-	    const path = history.location.pathname;
+      const path = history.location.pathname;
       ```
-    
+
 ### 14. Showing tooltips for Search bar:
 - We want to show a tooltip underneath the Search bar when a user starts typing something in the Search bar and we can show suggested search results
 - The search results are a list of users of their profile image, username and name
@@ -234,7 +237,7 @@
 - In src/components/shared/Navbar.js file and in Search component:
   - Create a results state that keeps track of search results. Initialize it to an empty array
   - Eventually, if there is results, we want to list the results items in the search tooltip underneath the Search bar and a user can click on the item and will take them to that user's page
-  - Use useEffect() hook to run the effect function whenever the query state changes. In the effect function, 
+  - Use useEffect() hook to run the effect function whenever the query state changes. In the effect function,
     - write an if statement that if there's no content in query state, return early
     - then call setResults() method to set the results array with defaultUsers from our data.js file for now. The defaultUser object contains the usual properties of id, username, name, and profile_image
   - Create a hasResults variable that hold a true or false value if the query state is true (meaning, there's content in query state) AND the results array is greater than 0 (meaning, there exists at least one item in result)
@@ -279,7 +282,6 @@
     - Call the useNProgress() hook and pass in the isAnimating property. And what we get back from it are 3 values: animationDuration, isFinished, progress
     - Use these 3 values to render the progress bar
 
-
 ## POST AND EXPLORE PAGES
 - In the FeedPost list, we want to show a card carousel of a list of suggested users that the account user can follow
 - For each post there's a More button at the top right corner. When clicking on it, the OptionsDialog opens showing options for the post. Implement this More button functionality
@@ -291,7 +293,7 @@
   - To figure the index of a FeedPost we want to get the index when we're mapping over the array of post
   - Then pass down the index as props to the FeedPost child component
 - In src/components/feed/FeedPost.js file and in FeedPost component:
-  - Receive the index props from the 
+  - Receive the index props from the
   - Create a 2nd index and save it to a variable showFollowSuggestions
   - Then in the return section, write a condition that if showFollowSuggestions is true, import and render the FollowSuggestions component. This will render the FollowSuggestions component after the 2nd index of post
 - In src/components/shared/FollowSuggestions.js file:
@@ -377,38 +379,38 @@
   import PostModal from './components/post/PostModal';
 
   function App() {
-    const history = useHistory();
-    const location = useLocation();
-    // console.log(history, location)
-    // Keeps track of the previous location we've visited
-    const prevLocation = useRef(location);
-    // Get modal property from location.state, if it exists
-    const modal = location.state?.modal;
+  	const history = useHistory();
+  	const location = useLocation();
+  	// console.log(history, location)
+  	// Keeps track of the previous location we've visited
+  	const prevLocation = useRef(location);
+  	// Get modal property from location.state, if it exists
+  	const modal = location.state?.modal;
 
-    useEffect(() => {
-      if (history.action !== 'POP' && !modal) {
-        prevLocation.current = location;
-      }
-    }, [location, modal, history.action]);
+  	useEffect(() => {
+  		if (history.action !== 'POP' && !modal) {
+  			prevLocation.current = location;
+  		}
+  	}, [location, modal, history.action]);
 
-    // If modal is true and we move to a different route
-    const isModalOpen = modal && prevLocation.current !== location;
+  	// If modal is true and we move to a different route
+  	const isModalOpen = modal && prevLocation.current !== location;
 
-    return (
-      <Fragment>
-        <Switch location={isModalOpen ? prevLocation.current : location}>
-          <Route path='/' exact component={FeedPage} />
-          <Route path='/explore' component={ExplorePage} />
-          <Route path='/:username' exact component={ProfilePage} />
-          <Route path='/p/:postId' exact component={PostPage} />
-          <Route path='/accounts/edit' component={EditProfilePage} />
-          <Route path='/accounts/login' component={LoginPage} />
-          <Route path='/accounts/emailsignup' component={SignUpPage} />
-          <Route path='*' component={NotFoundPage} />
-        </Switch>
-        {isModalOpen && <Route exact path='/p/:postId' component={PostModal} />}
-      </Fragment>
-    );
+  	return (
+  		<Fragment>
+  			<Switch location={isModalOpen ? prevLocation.current : location}>
+  				<Route path='/' exact component={FeedPage} />
+  				<Route path='/explore' component={ExplorePage} />
+  				<Route path='/:username' exact component={ProfilePage} />
+  				<Route path='/p/:postId' exact component={PostPage} />
+  				<Route path='/accounts/edit' component={EditProfilePage} />
+  				<Route path='/accounts/login' component={LoginPage} />
+  				<Route path='/accounts/emailsignup' component={SignUpPage} />
+  				<Route path='*' component={NotFoundPage} />
+  			</Switch>
+  			{isModalOpen && <Route exact path='/p/:postId' component={PostModal} />}
+  		</Fragment>
+  	);
   }
 
   export default App;
@@ -420,22 +422,22 @@
   import { useHistory } from 'react-router-dom';
 
   function GridPost({ post }) {
-    const history = useHistory();
+  	const history = useHistory();
 
-    function handleOpenPostModal() {
-      history.push({
-        pathname: `/p/${post.id}`,
-        state: {
-          modal: true
-        }
-      });
-    }
+  	function handleOpenPostModal() {
+  		history.push({
+  			pathname: `/p/${post.id}`,
+  			state: {
+  				modal: true
+  			}
+  		});
+  	}
 
-    return (
-      <div onClick={handleOpenPostModal} className={classes.gridPostContainer}>
-        // rest of the code...
-      </div>
-    )
+  	return (
+  		<div onClick={handleOpenPostModal} className={classes.gridPostContainer}>
+  			// rest of the code...
+  		</div>
+  	);
   }
   ```
 
@@ -466,14 +468,14 @@
 - The post page consists of:
   - the Post component itself
   - and underneath that are 6 more posts from that user in a post grid format
-  - the displayed username of that user is a link that redirect to their profile page 
+  - the displayed username of that user is a link that redirect to their profile page
 - **Building the PostPage component:**
   - In src/pages/post.js file
     - Import the Layout, Post, and MorePostsFromUser components
     - Import useParams hook from react-router-dom
     - Call the useParams() hook and destructure the postId property from the returned object: `const { postId } = useParams();`
     - First, render the Layout component
-    - Then inside the Layout component, render the Post and MorePostsFromUser components 
+    - Then inside the Layout component, render the Post and MorePostsFromUser components
     - For the Post component, pass down the id props and set its value to postId
 - **Building the MorePostsFromUser component:**
   - In src/components/post/MorePostsFromUser.js file:
@@ -499,14 +501,14 @@
 
   // <FeedPost key={post.id} index={index} post={post} />
   <React.Suspense key={post.id} fallback={<>loading...</>}>
-    <FeedPost index={index} post={post} />
-  </React.Suspense>
+  	<FeedPost index={index} post={post} />
+  </React.Suspense>;
   ```
 
 ### 25. Building the FeedPostSkeleton and PostSkeleton components:
 - **Building the FeedPostSkeleton component:**
   - In src/components/feed/FeedPostSkeleton.js file:
-    - Render the shimmer FeedPost skeleton and style using useFeedPostSkeletonStyles() hook
+    - Render the shimmer FeedPost skeleton and style using useFeedPostSkeletonStyle() hook
   - In src/pages/feed.js file:
     - Import the FeedPostSkeleton component
     - Where we provide a value for `fallback` props, render the FeedPostSkeleton component there: `<React.Suspense key={post.id} fallback={<FeedPostSkeleton />}>`
@@ -524,7 +526,7 @@
 - The route to profile page is: `/:username`
 - The profile header section consists of:
   - a ProfilePicture on left column. The profile image is smaller when screen-size is below small
-  - a ProfileNameSection that has the user's username, an Edit Profile button, and a gear icon
+  - a ProfileNameSection that has the user's username, an Edit Profile button (if they're the owner of the profile), and a gear icon
   - a PostCountSection that has the count of number of posts, followers, and following for the account
   - a NameBioSection that has the user's name and a bio description
 - **Building the ProfilePage component:**
@@ -540,55 +542,78 @@
   - In src/pages/profile.js file:
     - Create an isOwner variable and set it to true
     - Pass down the isOwner value as isOwner props to both of the `<ProfilePicture />` child components in xsDown and smUp cards
-    - Also pass down a size props and set it to 77 pixels to the ProfilePicture child component in smUp card. When the screen-size is smaller than small, display a smaller profile picture 
+    - Also pass down a size props and set it to 77 pixels to the ProfilePicture child component in smUp card. When the screen-size is smaller than small, display a smaller profile picture
   - In src/components/shared/ProfilePicture.js file:
     - This component receives size, image, and isOwner as props
     - Then pass down the size and isOwner properties to the useProfilePictureStyles() hook
     - For now, we're going to set a default image to the image property
     - Then in the return section, write a condition that checks to see if there's an image provided to the image property. If there is, render that image. If there isn't, render a generic Material UI person icon
+- **Building the ProfileNameSection component:**
+  - In src/pages/profile.js file:
+  - In ProfilePage component:
+    - Pass down the defaultCurrentUser object as user props and the isOwner value as isOwner props to the `<ProfileNameSection />` child component. Do this for both cardLarge and CardSmall cards
+    - Create a piece of state called showOptionsMenu and initialize it to false. This state keeps track of whether we show the gear icon to view the options menu dialog
+    - Write a handleOptionsMenuClick function that calls setOptionsMenu() to set the showOptionsMenu state to true 
+    - Then pass down the handleOptionsMenuClick function as handleOptionsMenuClick props to the `<ProfileNameSection />` child component. Do this for both cardLarge and CardSmall cards
+  - In ProfileNameSection component:
+    - Receive and destructure the user, isOwner, and handleOptionsMenuClick props
+    - The next thing is whether we should show
+      - the Edit Profile button, if this profile belongs to the current user
+      - or a Following button, if the owner of this profile is following the current user
+      - or a Follow Back button, if the owner of this profile is following the current user and the current user wants to follow this profile back
+      - or a Follow button, if the current user wants to follow this profile
+    - In the return section, write a condition to check if isOwner is true
+      - If it is, render the Edit Profile button and the Gear icon. Make the Edit Profile button link to the `/account/edit` page
+      - If not, render one of the three follow buttons mentioned above. And hide the Edit Profile button and Gear icon
+
+
+
+
+
+
 
 
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
-#### 1. Generate an array of dummy data, map over it and display each item
-  ```js
-  function getDefaultPost() {
-    return {
-      id: uuid(),
-      likes: 10,
-      caption: `<span class="">Do you know the 10 JavaScript concepts you need to learn React?</span>`,
-      user: defaultUser,
-      media:
-        "https://scontent-ort2-2.cdninstagram.com/v/t51.2885-15/",
-      comments: [],
-      created_at: "2020-02-28T03:08:14.522421+00:00"
-    };
-  }
 
-  <div>
-    {Array.from({ length: 5 }, () => getDefaultPost()).map(post => (
-      <FeedPost key={post.id} post={post} />
-    ))}
-  </div>
-  ```
+#### 1. Generate an array of dummy data, map over it and display each item
+```js
+function getDefaultPost() {
+	return {
+		id: uuid(),
+		likes: 10,
+		caption: `<span class="">Do you know the 10 JavaScript concepts you need to learn React?</span>`,
+		user: defaultUser,
+		media: 'https://scontent-ort2-2.cdninstagram.com/v/t51.2885-15/',
+		comments: [],
+		created_at: '2020-02-28T03:08:14.522421+00:00'
+	};
+}
+
+<div>
+	{Array.from({ length: 5 }, () => getDefaultPost()).map((post) => (
+		<FeedPost key={post.id} post={post} />
+	))}
+</div>;
+```
 
 #### 2. Toggle between states
-  ```js
-  const [showList, setList] = useState(false)
+```js
+const [showList, setList] = useState(false);
 
-  function handleToggleList() {
-    setList(prev => !prev)
-  }
-  ```
+function handleToggleList() {
+	setList((prev) => !prev);
+}
+```
 
 #### 3. Get current path using useHistory hook
-  ```js
-  import { Link, useHistory } from 'react-router-dom';
+```js
+import { Link, useHistory } from 'react-router-dom';
 
-  const history = useHistory();
-  const path = history.location.pathname;
-  ```
+const history = useHistory();
+const path = history.location.pathname;
+```
 
 
 ## NPM PACKAGES USED
