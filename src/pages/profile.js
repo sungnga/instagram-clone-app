@@ -7,6 +7,7 @@ import ProfilePicture from '../components/shared/ProfilePicture';
 
 function ProfilePage() {
 	const classes = useProfilePageStyles();
+	const isOwner = true;
 
 	return (
 		<Layout
@@ -15,7 +16,7 @@ function ProfilePage() {
 			<div className={classes.container}>
 				<Hidden xsDown>
 					<Card className={classes.cardLarge}>
-						<ProfilePicture />
+						<ProfilePicture isOwner={isOwner} />
 						<CardContent className={classes.cardContentLarge}>
 							<ProfileNameSection />
 							<PostCountSection />
@@ -27,7 +28,7 @@ function ProfilePage() {
 					<Card className={classes.cardSmall}>
 						<CardContent>
 							<section className={classes.sectionSmall}>
-								<ProfilePicture />
+								<ProfilePicture size={77} isOwner={isOwner} />
 								<ProfileNameSection />
 							</section>
 							<NameBioSection />

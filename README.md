@@ -523,7 +523,7 @@
 ### 26. Building the profile page:
 - The route to profile page is: `/:username`
 - The profile header section consists of:
-  - a ProfilePicture on left column
+  - a ProfilePicture on left column. The profile image is smaller when screen-size is below small
   - a ProfileNameSection that has the user's username, an Edit Profile button, and a gear icon
   - a PostCountSection that has the count of number of posts, followers, and following for the account
   - a NameBioSection that has the user's name and a bio description
@@ -536,8 +536,16 @@
     - Render the Layout component and provide the title props of the defaultCurrentUser's name and @username
     - Inside the Layout component, render the ProfilePicture, ProfileNameSection, PostCountSection, and NameBioSection components inside a div container
     - At the bottom of the page, create the ProfileNameSection, PostCountSection, and the NameBioSection components. And render simple text as placeholder for now
-
-
+- **Building the ProfilePicture component:**
+  - In src/pages/profile.js file:
+    - Create an isOwner variable and set it to true
+    - Pass down the isOwner value as isOwner props to both of the `<ProfilePicture />` child components in xsDown and smUp cards
+    - Also pass down a size props and set it to 77 pixels to the ProfilePicture child component in smUp card. When the screen-size is smaller than small, display a smaller profile picture 
+  - In src/components/shared/ProfilePicture.js file:
+    - This component receives size, image, and isOwner as props
+    - Then pass down the size and isOwner properties to the useProfilePictureStyles() hook
+    - For now, we're going to set a default image to the image property
+    - Then in the return section, write a condition that checks to see if there's an image provided to the image property. If there is, render that image. If there isn't, render a generic Material UI person icon
 
 
 
