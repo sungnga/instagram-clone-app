@@ -599,9 +599,16 @@
     - Use the Material UI Dialog component to render the dialog box
     - In the Dialog component, render the user's profile_image, a question to unfollow this particular user, an Unfollow button, and a Cancel button
     - For the Cancel button element, add an onClick event handler that pass in the onClose function
-
-
-
+- **Building the PostCountSection component:**
+  - In the post count section, we want to include the number of posts, number of followers, and number of following
+  - In the ProfilePage component:
+    - Pass down the defaultCurrentUser as user props to the PostCountSection and NameBioSection child components
+  - In the PostCountSection component:
+    - Receive the user props from the ProfilePage parent component
+    - This user object contains the posts, followers, and following properties and each one is an array
+    - Create an array containing the "posts", "followers", and "following" element and assign it to options variable
+    - Then in the return section, map over the options array and for each option element, target that option property in the user object and chain on `.length` to get the total number in that option array
+    - When screen size that is below small, these 3 items shift below the NameBioSection and dividers are added above and below them. And the texts are muted to grey tone
 
 
 
@@ -645,6 +652,21 @@ import { Link, useHistory } from 'react-router-dom';
 
 const history = useHistory();
 const path = history.location.pathname;
+```
+
+#### 4. Iterate and extract the length of arrays stored in an object
+```js
+// Each element is an array
+const options = ['posts', 'followers', 'following'];
+
+// User is an object with the posts, followers, and following properties in it
+{options.map((option) => (
+  <div key={option} className={classes.followingText}>
+    <Typography className={classes.followingCount}>
+      {user[option].length}
+    </Typography>
+  </div>
+))}
 ```
 
 
