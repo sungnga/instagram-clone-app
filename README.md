@@ -577,7 +577,8 @@
     - Accept the handleCloseMenu props from the ProfilePage parent component
     - Use the Material UI Dialog component to render the dialog box
     - There are 7 options items in the OptionsMenu
-      - Write separate OptionsItem component that renders each item as a button and a divider underneath it and with the specified text and any onClick event handler provided by the OptionsMenu parent component
+      - Write a separate OptionsItem component that renders each item as a button and a divider underneath it and with the specified text and any onClick event handler provided by the OptionsMenu parent component
+      - Then render 7 OptionsItem components, each pass down a value for text props and for the last two components, pass down an onClick props
     - Second to last on the OptionsMenu is a Logout button. When this button is clicked we want to display a dialog box that says Logout and a message of "You need to log back in to continue using Instagram"
     - Write a piece of showLogOutMessage state that keeps track whether the Logout message is shown or not. Initialize it to false
     - Write a handleLogOutClick function that calls the setLogOutMessage() to set the showLogOutMessage state to true
@@ -585,8 +586,19 @@
     - The last item in the OptionsMenu dialog is the Cancel button. When this button is clicked the dialog is closed
     - The OptionsMenu component receives the handleCloseMenu function as props from the ProfilePage parent component. This handleCloseMenu function sets the showOptionsMenu state to false and therefore closes the OptionsMenu dialog
     - We can pass down this handleCloseMenu function as onClick props to a `<OptionsItem />` child component with the text props of Cancel
-
-
+- **Displaying the Unfollow dialog:**
+  - When a user is following another profile user, it will show the Following button on that profile page. When a user decides to unfollow they can tap on the Following button again and a confirmation dialog box pops up asking to Unfollow or Cancel the request
+  - In src/pages/profile.js file:
+  - In the ProfileNameSection component:
+    - Write a piece of state called showUnfollowDialog and initialize it to false
+    - In the Following button element, add an onClick event handler that executes the setUnfollowDialog() to set the showUnfollowDialog state to true
+    - Then at the bottom of the return section, write a condition that if showUnfollowDialog is true, render the `<UnfollowDialog />` component and pass down the onClose and user props. The onClose is a callback function that simply executes the setUnfollowDialog() to set the showUnfollowDialog state to false
+  - Write an UnfollowDialog component that displays an unfollow dialog box
+  - In the UnfollowDialog component:
+    - Accept the onClose and user props from the ProfileNameSection parent component
+    - Use the Material UI Dialog component to render the dialog box
+    - In the Dialog component, render the user's profile_image, a question to unfollow this particular user, an Unfollow button, and a Cancel button
+    - For the Cancel button element, add an onClick event handler that pass in the onClose function
 
 
 
