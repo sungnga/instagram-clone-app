@@ -528,8 +528,9 @@
   - a ProfilePicture on left column. The profile image is smaller when screen-size is below small
   - a ProfileNameSection that has the user's username, an Edit Profile button and a Gear icon (if they're the owner of the profile)
     - When clicking on the Gear icon, an OptionsMenu dialog opens to display different options
-  - a PostCountSection that has the count of number of posts, followers, and following for the account
-  - a NameBioSection that has the user's name and a bio description
+  - a PostCountSection that has the count of number of posts, followers, and following for a given account
+  - a NameBioSection that has the user's name, bio description, and link to their website
+  - On small screen size and below, the PostCountSection shifts below the NameBioSection
 - **Building the ProfilePage component:**
   - In src/pages/profile.js file:
     - Import the Layout and ProfilePicture components
@@ -608,7 +609,12 @@
     - This user object contains the posts, followers, and following properties and each one is an array
     - Create an array containing the "posts", "followers", and "following" element and assign it to options variable
     - Then in the return section, map over the options array and for each option element, target that option property in the user object and chain on `.length` to get the total number in that option array
-    - When screen size that is below small, these 3 items shift below the NameBioSection and dividers are added above and below them. And the texts are muted to grey tone
+    - When screen size is below small, these 3 items shift below the NameBioSection and dividers are added above and below them. And the texts are muted to grey tone
+- **Building the NameBioSection component:**
+  - In the NameBioSection component:
+    - Receive the user props from the ProfilePage parent component
+    - This section renders the user's name, bio, and website each on separate line
+    - The website is optional but it's an anchor tag that takes you to their website
 
 
 
