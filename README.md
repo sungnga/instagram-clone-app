@@ -526,7 +526,8 @@
 - The route to profile page is: `/:username`
 - The profile header section consists of:
   - a ProfilePicture on left column. The profile image is smaller when screen-size is below small
-  - a ProfileNameSection that has the user's username, an Edit Profile button (if they're the owner of the profile), and a gear icon
+  - a ProfileNameSection that has the user's username, an Edit Profile button and a Gear icon (if they're the owner of the profile)
+    - When clicking on the Gear icon, an OptionsMenu dialog opens to display different options
   - a PostCountSection that has the count of number of posts, followers, and following for the account
   - a NameBioSection that has the user's name and a bio description
 - **Building the ProfilePage component:**
@@ -563,8 +564,27 @@
       - or a Follow Back button, if the owner of this profile is following the current user and the current user wants to follow this profile back
       - or a Follow button, if the current user wants to follow this profile
     - In the return section, write a condition to check if isOwner is true
-      - If it is, render the Edit Profile button and the Gear icon. Make the Edit Profile button link to the `/account/edit` page
+      - If it is, render the Edit Profile button and the Gear icon. Make the Edit Profile button link to the `/accounts/edit` page
       - If not, render one of the three follow buttons mentioned above. And hide the Edit Profile button and Gear icon
+- **Building the OptionsMenu dialog component:**
+  - In src/pages/profile.js file:
+  - In the ProfilePage component:
+    - The showOptionsMenu state is initialized to false, which means that when the profile page first loaded, the OptionsMenu component isn't triggered and the options menu dialog won't be open
+    - Write a handleCloseMenu function that calls the setOptionsMenu() to set the showOptionsMenu state back to false
+    - Then at the bottom of the return section, write a condition that if showOptionsMenu state is true, render the `<OptionsMenu />` and pass down to it the handleCloseMenu function as handleCloseMenu props
+    - At the bottom of the file write a OptionsMenu component
+  - In the OptionsMenu component:
+    - Accept the handleCloseMenu props from the ProfilePage parent component
+    - Use the Material UI Dialog component to render the dialog box
+    - There are 7 options items in the OptionsMenu
+      - Write separate OptionsItem component that renders each item as a button and a divider underneath it and with the specified text and any onClick event handler provided by the OptionsMenu parent component
+    - Second to last on the OptionsMenu is a Logout button. When this button is clicked we want to display a dialog box that says Logout and a message of "You need to log back in to continue using Instagram"
+    - Write a piece of showLogOutMessage state that keeps track whether the Logout message is shown or not. Initialize it to false
+    - Write a handleLogOutClick function that calls the setLogOutMessage() to set the showLogOutMessage state to true
+    - Pass down this handleLogOutClick function as onClick props along with the text props of Logout to a `<OptionsItem />` child component
+    - The last item in the OptionsMenu dialog is the Cancel button. When this button is clicked the dialog is closed
+    - The OptionsMenu component receives the handleCloseMenu function as props from the ProfilePage parent component. This handleCloseMenu function sets the showOptionsMenu state to false and therefore closes the OptionsMenu dialog
+    - We can pass down this handleCloseMenu function as onClick props to a `<OptionsItem />` child component with the text props of Cancel
 
 
 
