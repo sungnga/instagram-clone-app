@@ -192,14 +192,14 @@
   - Import and render the LogoLoadingIcon. The loading icon is a component
 - In src/pages/feed.js file:
   - Import the LoadingScreen component
-  - Write a condition if loading is true, return and render the LoadingScreen component
+  - Write an if statement that if loading is true, return and render the LoadingScreen component
 - In src/components/feed/FeedSideSuggestions.js file:
   - Import the LoadingIcon component
   - Write a ternary that if loading is true, render the LoadingIcon component. Else, render the list of suggested users
 - In src/pages/feed.js file:
   - Import the LoadingLargeIcon component
   - Create an isEndOfFeed state and initialize it to false
-  - Write a condition that if not isEndOfFeed, render the LoadingLargeIcon component
+  - Write a conditional that if NOT isEndOfFeed, then render the LoadingLargeIcon component
 
 ## IMPROVING NAVBAR
 - Next step is we want to build out the Navbar component. Right now we just have an Instagram logo on it
@@ -295,7 +295,7 @@
 - In src/components/feed/FeedPost.js file and in FeedPost component:
   - Receive the index props from the
   - Create a 2nd index and save it to a variable showFollowSuggestions
-  - Then in the return section, write a condition that if showFollowSuggestions is true, import and render the FollowSuggestions component. This will render the FollowSuggestions component after the 2nd index of post
+  - Then in the return section, write a conditional that only if showFollowSuggestions is true, then import and render the FollowSuggestions component. This will render the FollowSuggestions component after the 2nd index of post
 - In src/components/shared/FollowSuggestions.js file:
   - In FollowSuggestions component:
     - Render the follow suggestions card
@@ -317,9 +317,10 @@
 - When clicking on the More button for a given post, we see an options dialog of what we can do with the post
 - The OptionsDialog is a shared component
 - In src/components/feed/FeedPost.js file and in FeedPost component:
+  - Import the OptionsDialog component
   - Create a piece of state called showOptionsDialog to toggle between showing and hiding the options dialog box. Initialize to false
   - In the `<MoreIcon />` component, add an onClick event handler and execute a callback to set the showOptionsDialog state to true
-  - At the bottom of return section, write a condition if showOptionsDialog state is true, import and render the `<OptionsDialog />` component
+  - At the bottom of return section, write a conditional that only if showOptionsDialog state is true, then render the `<OptionsDialog />` component
   - In the OptionsDialog component, pass down the onClose as props. And the value for this props is a callback function that calls the setOptionsDialog() method to set the showOptionsDialog state to false
 - In src/components/shared/OptionsDialog.js file:
   - Accept the onClose props from the FeedPost parent component
@@ -524,13 +525,6 @@
 
 ### 26. Building the profile page:
 - The route to profile page is: `/:username`
-- The profile header section consists of:
-  - a ProfilePicture on left column. The profile image is smaller when screen-size is below small
-  - a ProfileNameSection that has the user's username, an Edit Profile button and a Gear icon (if they're the owner of the profile)
-    - When clicking on the Gear icon, an OptionsMenu dialog opens to display different options
-  - a PostCountSection that has the count of number of posts, followers, and following for a given account
-  - a NameBioSection that has the user's name, bio description, and link to their website
-  - On small screen size and below, the PostCountSection shifts below the NameBioSection
 - **Building the ProfilePage component:**
   - In src/pages/profile.js file:
     - Import the Layout and ProfilePicture components
@@ -540,6 +534,15 @@
     - Render the Layout component and provide the title props of the defaultCurrentUser's name and @username
     - Inside the Layout component, render the ProfilePicture, ProfileNameSection, PostCountSection, and NameBioSection components inside a div container
     - At the bottom of the page, create the ProfileNameSection, PostCountSection, and the NameBioSection components. And render simple text as placeholder for now
+
+### 27. Building the profile header:
+- The profile header section consists of:
+  - a ProfilePicture on left column. The profile image is smaller when screen-size is below small
+  - a ProfileNameSection that has the user's username, an Edit Profile button and a Gear icon (if they're the owner of the profile)
+    - When clicking on the Gear icon, an OptionsMenu dialog opens to display different options
+  - a PostCountSection that has the count of number of posts, followers, and following for a given account
+  - a NameBioSection that has the user's name, bio description, and link to their website
+  - On small screen size and below, the PostCountSection shifts below the NameBioSection
 - **Building the ProfilePicture component:**
   - In src/pages/profile.js file:
     - Create an isOwner variable and set it to true
@@ -549,7 +552,7 @@
     - This component receives size, image, and isOwner as props
     - Then pass down the size and isOwner properties to the useProfilePictureStyles() hook
     - For now, we're going to set a default image to the image property
-    - Then in the return section, write a condition that checks to see if there's an image provided to the image property. If there is, render that image. If there isn't, render a generic Material UI person icon
+    - Then in the return section, write a conditional that checks to see if there's an image provided to the image property. If there is, render that image. If there isn't, render a generic Material UI person icon
 - **Building the ProfileNameSection component:**
   - In src/pages/profile.js file:
   - In ProfilePage component:
@@ -564,7 +567,7 @@
       - or a Following button, if the owner of this profile is following the current user
       - or a Follow Back button, if the owner of this profile is following the current user and the current user wants to follow this profile back
       - or a Follow button, if the current user wants to follow this profile
-    - In the return section, write a condition to check if isOwner is true
+    - In the return section, write a conditional to check if isOwner is true
       - If it is, render the Edit Profile button and the Gear icon. Make the Edit Profile button link to the `/accounts/edit` page
       - If not, render one of the three follow buttons mentioned above. And hide the Edit Profile button and Gear icon
 - **Building the OptionsMenu dialog component:**
@@ -572,7 +575,7 @@
   - In the ProfilePage component:
     - The showOptionsMenu state is initialized to false, which means that when the profile page first loaded, the OptionsMenu component isn't triggered and the options menu dialog won't be open
     - Write a handleCloseMenu function that calls the setOptionsMenu() to set the showOptionsMenu state back to false
-    - Then at the bottom of the return section, write a condition that if showOptionsMenu state is true, render the `<OptionsMenu />` and pass down to it the handleCloseMenu function as handleCloseMenu props
+    - Then at the bottom of the return section, write a conditional that only if showOptionsMenu state is true, then render the `<OptionsMenu />` component and pass down to it the handleCloseMenu function as handleCloseMenu props
     - At the bottom of the file write a OptionsMenu component
   - In the OptionsMenu component:
     - Accept the handleCloseMenu props from the ProfilePage parent component
@@ -593,7 +596,7 @@
   - In the ProfileNameSection component:
     - Write a piece of state called showUnfollowDialog and initialize it to false
     - In the Following button element, add an onClick event handler that executes the setUnfollowDialog() to set the showUnfollowDialog state to true
-    - Then at the bottom of the return section, write a condition that if showUnfollowDialog is true, render the `<UnfollowDialog />` component and pass down the onClose and user props. The onClose is a callback function that simply executes the setUnfollowDialog() to set the showUnfollowDialog state to false
+    - Then at the bottom of the return section, write a conditional that only if showUnfollowDialog is true, then render the `<UnfollowDialog />` component and pass down the onClose and user props. The onClose is a callback function that simply executes the setUnfollowDialog() to set the showUnfollowDialog state to false
   - Write an UnfollowDialog component that displays an unfollow dialog box
   - In the UnfollowDialog component:
     - Accept the onClose and user props from the ProfileNameSection parent component
@@ -609,12 +612,34 @@
     - This user object contains the posts, followers, and following properties and each one is an array
     - Create an array containing the "posts", "followers", and "following" element and assign it to options variable
     - Then in the return section, map over the options array and for each option element, target that option property in the user object and chain on `.length` to get the total number in that option array
-    - When screen size is below small, these 3 items shift below the NameBioSection and dividers are added above and below them. And the texts are muted to grey tone
+    - When screen size is small and below, these 3 items shift below the NameBioSection and dividers are added above and below them. And the texts are muted to grey tone
 - **Building the NameBioSection component:**
   - In the NameBioSection component:
     - Receive the user props from the ProfilePage parent component
     - This section renders the user's name, bio, and website each on separate line
     - The website is optional but it's an anchor tag that takes you to their website
+
+### 28. Building the profile tabs section:
+- The profile tabs consists of these following tabs: Post, IGTV, Saved, and Tagged
+- When the screen size is small and below:
+  - the tab text goes away
+  - only shows the tab large icons
+  - the tab indicator goes away and instead, the current tab is highlighted in blue color
+- Only display the Saved tab if isOwner is true, meaning, this profile belongs to the current login user
+- In src/pages/profile.js file and in ProfilePage component:
+  - Import the ProfileTabs component
+  - At the bottom of the return section, render the ProfileTabs component and pass down the defaultCurrentUser object and isOwner value as user and isOwner props
+- In src/components/profile/ProfileTabs.js file:
+  - Receive the user and isOwner props from the ProfilePage parent component
+  - Use the Tabs component from Material UI to build our tabs
+  - The Tabs component comes with a value that we can use to control its state
+  - Create a piece of state called value and initialize it to 0
+  - When rendering the Tabs component:
+    - set the value property to value state
+    - add an onChange event handler that executes a callback. The callback receives a value as a 2nd parameter and it executes the setValue() to set the value state to this value param
+  - The Tabs component renders individual Tab components
+    - Use the Tab component from Material UI to render the individual tabs
+    - for both small and large screen sizes, write a conditional that only if isOwner is true, then render the Saved tab
 
 
 

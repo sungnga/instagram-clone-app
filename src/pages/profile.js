@@ -1,4 +1,5 @@
 import React, { Fragment, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Layout from '../components/shared/Layout';
 import { useProfilePageStyles } from '../styles';
 import { defaultCurrentUser } from '../data';
@@ -15,13 +16,13 @@ import {
 	Zoom
 } from '@material-ui/core';
 import ProfilePicture from '../components/shared/ProfilePicture';
-import { Link } from 'react-router-dom';
+import ProfileTabs from '../components/profile/ProfileTabs';
 import { GearIcon } from '../icons';
 
 function ProfilePage() {
 	const classes = useProfilePageStyles();
 	const [showOptionsMenu, setOptionsMenu] = useState(false);
-	const isOwner = false;
+	const isOwner = true;
 
 	function handleOptionsMenuClick() {
 		setOptionsMenu(true);
@@ -66,7 +67,8 @@ function ProfilePage() {
 						<PostCountSection user={defaultCurrentUser} />
 					</Card>
 				</Hidden>
-				{showOptionsMenu && <OptionsMenu handleCloseMenu={handleCloseMenu} />}
+        {showOptionsMenu && <OptionsMenu handleCloseMenu={handleCloseMenu} />}
+        <ProfileTabs user={defaultCurrentUser} isOwner={isOwner} />
 			</div>
 		</Layout>
 	);
