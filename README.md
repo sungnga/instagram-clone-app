@@ -641,6 +641,30 @@
     - Use the Tab component from Material UI to render the individual tabs
     - for both small and large screen sizes, write a conditional that only if isOwner is true, then render the Saved tab
 
+### 29. Displaying the related content in profile tabs:
+- We want to display related content for each tab in profile page. For example, for the Posts tab, we want to display the posts the user posted in a grid layout. For the Saved tab, we want to display all the posts the user has saved
+- The ProfilePosts component will display the user's posts in the Posts tab. The user's post is found in user.posts property. We can map over the user.posts array and render each post in GridPost component. If there aren't any posts, we'll display a no-content section element
+- The SavedPosts component will display the posts that the user has saved in the Saved tab. If there aren't any saved posts, we'll display a no-content section element
+- In src/components/profile/ProfileTabs.js file:
+  - Import the GridPost component
+  - In ProfileTabs component:
+    - At the bottom of section tag, write a conditional that if value is equal to 0, then render the `<ProfilePosts />` component and pass down user and isOwner as props
+    - Right after that, write a conditional that if value is equal to 1, then render the `<SavedPosts />` component and pass down user as props
+  - At the bottom of the page, create two local functional components called ProfilePosts and SavedPosts
+  - **Building the ProfilePosts component:**
+  - In ProfilePosts component:
+    - Receive the user and isOwner props from the ProfileTabs parent component
+    - Use useProfileTabsStyles() hook to style the component
+    - Before mapping over the user.posts array, write an if statement to check if there is any posts in the user.posts array at all. If there's no content (user.posts.length === 0) and isOwner is true, then return and display a text that says "Upload a Photo". If isOwner is false, display a text that says "No Photos"
+    - In the return section, map over the user.posts array and render each post in a `<PostGrid />` component. Pass down to it the key and post props
+  - **Building the SavedPosts component:**
+  - In SavedPosts component:
+    - Receive the user props from the ProfileTabs parent component
+    - Use useProfileTabsStyles() hook to style the component
+    - We don't have any saved posts right now, so we will display a no-content section
+
+
+
 
 
 
