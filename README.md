@@ -1,4 +1,4 @@
-# NOTES WHILE BUILDING THIS APPLICATION
+# NOTES WHILE BUILDING THIS WEB APP
 
 ### 1. Breaking Down the Instagram-Clone UI
 #### Routes
@@ -651,17 +651,71 @@
     - At the bottom of section tag, write a conditional that if value is equal to 0, then render the `<ProfilePosts />` component and pass down user and isOwner as props
     - Right after that, write a conditional that if value is equal to 1, then render the `<SavedPosts />` component and pass down user as props
   - At the bottom of the page, create two local functional components called ProfilePosts and SavedPosts
-  - **Building the ProfilePosts component:**
+- **Building the ProfilePosts component:**
   - In ProfilePosts component:
     - Receive the user and isOwner props from the ProfileTabs parent component
     - Use useProfileTabsStyles() hook to style the component
     - Before mapping over the user.posts array, write an if statement to check if there is any posts in the user.posts array at all. If there's no content (user.posts.length === 0) and isOwner is true, then return and display a text that says "Upload a Photo". If isOwner is false, display a text that says "No Photos"
     - In the return section, map over the user.posts array and render each post in a `<PostGrid />` component. Pass down to it the key and post props
-  - **Building the SavedPosts component:**
+- **Building the SavedPosts component:**
   - In SavedPosts component:
     - Receive the user props from the ProfileTabs parent component
     - Use useProfileTabsStyles() hook to style the component
     - We don't have any saved posts right now, so we will display a no-content section
+
+
+## EDIT PROFILE PAGE AND DEPLOYMENT
+
+### 30. Building the edit profile page:
+- The edit account route is: `/accounts/edit`
+- Once a user is logged in to their account and they visit their profile page, there's an Edit Profile button that takes them to the edit profile page
+- The edit account page consists of two parts:
+  - on the left side is the drawer section that has a list of options related to the user account
+  - on the right hand side is the related content to the options
+- When a user clicks on one of the options in the drawer, the related content to that option display on the right hand in the main section. The route also changes to reflect where they are in relation to the options they select
+- In src/pages/edit-profile.js file and in EditProfilePage component:
+  - Import the Layout component (we want to show the Navbar)
+  - Receive the history object as props. We have access to the history object because the route `/accounts/edit` that we declared in App.js file we assigned to it the component of EditProfilePage
+  - Create a piece of state called showDrawer that's going to control the drawer visibility. Initialize it to false
+  - Write a handleToggleDrawer function that toggles the showDrawer state to the opposite of its prev state
+  - The first thing in the return section is to render the Layout component. Provide the value of "Edit Profile" for the title props. This title shows up in the browser tab
+  - Inside the Layout component:
+    - render a section element. This section element hold the options drawer nav menu on the left hand side of the edit profile page
+    ```html
+		<Layout title='Edit Profile'>
+			<section className={classes.section}>
+				<IconButton>
+					<Menu />
+				</IconButton>
+				<nav>
+					<Hidden smUp implementation='css'>
+						<Drawer open={showDraw} onClose={handleToggleDrawer}>
+							{drawer}
+						</Drawer>
+					</Hidden>
+					<Hidden xsDown>
+						<Drawer open onClose={handleToggleDrawer}>
+							{drawer}
+						</Drawer>
+					</Hidden>
+        </nav>
+        <main></main>
+			</section>
+		</Layout>
+    ```
+  - Create a drawer variable that will return a `<List />` component. The List component renders the individual `<ListItem />` components. These individual ListItem(s) are the options in the drawer 
+  - In order to loop through the options and display each one in the `<ListItem />` component, we first create an array of options called `options` and the elements in it are the names of the options. So in the `<List />` component, map over the `options` array and display each option element in the `<ListItem />` component. Make the ListItem as a button and render the options text in `<ListItemText />` component
+  - Next when a user clicks on a ListItem option, we want to change the route to one that is associated to the option clicked on. We first want to figure the current path that we're on. We can get that path from `history.location.pathname` and assign to it a path variable
+  - Write a handleSelected function that takes an index as an argument and returns the path that includes that index in it
+  - Write a handleListClick function that takes an index as an argument and returns a a new route by calling the history.push() method
+  - Then in ListItem component:
+    - for the selected props, assign its value to the handleSelected function and pass in the index as an argument
+    - for the onClick event handler, execute the handleListClick function and pass in the index as an argument
+  - In the return section and inside the nav element, render a Drawer component from Material UI. And inside the Draw component:
+    - render the drawer variable
+    - set the open props to the showDrawer state
+    - set the onClose props to the handleToggleDrawer function
+  - Hide this Drawer component on small screen size
 
 
 
