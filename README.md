@@ -672,7 +672,8 @@
 - The edit account page consists of two parts:
   - on the left side is the drawer section that has a list of options related to the user account
   - on the right hand side is the related content to the options
-- When a user clicks on one of the options in the drawer, the related content to that option display on the right hand in the main section. The route also changes to reflect where they are in relation to the options they select
+- When a user clicks on one of the options in the drawer, the related content to that option displays on the right hand in the main section. The route also changes to reflect where they are in relation to the options they select. For example, when a user clicks on the Edit Profile menu option, the edit user info form will display on the right in main section and the route will change to `/accounts/edit`
+- **Building the options Drawer nav menu:**
 - In src/pages/edit-profile.js file and in EditProfilePage component:
   - Import the Layout component (we want to show the Navbar)
   - Receive the history object as props. We have access to the history object because the route `/accounts/edit` that we declared in App.js file we assigned to it the component of EditProfilePage
@@ -681,7 +682,7 @@
   - The first thing in the return section is to render the Layout component. Provide the value of "Edit Profile" for the title props. This title shows up in the browser tab
   - Inside the Layout component:
     - render a section element. This section element hold the options drawer nav menu on the left hand side of the edit profile page
-    ```html
+    ```js
 		<Layout title='Edit Profile'>
 			<section className={classes.section}>
 				<IconButton>
@@ -716,8 +717,27 @@
     - set the open props to the showDrawer state
     - set the onClose props to the handleToggleDrawer function
   - Hide this Drawer component on small screen size
-
-
+- **Building the EditUserInfo form in main section:**
+- We're going to build the edit user form in EditUserInfo component
+- In src/pages/edit-profile.js file:
+  - Import defaultCurrentUser from data.js file
+  - Import the ProfilePicture component
+  - In EditProfilePage component:
+    - In the return section, below the nav element but still inside the section element, render the main element
+    - In the main element, write a conditional that if we're on the `/accounts/edit` route, then render the `<EditUserInfo />` component. Pass down the user props of the defaultCurrentUser data
+- At the bottom of the page, write a functional EditUserInfo component:
+  - Receive the user props from the EditProfilePage parent component
+  - This component is going to render a section element and in the section, render:
+    - the ProfilePicture component
+    - the user.username
+    - a text that says Change Profile Photo
+    - a form element, which renders individual input text fields as `<SectionItem />` components. And for each component, provide the value for text props, the value for formItem props, and the value for type props if it's different than the default
+- At the bottom of the page, write a functional SectionItem component:
+  - This component receives the props of text, formItem, and type that by default set to text
+  - Render the text input fields and its label
+  - The value for the input label comes from the text props
+  - The input fields are pre-populated with values coming from the formItem props
+  - The input type comes from the type props
 
 
 
