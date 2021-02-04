@@ -664,7 +664,7 @@
     - We don't have any saved posts right now, so we will display a no-content section
 
 
-## EDIT PROFILE PAGE AND DEPLOYMENT
+## EDIT PROFILE PAGE
 
 ### 30. Building the edit profile page:
 - The edit account route is: `/accounts/edit`
@@ -739,6 +739,22 @@
   - The input fields are pre-populated with values coming from the formItem props
   - The input type comes from the type props
 
+
+## DEPLOYMENT
+
+### 31. Deploy app to Heroku:
+- **Create a project on Heroku:**
+  - Login to Heroku with CLI: `heroku login`
+  - Create a Heroku project: `heroku create ngala-instagram-clone`
+  - Link to ngala-instagram-clone app: https://ngala-instagram-clone.herokuapp.com/
+- **Deploy to Heroku:**
+  - Add all files to Git: `git add .`
+  - To commit: `git commit -m "Initial commit"`
+  - Push to Heroku: `git push heroku main`
+  - To restart Heroku app: `heroku restart`
+- **Commit changes to Heroku repo:**
+  - Make sure there's a heroku remote: `git remote -v`
+  - Git add, git commit with a message, and push to: `git push heroku main`
 
 
 
@@ -822,3 +838,58 @@ const options = ['posts', 'followers', 'following'];
     ```
 - react-modal
   - Helps us build the PostModal component
+
+
+now.json file
+```js
+{
+  "version": 2,
+  "name": "instagram",
+  "alias": "instagram-clone-app",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@now/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "headers": {
+        "cache-control": "s-maxage=31536000,immutable"
+      },
+      "dest": "/static/$1"
+    },
+    {
+      "src": "/favicon.ico",
+      "dest": "/favicon.ico"
+    },
+    {
+      "src": "/asset-manifest.json",
+      "dest": "/asset-manifest.json"
+    },
+    {
+      "src": "/manifest.json",
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/precache-manifest.(.*)",
+      "dest": "/precache-manifest.$1"
+    },
+    {
+      "src": "/service-worker.js",
+      "dest": "/service-worker.js"
+    },
+    {
+      "src": "/(.*)",
+      "headers": {
+        "cache-control": "s-maxage=0"
+      },
+      "dest": "/index.html"
+    }
+  ]
+}
+```
