@@ -745,7 +745,7 @@
 ### 31. Deploying app to Heroku:
 - https://github.com/mars/heroku-cra-node/blob/master/README.md?ts=2
 - **Configure web server:**
-  - At the root of the project directory, create static.json file
+  - At the root of the project directory, create a static.json file
   - In static.json file:
     ```js
     {
@@ -769,6 +769,59 @@
 - **Commit changes to Heroku repo:**
   - Make sure there's a heroku remote: `git remote -v`
   - Git add, git commit with a message, and push to: `git push heroku main`
+
+### 31. Deploying app to Vercel:
+- **Setup configuration:**
+  - At the root of the project directory, create a vercel.json file
+  - In vercel.json file, configure our routes:
+    ```json
+    {
+      "routes": [
+        {
+          "src": "/static/(.*)",
+          "headers": {
+            "cache-control": "s-maxage=31536000,immutable"
+          },
+          "dest": "/static/$1"
+        },
+        {
+          "src": "/favicon.ico",
+          "dest": "/favicon.ico"
+        },
+        {
+          "src": "/asset-manifest.json",
+          "dest": "/asset-manifest.json"
+        },
+        {
+          "src": "/manifest.json",
+          "dest": "/manifest.json"
+        },
+        {
+          "src": "/precache-manifest.(.*)",
+          "dest": "/precache-manifest.$1"
+        },
+        {
+          "src": "/service-worker.js",
+          "dest": "/service-worker.js"
+        },
+        {
+          "src": "/(.*)",
+          "headers": {
+            "cache-control": "s-maxage=0"
+          },
+          "dest": "/index.html"
+        }
+      ]
+    }
+    ```
+- **Create and build project to Vercel:**
+  - To create a project on vercel, run and follow the instructions: `vercel`
+- **Deploy to production:**
+  - Run: `vercel --prod`
+
+
+
+
 
 
 
