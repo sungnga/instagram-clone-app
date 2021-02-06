@@ -740,16 +740,30 @@
   - The input type comes from the type props
 
 
-## DEPLOYMENT
+## PRODUCTION DEPLOYMENT
 
-### 31. Deploy app to Heroku:
+### 31. Deploying app to Heroku:
+- https://github.com/mars/heroku-cra-node/blob/master/README.md?ts=2
+- **Configure web server:**
+  - At the root of the project directory, create static.json file
+  - In static.json file:
+    ```js
+    {
+      "root": "build/",
+      "clean_urls": false,
+      "routes": {
+        "/**": "index.html"
+      }
+    }
+    ```
 - **Create a project on Heroku:**
+  - Initialize a git repo inside the project folder: `git init`
+  - Add all files to git: `git add .`
+  - To commit: `git commit -m "Initial commit"`
   - Login to Heroku with CLI: `heroku login`
   - Create a Heroku project: `heroku create ngala-instagram-clone`
   - Link to ngala-instagram-clone app: https://ngala-instagram-clone.herokuapp.com/
 - **Deploy to Heroku:**
-  - Add all files to Git: `git add .`
-  - To commit: `git commit -m "Initial commit"`
   - Push to Heroku: `git push heroku main`
   - To restart Heroku app: `heroku restart`
 - **Commit changes to Heroku repo:**
@@ -840,7 +854,7 @@ const options = ['posts', 'followers', 'following'];
   - Helps us build the PostModal component
 
 
-now.json file
+**In vercel.json file:**
 ```js
 {
   "version": 2,
