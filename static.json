@@ -2,9 +2,7 @@
   "root": "build/",
   "clean_urls": false,
   "routes": {
-    "/**": "index.html",
-    "/favicon.ico": "/favicon.ico",
-    "/asset-manifest.json": "/asset-manifest.json",
-    "/manifest.json": "/manifest.json"
+    "/favicon.ico": "favicon.ico",
+    "/**": "index.html"
   }
 }
