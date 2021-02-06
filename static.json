@@ -1,40 +1,10 @@
 {
   "root": "build/",
   "clean_urls": false,
-  "routes": [
-    {
-      "src": "/static/(.*)",
-      "headers": {
-        "cache-control": "s-maxage=31536000,immutable"
-      },
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "/asset-manifest.json",
-      "dest": "/asset-manifest.json"
-    },
-    {
-      "src": "/manifest.json",
-      "dest": "/manifest.json"
-    },
-    {
-      "src": "/precache-manifest.(.*)",
-      "dest": "/precache-manifest.$1"
-    },
-    {
-      "src": "/service-worker.js",
-      "dest": "/service-worker.js"
-    },
-    {
-      "src": "/(.*)",
-      "headers": {
-        "cache-control": "s-maxage=0"
-      },
-      "dest": "/index.html"
-    }
-  ]
+  "routes": {
+    "/**": "index.html",
+    "/favicon.ico": "/favicon.ico",
+    "/asset-manifest.json": "/asset-manifest.json",
+    "/manifest.json": "/manifest.json"
+  }
 }
