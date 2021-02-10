@@ -836,8 +836,29 @@
     - We want to secure our GraphQL endpoint. Add `HASURA_GRAPHQL_ADMIN_SECRET` as key and provide a password for the value. This prevents someone from accessing our API
   - **Launch Hasura GraphQL console:**
     - On Heroku project dashboard, click on the Open app button on the upper right corner
-    - Enter the  ADMIN_SECRET password that we created
+    - Enter the ADMIN_SECRET password that we created
     - This will launch our project graphQL console. Click on the GRAPHQL tab at the top. Then copy the GraphQL Endpoint URI link. We will use this to hook up Apollo Client to GraphQL server later on
+
+**Step 2: Add Firebase authentication:**
+  - Firebase website: https://firebase.google.com/
+  - Sign in to Google Firebase and create a new project. Call it instagram-clone
+  - On the Firebase project's dashboard, click on Authentication option on the left menu
+  - Then click on Sign-in method tab. We want to enable the Email/Password and save
+  - Next step is to create a cloud function. A cloud function is a function that automatically runs "in response to events triggered by Firebase features and HTTPS requests". Our cloud function is going to run in response to a user being signed up
+  - We're going to create and deploy this function
+  - At the root of our project, create a folder called functions. In it, create a file called index.js
+  - In index.js file:
+    - Copy and paste the code from the tutorial. Don't change anything
+  - Deploy the cloud function using Firebase CLI
+  - Install FireBase CLI: `sudo npm install -g firebase-tools`
+  - Login to Firebase using Firebase CLI: `npx firebase login`
+  - Initialize our project by running: `npx firebase init`
+    - Use the up/down arrow key to select `functions` option and hit the spacebar to select it. Then press Enter to move on
+    - Select existing project and select instagram-clone project
+    - Follow the rest of the instructions in the command prompt
+    - A whole bunch of new files and dependencies will be added to our project directory
+  - Lastly, deploy our cloud function: `npx firebase deploy --only functions`
+  - On the Firebase project's dashboard, click on Functions option on the left menu. We should see the `processSignUp` function been added to the list
 
 
 
