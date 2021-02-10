@@ -860,7 +860,73 @@
   - Lastly, deploy our cloud function: `npx firebase deploy --only functions`
   - On the Firebase project's dashboard, click on Functions option on the left menu. We should see the `processSignUp` function been added to the list
 
+**Step 3: Client-side React - hook up Apollo Client to graphQL:**
+  - Set up a GraphQL client with Apollo: `https://hasura.io/learn/graphql/react/apollo-client/`
+  - **Configure Apollo Client:**
+    - Install React Apollo hooks: `npm i @apollo/client graphql subscriptions-transport-ws`
+    - In src directory, create a folder called graphql. In it, create a client.js file
+    - In src/graphql/client.js file:
+      - We need to setup our client by instantiating a new client
+      - Our client is going to keep track of all of our settings, what endpoint we're going to be making request to, and it's going to create our cache
+      - Go to Hasura GraphQL API and copy the GraphQL server's Endpoint/URl and set it to the uri property of the constructor's configuration object
+      ```js
+      import { ApolloClient, InMemoryCache } from '@apollo/client';
+      import { WebSocketLink } from '@apollo/client/link/ws';
 
+      const headers = { 'x-hasura-admin-secret': process.env.REACT_APP_HASURA_ADMIN_SECRET };
+
+      const client = new ApolloClient({
+        link: new WebSocketLink({
+          uri: 'wss://ngala-instagram-clone.herokuapp.com/v1/graphql',
+          options: {
+            reconnect: true,
+            connectionParams: {
+              headers
+            }
+          }
+        }),
+        cache: new InMemoryCache()
+      });
+
+      export default client;
+      ```
+  - **Connect our client to React:**
+    - We connect Apollo Client to React with the `ApolloProvider` component. The `ApolloProvider` is similar to React's `Context.Provider`. It wraps our React app and places the client on the context, which enables us to access it from anywhere in our component tree
+    - In src/index.js file:
+      - Import ApolloProvider component from @apollo/client
+      - Import our apollo client
+      - Wrap the ApolloProvider component around the MuiThemeProvider component
+      - In the ApolloProvider component, pass down the client props and set it to the client instance we just created
+      ```js
+      import { ApolloProvider } from '@apollo/client';
+      import client from './graphql/client';
+
+      ReactDOM.render(
+        <ApolloProvider client={client}>
+          <MuiThemeProvider theme={theme}>
+            <CssBaseline />
+            <Router>
+              <App />
+            </Router>
+          </MuiThemeProvider>
+        </ApolloProvider>,
+        document.getElementById('root')
+      );
+      ```
+  - **Integrate Firebase into our app:**
+    - In src/auth.js file:
+      - Copy and paste the code from the tutorial from their auth.js file
+      - Then provide the Firebase SDK information. This can be found in Firebase console under Settings
+      - The auth.js file contains the signInWithGoogle and signOut functions and the authState state that we want to use within our app wherever it needs it. For this, we want to use React's context hook
+      - Create an AuthContext by calling React's createContext() hook. Name export this
+      - In the return section of the AuthProvider component, render the `<AuthContext.Provider />` component. Pass down the value props as an object that has authState, signInWithGoogle, and signOut properties
+      - In the `<AuthContext.Provider />` component, render the children props
+    - In src/index.js file:
+      - Import the AuthProvider component
+      - Wrap all the other components inside the `<AuthProvider />` component
+    - In src/App.js file:
+      - Name import the AuthContext context from auth.js file
+      - Call React's useContext() hook and pass in AuthContext. When we get back are authState, signInWithGoogle, and signOut properties and we can destructure those
 
 
 
