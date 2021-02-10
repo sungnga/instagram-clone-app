@@ -818,6 +818,28 @@
   - To create a project on vercel, run and follow the instructions: `vercel`
 - **Deploy to production:**
   - Run: `vercel --prod`
+- Link to app: https://instagram-clone-app.ngala.vercel.app/
+
+
+## SETUP AUTH, CREATE USERS
+
+### 32. Set up authentication with Firebase:
+- Tutorial to set up Firebase with a Hasura app:
+    - https://hasura.io/blog/authentication-and-authorization-using-hasura-and-firebase/
+
+**Step 1: Deploy Hasura graphQL to Heroku:**
+  - **Run Hasura GraphQL engine on Heroku:**
+    - https://hasura.io/docs/1.0/graphql/core/deployment/deployment-guides/heroku.html
+    - Deploying Hasura with a new Postgres DB by clicking on the Deploy to Heroku button
+    - Create a new app and call it ngala-instagram-clone. Then click on the Deploy button to deploy the app
+    - In the Heroku console, click on the Settings tab and go to the Config Vars section
+    - We want to secure our GraphQL endpoint. Add `HASURA_GRAPHQL_ADMIN_SECRET` as key and provide a password for the value. This prevents someone from accessing our API
+  - **Launch Hasura GraphQL console:**
+    - On Heroku project dashboard, click on the Open app button on the upper right corner
+    - Enter the  ADMIN_SECRET password that we created
+    - This will launch our project graphQL console. Click on the GRAPHQL tab at the top. Then copy the GraphQL Endpoint URI link. We will use this to hook up Apollo Client to GraphQL server later on
+
+
 
 
 
@@ -905,6 +927,8 @@ const options = ['posts', 'followers', 'following'];
     ```
 - react-modal
   - Helps us build the PostModal component
+- React Apollo Client
+  - Connecting client to GraphQL API
 
 
 **In vercel.json file:**
