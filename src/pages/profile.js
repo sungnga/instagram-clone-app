@@ -1,5 +1,5 @@
-import React, { Fragment, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { Fragment, useContext, useState } from 'react';
+import { Link, useHistory } from 'react-router-dom';
 import Layout from '../components/shared/Layout';
 import { useProfilePageStyles } from '../styles';
 import { defaultCurrentUser } from '../data';
@@ -18,6 +18,7 @@ import {
 import ProfilePicture from '../components/shared/ProfilePicture';
 import ProfileTabs from '../components/profile/ProfileTabs';
 import { GearIcon } from '../icons';
+import { AuthContext } from '../auth';
 
 function ProfilePage() {
 	const classes = useProfilePageStyles();
@@ -67,8 +68,8 @@ function ProfilePage() {
 						<PostCountSection user={defaultCurrentUser} />
 					</Card>
 				</Hidden>
-        {showOptionsMenu && <OptionsMenu handleCloseMenu={handleCloseMenu} />}
-        <ProfileTabs user={defaultCurrentUser} isOwner={isOwner} />
+				{showOptionsMenu && <OptionsMenu handleCloseMenu={handleCloseMenu} />}
+				<ProfileTabs user={defaultCurrentUser} isOwner={isOwner} />
 			</div>
 		</Layout>
 	);
@@ -247,9 +248,15 @@ function NameBioSection({ user }) {
 function OptionsMenu({ handleCloseMenu }) {
 	const classes = useProfilePageStyles();
 	const [showLogOutMessage, setLogOutMessage] = useState(false);
+	const { signOut } = useContext(AuthContext);
+	const history = useHistory();
 
 	function handleLogOutClick() {
 		setLogOutMessage(true);
+		setTimeout(() => {
+			signOut();
+			history.push('/accounts/login');
+		}, 2000);
 	}
 
 	return (

@@ -827,7 +827,7 @@
 - Tutorial to set up Firebase with a Hasura app:
     - https://hasura.io/blog/authentication-and-authorization-using-hasura-and-firebase/
 
-**Step 1: Deploy Hasura graphQL to Heroku:**
+#### Step 1: Deploy Hasura graphQL to Heroku:
   - **Run Hasura GraphQL engine on Heroku:**
     - https://hasura.io/docs/1.0/graphql/core/deployment/deployment-guides/heroku.html
     - Deploying Hasura with a new Postgres DB by clicking on the Deploy to Heroku button
@@ -839,7 +839,7 @@
     - Enter the ADMIN_SECRET password that we created
     - This will launch our project graphQL console. Click on the GRAPHQL tab at the top. Then copy the GraphQL Endpoint URI link. We will use this to hook up Apollo Client to GraphQL server later on
 
-**Step 2: Add Firebase authentication:**
+#### Step 2: Add Firebase authentication:
   - Firebase website: https://firebase.google.com/
   - Sign in to Google Firebase and create a new project. Call it instagram-clone
   - On the Firebase project's dashboard, click on Authentication option on the left menu
@@ -860,7 +860,7 @@
   - Lastly, deploy our cloud function: `npx firebase deploy --only functions`
   - On the Firebase project's dashboard, click on Functions option on the left menu. We should see the `processSignUp` function been added to the list
 
-**Step 3: Client-side React - hook up Apollo Client to graphQL:**
+#### Step 3: Client-side React - hook up Apollo Client to graphQL:
   - Set up a GraphQL client with Apollo: https://hasura.io/learn/graphql/react/apollo-client/
   - **Configure Apollo Client:**
     - Install React Apollo hooks: `npm i @apollo/client graphql subscriptions-transport-ws`
@@ -1002,34 +1002,34 @@
     - Write an if statement to check if `data.additionalUserInfo.isNewUser` is true
       - If it is, call the createUser function and pass in the variables object as an argument. This is an async operation, so add the await keyword in front of it
       - The variables object contains the variable properties as keys and their values come from various sources
-  ```js
-  import { useMutation } from '@apollo/client';
-  import { CREATE_USER } from './graphql/mutations';
-  import defaultUserImage from './images/default-user-image.jpg';
+      ```js
+      import { useMutation } from '@apollo/client';
+      import { CREATE_USER } from './graphql/mutations';
+      import defaultUserImage from './images/default-user-image.jpg';
 
-  function AuthProvider({ children }) {
-    const [createUser] = useMutation(CREATE_USER);
+      function AuthProvider({ children }) {
+        const [createUser] = useMutation(CREATE_USER);
 
-    async function signUpWithEmailAndPassword(formData) {
-      const data = await firebase
-        .auth()
-        .createUserWithEmailAndPassword(formData.email, formData.password);
-      if (data.additionalUserInfo.isNewUser) {
-        const variables = {
-          userId: data.user.uid,
-          name: formData.name,
-          username: formData.username,
-          email: data.user.email,
-          bio: '',
-          website: '',
-          phoneNumber: '',
-          profileImage: defaultUserImage
-        };
-        await createUser({ variables });
+        async function signUpWithEmailAndPassword(formData) {
+          const data = await firebase
+            .auth()
+            .createUserWithEmailAndPassword(formData.email, formData.password);
+          if (data.additionalUserInfo.isNewUser) {
+            const variables = {
+              userId: data.user.uid,
+              name: formData.name,
+              username: formData.username,
+              email: data.user.email,
+              bio: '',
+              website: '',
+              phoneNumber: '',
+              profileImage: defaultUserImage
+            };
+            await createUser({ variables });
+          }
+        }
       }
-    }
-  }
-  ```
+      ```
 
 **User signup page:**
 - In src/pages/signup.js file:
@@ -1075,8 +1075,39 @@
     ```
 
 
+## SIGNUP FORM VALIDATION AND ERROR HANDLING
 
+### 34. Separating routes to authenticated and unauthenticated:
+- If a user is not authenticated, we want them to be able to visit pages/routes that are not authenticated. For example, the login page and the signup with email page. And if they try to access any of the authenticated route, they'll be redirected to the login page using the react-router-dom's Redirect component
+- Implement the signOut functionality when a user clicks Log Out in the profile options menu. This will set the authState.status === 'out'
+- In src/App.js file:
+  - If `authState.status` is equal to 'in', assign it to a isAuth variable. This means that this user is authenticated
+  - Write an if statement that if NOT isAuth, then return it with a `<Switch />` component. In it contains the routes to the login page, the signup with email page, and a `<Redirect />` component that redirects an unauthenticated user to the login page if they try to visit an authenticated route
+  ```js
+  import { Redirect } from 'react-router-dom';
 
+  const { authState } = useContext(AuthContext);
+  const isAuth = authState.status === 'in';
+
+	if (!isAuth) {
+		// Use unauth routes
+		return (
+			<Switch>
+				<Route path='/accounts/login' component={LoginPage} />
+				<Route path='/accounts/emailsignup' component={SignUpPage} />
+				<Redirect to='/accounts/login' />
+			</Switch>
+		);
+	}
+  ```
+- **Implement signOut functionality in the user profile options menu:**
+- In src/pages/profile.js file and in OptionsMenu component:
+  - Name import AuthContext from auth.js file
+  - Call useContext hook and pass in AuthContext as an argument. Destructure the signOut function from it
+  - Call useHistory hook and assign the result to a history variable
+  - In the handleLogOutClick function, call the setTimeout() method and set it to 2000 milliseconds. And in the callback, 
+    - execute the signOut() method. This will set the authState.status === 'out'
+    - call history.push() to redirect user to login page after signOut
 
 
 

@@ -1,5 +1,11 @@
 import React, { Fragment, useEffect, useRef, useContext } from 'react';
-import { Switch, Route, useHistory, useLocation } from 'react-router-dom';
+import {
+	Switch,
+	Route,
+	useHistory,
+	useLocation,
+	Redirect
+} from 'react-router-dom';
 import FeedPage from './pages/feed';
 import ExplorePage from './pages/explore';
 import ProfilePage from './pages/profile';
@@ -21,6 +27,7 @@ function App() {
 	const prevLocation = useRef(location);
 	// Get modal property from location.state, if it exists
 	const modal = location.state?.modal;
+	const isAuth = authState.status === 'in';
 
 	useEffect(() => {
 		if (history.action !== 'POP' && !modal) {
@@ -30,6 +37,17 @@ function App() {
 
 	// If modal is true and we move to a different route
 	const isModalOpen = modal && prevLocation.current !== location;
+
+	if (!isAuth) {
+		// Use unauth routes
+		return (
+			<Switch>
+				<Route path='/accounts/login' component={LoginPage} />
+				<Route path='/accounts/emailsignup' component={SignUpPage} />
+				<Redirect to='/accounts/login' />
+			</Switch>
+		);
+	}
 
 	return (
 		<Fragment>
