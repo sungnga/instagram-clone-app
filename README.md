@@ -821,9 +821,9 @@
 - Link to app: https://instagram-clone-app.ngala.vercel.app/
 
 
-## SETUP AUTH, CREATE USERS
+## SET UP AUTH, CREATE USERS
 
-### 32. Set up authentication with Firebase:
+### 32. Setting up authentication with Firebase:
 - Tutorial to set up Firebase with a Hasura app:
     - https://hasura.io/blog/authentication-and-authorization-using-hasura-and-firebase/
 
@@ -861,7 +861,7 @@
   - On the Firebase project's dashboard, click on Functions option on the left menu. We should see the `processSignUp` function been added to the list
 
 **Step 3: Client-side React - hook up Apollo Client to graphQL:**
-  - Set up a GraphQL client with Apollo: `https://hasura.io/learn/graphql/react/apollo-client/`
+  - Set up a GraphQL client with Apollo: https://hasura.io/learn/graphql/react/apollo-client/
   - **Configure Apollo Client:**
     - Install React Apollo hooks: `npm i @apollo/client graphql subscriptions-transport-ws`
     - In src directory, create a folder called graphql. In it, create a client.js file
@@ -916,17 +916,165 @@
   - **Integrate Firebase into our app:**
     - In src/auth.js file:
       - Copy and paste the code from the tutorial from their auth.js file
-      - Then provide the Firebase SDK information. This can be found in Firebase console under Settings
+      - Then provide the Firebase SDK information. This can be found in Firebase project console under Settings
       - The auth.js file contains the signInWithGoogle and signOut functions and the authState state that we want to use within our app wherever it needs it. For this, we want to use React's context hook
       - Create an AuthContext by calling React's createContext() hook. Name export this
       - In the return section of the AuthProvider component, render the `<AuthContext.Provider />` component. Pass down the value props as an object that has authState, signInWithGoogle, and signOut properties
       - In the `<AuthContext.Provider />` component, render the children props
     - In src/index.js file:
       - Import the AuthProvider component
-      - Wrap all the other components inside the `<AuthProvider />` component
+      - Wrap all the other components inside the `<AuthProvider />` component. However, this AuthProvider component is wrapped inside the `<ApolloProvider />` component
     - In src/App.js file:
       - Name import the AuthContext context from auth.js file
       - Call React's useContext() hook and pass in AuthContext. When we get back are authState, signInWithGoogle, and signOut properties and we can destructure those
+
+### 33. Signing up a user:
+**Steps to creating a new user:**
+- Create a users schema in Hasura GraphQL console. Define its properties and type
+- Write a CREATE_USER mutation in mutations.js file. Create a createUser mutation function that we can use to add a new user to the users database in Hasura
+- Write a signUpWithEmailAndPassword function in auth.js file to enable users to create a user account with email and password. If successful, an authenticated user account is created in Firebase. And then the createUser mutation function is executed to add the new user to Hasura graphQL
+- The route to sign up with email and password is: `/accounts/emailsignup`
+- The user signup form is in: `src/pages/signup.js`
+- The signUpWithEmailAndPassword function is executed in the signup page with the provided formData
+
+**Create users table in Hasura graphQL:**
+- In Hasura console, click on the DATA tab at the top and click on Create Table button
+- Table Name: users
+- Columns:
+  - id : type of UUID : gen_random_uuid()
+  - username : type of Text : Unique constraint is checked
+  - name : type of Text
+  - email : type of Text
+  - bio : type of Text
+  - website : type of Text
+  - user_id : type of Text
+  - phone_number : type of Text
+  - profile_image : type of Text
+  - last_checked : type of Text : Nullable is checked
+- Primary Key: id
+
+**Create a CREATE_USER mutation:**
+- In src/graphql/mutations.js file:
+  - Import gql from @apollo/client
+  - Create a mutation called CREATE_USER and name export it. In this mutation:
+    - Write a createUser mutation function and set the type for each variable properties. These properties should match up with the properties we defined for users schema in Hasura console
+    - Write a insert_users function and pass in the objects property. Set the value to the variable property for each key
+    ```js
+    import { gql } from '@apollo/client';
+
+    export const CREATE_USER = gql`
+      mutation createUser(
+        $userId: String!,
+        $name: String!,
+        $username: String!,
+        $email: String!,
+        $bio: String!,
+        $website: String!,
+        $profileImage: String!,
+        $phoneNumber: String!
+      ) {
+        insert_users(
+          objects: {
+            bio: $bio,
+            email: $email,
+            name: $name,
+            phone_number: $phoneNumber,
+            profile_image: $profileImage,
+            user_id: $userId,
+            username: $username,
+            website: $website
+          }
+        ) {
+          affected_rows
+        }
+      }
+    `;
+    ```
+
+**Sign up with email and password, add new user to Hasura:**
+- In src/auth.js file:
+  - Once a user is able to sign up with email and password (a user account created in firebase), we want to call the createUser mutation function to add the newly created user to the Hasura graphQL database, provided this is a new user
+  - Call useMutation() hook and pass in the CREATE_USER mutation. We can destructure the createUser mutation function
+  - Write a signUpWithEmailAndPassword function that signs up a user with their email and password
+    - This function accept formData as a parameter
+    - On firebase.auth(), call the createUserWithEmailAndPassword() method and pass in formData.email and formaData.password as two arguments. This is an async operation, so add the await keyword in from of it. This function returns the newly created user, assign this result to a data variable
+    - Next, we want to check to make sure it's a new user and if it is, we can add this user to Hasura graphQL
+    - Write an if statement to check if `data.additionalUserInfo.isNewUser` is true
+      - If it is, call the createUser function and pass in the variables object as an argument. This is an async operation, so add the await keyword in front of it
+      - The variables object contains the variable properties as keys and their values come from various sources
+  ```js
+  import { useMutation } from '@apollo/client';
+  import { CREATE_USER } from './graphql/mutations';
+  import defaultUserImage from './images/default-user-image.jpg';
+
+  function AuthProvider({ children }) {
+    const [createUser] = useMutation(CREATE_USER);
+
+    async function signUpWithEmailAndPassword(formData) {
+      const data = await firebase
+        .auth()
+        .createUserWithEmailAndPassword(formData.email, formData.password);
+      if (data.additionalUserInfo.isNewUser) {
+        const variables = {
+          userId: data.user.uid,
+          name: formData.name,
+          username: formData.username,
+          email: data.user.email,
+          bio: '',
+          website: '',
+          phoneNumber: '',
+          profileImage: defaultUserImage
+        };
+        await createUser({ variables });
+      }
+    }
+  }
+  ```
+
+**User signup page:**
+- In src/pages/signup.js file:
+  - Name import AuthContext context from auth.js file because we want to use the signUpWithEmailAndPassword function in signup page
+  - Call useContext() hook and pass in the AuthContext as an argument. And we can destructure the signUpWithEmailAndPassword property
+  - Create a piece of state called values and initialize it to an object. And this object contains properties of email, name, username, and password with values of empty strings
+  - Call useHistory() hook and assign the result to a history variable. We want to use this history object to redirect user to home page after they've successfully signed up
+  - Write a handleChange function that executes the setValues() to set the values coming from form data to values state
+  - Write a handleSubmit function that executes the signUpWithEmailAndPassword function
+    - The signUpWithEmailAndPassword function accepts the values state as an argument. And this is an async operation, so add the await keyword in front of it
+    - Once this is finished, call the history.push() method to redirect user to home page
+  - In the return section and in the form element:
+    - Add an onSubmit event handler to the form element and set it to handleSubmit function
+    - In email, name, username, and password text fields, add the name property and onChange event handler
+    ```js
+    import React, { Fragment, useContext, useState } from 'react';
+    import { Link, useHistory } from 'react-router-dom';
+    import { AuthContext } from '../auth';
+
+    function SignUpPage() {
+      const { signUpWithEmailAndPassword } = useContext(AuthContext);
+
+      const [values, setValues] = useState({
+        email: '',
+        name: '',
+        username: '',
+        password: ''
+      });
+
+      const history = useHistory();
+
+      function handleChange(event) {
+        const { name, value } = event.target;
+        setValues((prev) => ({ ...prev, [name]: value }));
+      }
+
+      async function handleSubmit(event) {
+        event.preventDefault();
+        await signUpWithEmailAndPassword(values);
+        history.push('/');
+      }
+    }
+    ```
+
+
 
 
 
@@ -989,7 +1137,20 @@ const options = ['posts', 'followers', 'following'];
   </div>
 ))}
 ```
+#### 5. Store form data in state
+```js
+const [values, setValues] = useState({
+  email: '',
+  name: '',
+  username: '',
+  password: ''
+});
 
+function handleChange(event) {
+  const { name, value } = event.target;
+  setValues((prev) => ({ ...prev, [name]: value }));
+}
+```
 
 ## NPM PACKAGES USED
 - react-router-dom
