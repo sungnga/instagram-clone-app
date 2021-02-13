@@ -1109,6 +1109,41 @@
     - execute the signOut() method. This will set the authState.status === 'out'
     - call history.push() to redirect user to login page after signOut
 
+### 35. Client-side: validating signup form:
+- react-hook-form docs: https://react-hook-form.com/
+- validator docs: https://www.npmjs.com/package/validator
+- Install: `npm i react-hook-form validator`
+- We want to provide some validation to the signup form to make sure all of the input fields are valid before a user can actually submit the form
+- We're going to use two validation libraries, react-hook-form and validator, to help us with this
+- In src/pages/signup.js file:
+  - Name import the useForm hook from react-hook-form
+  - Import isEmail from validator
+  - Call the useForm() hook and we can specify the mode to be 'all'. 	Validation will trigger on the blur and change events. What we get back are register and handleSubmit functions and formState and errors objects. We can destructure those
+  - The nice thing about react-hook-form is we no longer need to store the form input values in the values state object anymore. The input values are automatically be stored in the handleSubmit function and we can access them in the parameters
+  - So we can remove the values state and handleChange function. We can also comment out our handleSubmit function
+  - Then for each of the text fields, we can remove the onChange event handler. Instead, we're going to add an `inputRef` property to each text fields. Pass in the register() function to this property
+  - The register function is going to automatically update that object that collects all of our form data. And in it, we specify a bunch of information pertaining to that input field. For example, we can specify whether the input field is required or not, the min and max length of characters, types of acceptable characters, apply the validate function, etc.
+  - Write an onSubmit function that accepts data as a parameter. For now, we're just going to console log the data
+  - In the form element, for the onSubmit event handler, call the 
+  handleSubmit function and pass in the onSubmit function that we just wrote. This gives the onSubmit function access to the form data collected by the handleSubmit function
+  - Next, we want to disable the Sign Up button if any of the input fields is invalid or while the form is submitting
+    - From useForm hook, we get back the formState object. This object contains information about the form state, such as dirty, isSubmitted, touched, isSubmitting, submitCount, and isValid
+    - We'll use `!formState.isValid` and `formState.isSubmitting` to disable the Sign Up button
+  - Lastly, we want to give a visual feedback to the user when they interact with the input fields by showing either a valid or invalid icon
+    - For each TextField elements, add the InputProps property and specify, as an object, the endAdornment of either an errorIcon or a validIcon. We can check for the error in the `errors` object from useForm() hook. For example, to check for an error in the email input field, use `errors.email`, etc
+    - We can use the Material UI icons
+- **Implement the form submit functionality:**
+  - Make the onSubmit function as an async function
+  - Call the signUpWithEmailAndPassword method and pass in the data as an argument. This is an async operation since we're making a request to Firebase to sign up a user
+  - Once this is completed, call history.push() method to redirect user to home page
+  ```js
+	async function onSubmit(data) {
+		// console.log({ data });
+		await signUpWithEmailAndPassword(data);
+		history.push('/');
+	}
+  ```
+
 
 
 
@@ -1206,8 +1241,10 @@ function handleChange(event) {
     ```
 - react-modal
   - Helps us build the PostModal component
-- React Apollo Client
+- React Apollo Client: @apollo/client
   - Connecting client to GraphQL API
+- react-hook-form and validator
+  - Add validation to forms
 
 
 **In vercel.json file:**
