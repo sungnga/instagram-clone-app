@@ -15,6 +15,8 @@ import { LoginWithFacebook } from './login';
 import { AuthContext } from '../auth';
 import { useForm } from 'react-hook-form';
 import isEmail from 'validator/lib/isEmail';
+import { useApolloClient } from '@apollo/client';
+import { CHECK_IF_USERNAME_TAKEN } from '../graphql/queries';
 
 function SignUpPage() {
 	const classes = useSignUpPageStyles();
@@ -23,6 +25,8 @@ function SignUpPage() {
 	const { register, handleSubmit, formState, errors } = useForm({
 		mode: 'all'
 	});
+	const [error, setError] = useState('');
+	const client = useApolloClient();
 
 	// async function handleSubmit(event) {
 	// 	event.preventDefault();
@@ -32,8 +36,34 @@ function SignUpPage() {
 
 	async function onSubmit(data) {
 		console.log({ data });
-		await signUpWithEmailAndPassword(data);
-		history.push('/');
+		try {
+			setError('');
+			await signUpWithEmailAndPassword(data);
+			history.push('/');
+		} catch (error) {
+			console.error('Error signing up', error);
+			// setError(error.message);
+			handleError(error);
+		}
+	}
+
+	function handleError(error) {
+		if (error.message.includes('users_username_key')) {
+			setError('Username already taken');
+		} else if (error.code.includes('auth')) {
+			setError(error.message);
+		}
+	}
+
+	async function validateUsername(username) {
+		const variables = { username };
+		const response = await client.query({
+			query: CHECK_IF_USERNAME_TAKEN,
+			variables
+		});
+		// console.log({ response });
+		const isUsernameValid = response.data.users.length === 0;
+		return isUsernameValid;
 	}
 
 	const errorIcon = (
@@ -116,6 +146,7 @@ function SignUpPage() {
 									required: true,
 									minLength: 5,
 									maxLength: 20,
+									validate: async (input) => await validateUsername(input),
 									// Accept only lowercase/uppercase letters, numbers, periods, and underscores
 									pattern: /^[a-zA-Z0-9_.]*$/
 								})}
@@ -161,6 +192,7 @@ function SignUpPage() {
 								Sign Up
 							</Button>
 						</form>
+						<AuthError error={error} />
 					</Card>
 					<Card className={classes.loginCard}>
 						<Typography variant='body2' align='right'>
@@ -175,6 +207,21 @@ function SignUpPage() {
 				</article>
 			</section>
 		</Fragment>
+	);
+}
+
+export function AuthError({ error }) {
+	return (
+		Boolean(error) && (
+			<Typography
+				align='center'
+				gutterBottom
+				variant='body2'
+				style={{ color: 'red' }}
+			>
+				{error}
+			</Typography>
+		)
 	);
 }
 

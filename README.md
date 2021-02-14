@@ -1118,7 +1118,7 @@
 - In src/pages/signup.js file:
   - Name import the useForm hook from react-hook-form
   - Import isEmail from validator
-  - Call the useForm() hook and we can specify the mode to be 'all'. 	Validation will trigger on the blur and change events. What we get back are register and handleSubmit functions and formState and errors objects. We can destructure those
+  - Call the useForm() hook and we can specify the mode to be 'all'. Validation will trigger on the blur and change events. What we get back are register and handleSubmit functions and formState and errors objects. We can destructure those
   - The nice thing about react-hook-form is we no longer need to store the form input values in the values state object anymore. The input values are automatically be stored in the handleSubmit function and we can access them in the parameters
   - So we can remove the values state and handleChange function. We can also comment out our handleSubmit function
   - Then for each of the text fields, we can remove the onChange event handler. Instead, we're going to add an `inputRef` property to each text fields. Pass in the register() function to this property
@@ -1130,7 +1130,7 @@
     - From useForm hook, we get back the formState object. This object contains information about the form state, such as dirty, isSubmitted, touched, isSubmitting, submitCount, and isValid
     - We'll use `!formState.isValid` and `formState.isSubmitting` to disable the Sign Up button
   - Lastly, we want to give a visual feedback to the user when they interact with the input fields by showing either a valid or invalid icon
-    - For each TextField elements, add the InputProps property and specify, as an object, the endAdornment of either an errorIcon or a validIcon. We can check for the error in the `errors` object from useForm() hook. For example, to check for an error in the email input field, use `errors.email`, etc
+    - For each TextField elements, add the InputProps property and specify, as an object, the endAdornment of either an errorIcon or a validIcon. Use a ternary operator to display one over the other. We can check for the error in the `errors` object from useForm() hook. For example, to check for an error in the email input field, use `errors.email`, etc
     - We can use the Material UI icons
 - **Implement the form submit functionality:**
   - Make the onSubmit function as an async function
@@ -1144,7 +1144,87 @@
 	}
   ```
 
+### 36. Server-side: validating signup form:
+- Display error message coming from the server to the user
+- Validate that
+  - password is at least 6 characters long. Display human-readable error message
+  - username is unique. Display error message if username is already taken
+- Write a query mutation to query DB of a given username. Display the errorIcon if the username already taken
+- In src/pages/signup.js file:
+  - **Handling and rendering server's error message:**
+  - Create an error state and initialize it to an empty string
+  - To catch any errors when returning a promise we can use a try/catch block in the onSubmit async function
+    - In the catch error block, call setError() to set `error.message` to error state
+    - This way, we can display the error message coming from the server to the user
+  - At the bottom of the page, write an AuthError component that renders the error message on the signup page
+    - This component receives the error props from the SignUpPage parent component
+    - Check to see if there's an error by wrapping the error state in `Boolean()` so that it returns a true or false
+    - If there is, render the error message stored in error state
+    - Name export this component, so that we can use it in login page as well
+  - We want to clear out the error message when the user tries to resubmit the form
+    - In onSubmit function and in the try block, call the setError() and set it to an empty string
+  - In the return section of the SignUpPage component, render the `<AuthError />` component right after the form element and pass down the error state as a error props
+  - **Display human-readable error message to users:**
+  - Next, we want to display a human-readable error message (at the bottom of the form in red) to our user. For that, we want to write a custom error handling function
+    - It will display an error message if a user enters a username that's already taken
+    - It will display an error message if the password is less than 6 characters
+    - If the email has already taken
+    ```js
+    function handleError(error) {
+      if (error.message.includes('users_username_key')) {
+        setError('Username already taken');
+      } else if (error.code.includes('auth')) {
+        setError(error.message);
+      }
+    }
+    ```
+  - Call this handleError function in the catch error block of the onSubmit function and pass in the error as an argument. The error comes from the server
+  - **Query database for a given username:**
+  - Lastly, we want to display the errorIcon in the input field dynamically with the error message if the user tries to enter the username that's already exists
+  - When a new user is successfully created, we store the user data in Hasura graphQL database. So to check if the username that the user enters is already taken, we want to make a query mutation to query our database using Apollo client
+  - Import useApolloClient hook from @apollo/client
+  - Import the CHECK_IF_USERNAME_TAKEN query 
+  - Call the useApolloClient() hook and assign the result to a `client` variable
+  - Write an async validateUsername function that makes a query in Hasura graphQL database using the client.query() method
+    - This function accepts username as a parameter
+    - In the client.query() method, provide it an object that has a query property of CHECK_IF_USERNAME_TAKEN and the variables property set to the username
+    - It will take the provided username and check the database for that username and will return the username as a response if there's a match
+    - If `response.data.users.length` is equal to 0, which means that there's no match in DB, the username the user enters is valid. Assign the result to isUsernameValid variable
+    - return isUsernameValid
+    ```js
+    import { useApolloClient } from '@apollo/client';
+    import { CHECK_IF_USERNAME_TAKEN } from '../graphql/queries';
 
+    const client = useApolloClient();
+
+    async function validateUsername(username) {
+      const variables = { username };
+      const response = await client.query({
+        query: CHECK_IF_USERNAME_TAKEN,
+        variables
+      });
+      // console.log({ response });
+      const isUsernameValid = response.data.users.length === 0;
+      return isUsernameValid;
+    }
+    ```
+  - In the username TextField element, add a `validate` property and asynchronously call the validateUsername function and pass in the input as an argument. The input being the input the user types in the input field
+    - `validate: async (input) => await validateUsername(input)`
+  - So when the user types in the username input field, the validate function is making a query request to graphQL database to see if the username is already taken. If it does, it will display the errorIcon. It will also display the errorIcon if username is less than 5 characters long
+- In src/graphql/queries.js file:
+  - Write a CHECK_IF_USERNAME_TAKEN query that executes the checkIfUsernameTaken query function
+  - It will query the database with the given username and it will return the username if it finds a match
+  ```js
+  import { gql } from '@apollo/client';
+
+  export const CHECK_IF_USERNAME_TAKEN = gql`
+    query checkIfUsernameTaken($username: String!) {
+      users(where: { username: { _eq: $username } }) {
+        username
+      }
+    }
+  `;
+  ```
 
 
 
