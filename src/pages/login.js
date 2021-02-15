@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
 	Button,
@@ -13,15 +13,23 @@ import { useLoginPageStyles } from '../styles';
 import SEO from '../components/shared/Seo';
 import FacebookIconBlue from '../images/facebook-icon-blue.svg';
 import FacebookIconWhite from '../images/facebook-icon-white.png';
+import { AuthContext } from '../auth';
 
 function LoginPage() {
 	const classes = useLoginPageStyles();
 	const { register, handleSubmit, formState, watch } = useForm({ mode: 'all' });
+	const { logInWithEmailAndPassword } = useContext(AuthContext);
 	const [showPassword, setPasswordVisibility] = useState(false);
 	const hasPassword = Boolean(watch('password'));
+	const history = useHistory();
 
-	async function onSubmit(data) {
-		console.log({ data });
+	// For username TextField, we set input to the name props
+	// For password TextField, we set password to the name props
+	// Destructuring from data.input and data.password
+	async function onSubmit({ input, password }) {
+		// console.log({ data });
+		logInWithEmailAndPassword(input, password);
+		history.push('/');
 	}
 
 	function togglePasswordVisibility() {

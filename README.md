@@ -1229,7 +1229,7 @@
 
 ## EMAIL LOGIN AND THIRD PARTY AUTH
 
-### 37. Client-side: validating email login form
+### 37. Client-side: validating email login form:
 - Validating the email login form is very similar to validating the signup form
 - When logging in, the user can provide either a username, email, or phone number and their password
 - When the user starts typing in their password, we want to display an endAdornment of Show button so that they can click see the password text. We want to toggle the Show and Hide password button
@@ -1253,6 +1253,47 @@
     - for the endAdornment, only display the Show adornment if hasPassword is true. Meaning, the user has typed something in the password field
   - For the Log In button, disable it if `!formState.isValid` or `formState.isSubmitting` 
 
+### 38. Implementing log in with email and password functionality:
+- In src/auth.js file:
+  - Write an async logInWithEmailAndPassword function that signs in a user with the given email and password
+    - This function accepts an email and password as parameters
+    - Call the `firebase.auth().signInWithEmailAndPassword()` method and pass in the email and password as arguments. This is an async operation so add the await keyword in front of it. What we get back is the user data and assign it to a `data` variable
+    - Return the `data`
+    - We're not handling any errors from the promise at the moment. We will do that later
+    ```js
+    async function logInWithEmailAndPassword(email, password) {
+      const data = await firebase
+        .auth()
+        .signInWithEmailAndPassword(email, password);
+      return data;
+    }
+    ```
+  - Then pass down the logInWithEmailAndPassword function to `AuthContext.Provider` to make it available in our components
+- In src/pages/login.js file:
+  - Name import AuthContext from auth.js file
+  - Name import useHistory hook from react-router-dom
+  - Call useContext() hook and pass in AuthContext as an argument. We can destructure the logInWithEmailAndPassword function
+  - Call useHistory() hook and assign the result to a `history` variable. Later we can call history.push() method to redirect user to a different page
+  - Make the onSubmit function an async function:
+    - This function accept input and password as parameters. Destructure from data.input and data.password
+    - Call the signUpWithEmailAndPassword method and pass in the input and password as arguments. This is an async operation since we're making a request to Firebase to sign in a user
+    - Once this is completed, call history.push() method to redirect user to home page
+    ```js
+    import { AuthContext } from '../auth';
+    import { useHistory } from 'react-router-dom';
+
+    const { logInWithEmailAndPassword } = useContext(AuthContext);
+    const history = useHistory();
+
+    // For username TextField, we set input to the name props
+    // For password TextField, we set password to the name props
+    // Destructuring from data.input and data.password
+    async function onSubmit({ input, password }) {
+      // console.log({ data });
+      await signInWithEmailAndPassword(input, password);
+      history.push('/');
+    }
+    ```
 
 
 
