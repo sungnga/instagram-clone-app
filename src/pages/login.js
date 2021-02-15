@@ -1,9 +1,11 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import {
 	Button,
 	Card,
 	CardHeader,
+	InputAdornment,
 	TextField,
 	Typography
 } from '@material-ui/core';
@@ -14,6 +16,17 @@ import FacebookIconWhite from '../images/facebook-icon-white.png';
 
 function LoginPage() {
 	const classes = useLoginPageStyles();
+	const { register, handleSubmit, formState, watch } = useForm({ mode: 'all' });
+	const [showPassword, setPasswordVisibility] = useState(false);
+	const hasPassword = Boolean(watch('password'));
+
+	async function onSubmit(data) {
+		console.log({ data });
+	}
+
+	function togglePasswordVisibility() {
+		setPasswordVisibility((prev) => !prev);
+	}
 
 	return (
 		<Fragment>
@@ -22,25 +35,45 @@ function LoginPage() {
 				<article>
 					<Card className={classes.card}>
 						<CardHeader className={classes.cardHeader} />
-						<form>
+						<form onSubmit={handleSubmit(onSubmit)}>
 							<TextField
+								name='input'
+								inputRef={register({
+									required: true,
+									minLength: 5
+								})}
 								fullWidth
 								variant='filled'
-								label='Username'
+								label='Username, email, or phone'
 								margin='dense'
 								className={classes.textField}
 								autoComplete='username'
 							/>
 							<TextField
+								name='password'
+								inputRef={register({
+									required: true,
+									minLength: 5
+								})}
+								InputProps={{
+									endAdornment: hasPassword && (
+										<InputAdornment>
+											<Button onClick={togglePasswordVisibility}>
+												{showPassword ? 'Hide' : 'Show'}
+											</Button>
+										</InputAdornment>
+									)
+								}}
 								fullWidth
 								variant='filled'
 								label='Password'
-								type='password'
+								type={showPassword ? 'text' : 'password'}
 								margin='dense'
 								className={classes.textField}
 								autoComplete='current-password'
 							/>
 							<Button
+								disabled={!formState.isValid || formState.isSubmitting}
 								variant='contained'
 								fullWidth
 								color='primary'

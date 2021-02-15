@@ -1227,6 +1227,34 @@
   ```
 
 
+## EMAIL LOGIN AND THIRD PARTY AUTH
+
+### 37. Client-side: validating email login form
+- Validating the email login form is very similar to validating the signup form
+- When logging in, the user can provide either a username, email, or phone number and their password
+- When the user starts typing in their password, we want to display an endAdornment of Show button so that they can click see the password text. We want to toggle the Show and Hide password button
+- We can watch for or subscribe to the input the user types in the password field using the `watch` method coming from useForm() hook
+- In src/pages/login.js file:
+  - Import useForm from react-hook-form
+  - Call useForm() hook and specify the mode property to 'all'. What we get back are register, handleSubmit, and watch function and formState object. Destructure them
+  - Create a showPassword state and initialize it to false
+  - Write a togglePasswordVisibility function that call setPasswordVisibility() to set the showPassword state the opposite - false to true or true to false
+  - Call watch() method and pass in 'password' as an argument. This will subscribe to the password TextField. Set the result we get back to hasPassword variable
+  - Write an onSubmit function
+    - This function accepts data as a parameter. This data is collected by the useForm's handleSubmit function
+    - For now, we're just going to console log the data
+  - For the onSubmit event handler of the form element, set it to handleSubmit() method and pass in the onSubmit function as an argument
+  - For the username TextField element, 
+    - set the label to be 'Username, email, or phone'
+    - add an inputRef prop to set this field be required and min characters to be 5
+  - For the password TextField element,
+    - add an inputRef prop to set this field be required and min characters to be 5
+    - for type props: write a ternary if showPassword state is true, display 'text', else display 'password'. Type set to password will replace the password input with dots
+    - for the endAdornment, only display the Show adornment if hasPassword is true. Meaning, the user has typed something in the password field
+  - For the Log In button, disable it if `!formState.isValid` or `formState.isSubmitting` 
+
+
+
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS
