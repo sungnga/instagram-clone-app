@@ -1,6 +1,7 @@
 import React, { Fragment, useContext, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import isEmail from 'validator/lib/isEmail';
 import {
 	Button,
 	Card,
@@ -14,6 +15,8 @@ import SEO from '../components/shared/Seo';
 import FacebookIconBlue from '../images/facebook-icon-blue.svg';
 import FacebookIconWhite from '../images/facebook-icon-white.png';
 import { AuthContext } from '../auth';
+import { useApolloClient } from '@apollo/client';
+import { GET_USER_EMAIL } from '../graphql/queries';
 
 function LoginPage() {
 	const classes = useLoginPageStyles();
@@ -22,14 +25,31 @@ function LoginPage() {
 	const [showPassword, setPasswordVisibility] = useState(false);
 	const hasPassword = Boolean(watch('password'));
 	const history = useHistory();
+	const client = useApolloClient();
 
 	// For username TextField, we set input to the name props
 	// For password TextField, we set password to the name props
 	// Destructuring from data.input and data.password
 	async function onSubmit({ input, password }) {
+		if (!isEmail(input)) {
+			// Overwrite the user's input with the email returned from the query
+			input = await getUserEmail(input);
+		}
 		// console.log({ data });
-		logInWithEmailAndPassword(input, password);
-		history.push('/');
+		await logInWithEmailAndPassword(input, password);
+		// Wrap the push operation in a setTimeout() to ensure it runs right after the promise
+		setTimeout(() => history.push('/'), 0);
+	}
+
+	async function getUserEmail(input) {
+		const variables = { input };
+		const response = await client.query({
+			query: GET_USER_EMAIL,
+			variables
+		});
+		// console.log({ response });
+		const userEmail = response.data.users[0]?.email || 'no@email.com';
+		return userEmail;
 	}
 
 	function togglePasswordVisibility() {

@@ -1295,6 +1295,98 @@
     }
     ```
 
+### 39. Implementing log in with username or phone number functionality:
+- The next thing we want to do is allow users to log in with their username or phone number. The input they can provide are either username, email, or phone
+- For example, if the input they provide is not an email, we can write a users query on Hasura graphQL to look up a user's email based on the username or phone they provide
+- In src/graphql/queries.js file:
+  - Write a GET_USER_EMAIL query that runs the getUserEmail query function
+  - The getUserEmail query function:
+    - accepts an input as a parameter
+    - it queries the users table WHERE the username OR the phone_number IS EQUAL TO the input provided
+    - returns an email, if there's a match
+    ```js
+    export const GET_USER_EMAIL = gql`
+      query getUserEmail($input: String) {
+        users(
+          where: {
+            _or: [{ username: { _eq: $input } }, { phone_number: { _eq: $input } }]
+          }
+        ) {
+          email
+        }
+      }
+    `;
+    ```
+  - Name export the GET_USER_EMAIL query
+  - NOTE: it's best to write the getUserEmail query function in the Hasura console and run and make sure that it works. And then just paste the code here
+    - In our case, provide the required input in the QUERY VARIABLES section like this:
+      ```js
+      {
+        "input": "nga1234"
+      }
+      ```
+    - Run it and the result we get back looks like this:
+      ```js
+      {
+        "data": {
+          "users": [
+            {
+              "email": "nga@example.com"
+            }
+          ]
+        }
+      }
+      ```
+- In src/pages/login.js file:
+  - Name import useApolloClient hook from @apollo/client
+  - Name import the GET_USER_EMAIL query
+  - Call useApolloClient() hook and what we get back from this hook is a client and assign that to a variable. We'll use this to execute our query by calling `client.query()`
+  - Write an async getUserEmail function that runs the GET_USER_EMAIL query by calling the client.query() method
+    - This function accepts input as a parameter
+    - Set input to the variables property
+    - What we get back as a response is the user's email. The path to the email within the response is: response.data.users[0].email
+    - If there exists an email at users zero-th index, assign it to a `userEmail` variable. Else, set the variable to a dummy email 'no@gmail.com'. This will trigger an error in Firebase when trying to log in with this email
+    - This function returns userEmail
+  - In onSubmit function:
+    - Start out with writing an if statement that if the user's input is NOT email, execute the getUserEmail() method and pass in input as an argument
+    - This is an async operation since we're making a query to graphQL database to get a user's email based on the given input
+    - What we get back is an email and assign that to input. This will overwrite the initial value in input that was passed to the onSubmit function
+    - For example, if the user provides nga1234 as in input, getUserEmail() will query the graphQL database with the provided input for the user's email and get back nga@gmail.com. The input value will now be nga@gmail.com, instead of nga1234. Then when logInWithEmailAndPassword() method is called, it will use this updated input as an argument to try to log in the user
+    - Lastly, to ensure that the history.push() operation get executed right after the promise, wrap it around a setTimeout() and set it to 0 seconds
+    ```js
+    import { useApolloClient } from '@apollo/client';
+    import { GET_USER_EMAIL } from '../graphql/queries';
+
+    const client = useApolloClient();
+
+    async function onSubmit({ input, password }) {
+      if (!isEmail(input)) {
+        // Overwrite the user's input with the email returned from the query
+        input = await getUserEmail(input);
+      }
+      // console.log({ data });
+      await logInWithEmailAndPassword(input, password);
+      // Wrap the push operation in a setTimeout() to ensure it runs right after the promise
+      setTimeout(() => history.push('/'), 0);
+    }
+
+    async function getUserEmail(input) {
+      const variables = { input };
+      const response = await client.query({
+        query: GET_USER_EMAIL,
+        variables
+      });
+      // console.log({ response });
+      const userEmail = response.data.users[0]?.email || 'no@email.com';
+      return userEmail;
+    }
+  ```
+
+
+
+
+
+
 
 
 
