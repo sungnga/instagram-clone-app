@@ -17,12 +17,14 @@ import FacebookIconWhite from '../images/facebook-icon-white.png';
 import { AuthContext } from '../auth';
 import { useApolloClient } from '@apollo/client';
 import { GET_USER_EMAIL } from '../graphql/queries';
+import { AuthError } from './signup';
 
 function LoginPage() {
 	const classes = useLoginPageStyles();
 	const { register, handleSubmit, formState, watch } = useForm({ mode: 'all' });
 	const { logInWithEmailAndPassword } = useContext(AuthContext);
 	const [showPassword, setPasswordVisibility] = useState(false);
+	const [error, setError] = useState('');
 	const hasPassword = Boolean(watch('password'));
 	const history = useHistory();
 	const client = useApolloClient();
@@ -31,14 +33,28 @@ function LoginPage() {
 	// For password TextField, we set password to the name props
 	// Destructuring from data.input and data.password
 	async function onSubmit({ input, password }) {
-		if (!isEmail(input)) {
-			// Overwrite the user's input with the email returned from the query
-			input = await getUserEmail(input);
+		try {
+			setError('');
+			if (!isEmail(input)) {
+				// Overwrite the user's input with the email returned from the query
+				input = await getUserEmail(input);
+			}
+			// console.log({ data });
+			await logInWithEmailAndPassword(input, password);
+			// Wrap the push operation in a setTimeout() to ensure it runs right after the promise
+			setTimeout(() => history.push('/'), 0);
+		} catch (error) {
+			console.error('Error logging in', error);
+			handleError(error);
 		}
-		// console.log({ data });
-		await logInWithEmailAndPassword(input, password);
-		// Wrap the push operation in a setTimeout() to ensure it runs right after the promise
-		setTimeout(() => history.push('/'), 0);
+	}
+
+	function handleError(error) {
+		if (error.code.includes('auth/user-not-found')) {
+			setError('User not found');
+		} else if (error.code.includes('auth/wrong-password')) {
+			setError('Invalid password');
+		}
 	}
 
 	async function getUserEmail(input) {
@@ -120,6 +136,7 @@ function LoginPage() {
 							</div>
 							<div className={classes.orLine} />
 						</div>
+						<AuthError error={error} />
 						<LoginWithFacebook color='secondary' iconColor='blue' />
 						<Button fullWidth color='secondary'>
 							<Typography variant='caption'>Forgot password?</Typography>

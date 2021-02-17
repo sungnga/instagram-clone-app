@@ -1076,6 +1076,8 @@
 
 
 ## SIGNUP FORM VALIDATION AND ERROR HANDLING
+- react-hook-form docs: https://react-hook-form.com/
+- validator docs: https://www.npmjs.com/package/validator
 
 ### 34. Separating routes to authenticated and unauthenticated:
 - If a user is not authenticated, we want them to be able to visit pages/routes that are not authenticated. For example, the login page and the signup with email page. And if they try to access any of the authenticated route, they'll be redirected to the login page using the react-router-dom's Redirect component
@@ -1297,7 +1299,7 @@
 
 ### 39. Implementing log in with username or phone number functionality:
 - The next thing we want to do is allow users to log in with their username or phone number. The input they can provide are either username, email, or phone
-- For example, if the input they provide is not an email, we can write a users query on Hasura graphQL to look up a user's email based on the username or phone they provide
+- For example, if the input they provide is not an email, we can write a users query on Hasura graphQL to look up a user's email based on the username or phone they provided
 - In src/graphql/queries.js file:
   - Write a GET_USER_EMAIL query that runs the getUserEmail query function
   - The getUserEmail query function:
@@ -1380,9 +1382,55 @@
       const userEmail = response.data.users[0]?.email || 'no@email.com';
       return userEmail;
     }
-  ```
+    ```
 
+### 40. Server-side: handling auth errors and validating login form:
+- Right now if a valid password is not provided, we're going to get an uncaught promise from our backend. To handle that, we're going to use our AuthError component from signup.js file to display an error message on the login form
+- In src/pages/login.js file:
+  - Name import the AuthError component from signup.js file
+  - Create a piece of error state and initialize it to an empty string
+  - In the return section, render the `<AuthError />` component just above the LoginWithFacebook component and pass in an error props and set it to error state. This is where the error message will be displayed if there is one
+  - In the onSubmit function:
+    - Wrap our code in a try/catch block to handle any errors coming from Firebase authentication
+    - Call setError() and set it to an empty string at the beginning of the try block
+    - Then use the catch block and it accepts an error as an argument. This is where we get the error from backend and do something with it
+      - Call console.error() to log the error message to the console
+      - Then call the handleError function and pass in the error as an argument
+  - Write a handleError function that handles various errors coming from Firebase auth
+    - This function accepts error as a parameter
+    - Write an if statement that checks for various error code in `error.code`, call setError() and set an error message pertaining to that error to error state. This way the AutError component can render the error message stored in error state to the login form
+    ```js
+    import { AuthError } from './signup';
 
+    const [error, setError] = useState('');
+
+    async function onSubmit({ input, password }) {
+      try {
+        setError('');
+        if (!isEmail(input)) {
+          // Overwrite the user's input with the email returned from the query
+          input = await getUserEmail(input);
+        }
+        // console.log({ data });
+        await logInWithEmailAndPassword(input, password);
+        // Wrap the push operation in a setTimeout() to ensure it runs right after the promise
+        setTimeout(() => history.push('/'), 0);
+      } catch (error) {
+        console.error('Error logging in', error);
+        handleError(error);
+      }
+    }
+
+    function handleError(error) {
+      if (error.code.includes('auth/user-not-found')) {
+        setError('User not found');
+      } else if (error.code.includes('auth/wrong-password')) {
+        setError('Invalid password');
+      }
+    }
+
+    <AuthError error={error} />
+    ```
 
 
 
