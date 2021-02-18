@@ -1432,9 +1432,115 @@
     <AuthError error={error} />
     ```
 
+### 41. Logging in with third party providers - Facebook:
+- We want our users to be able to log in to our application with a third party provider such as with Facebook or Google. To do this, we need to enable a third party auth in the Firebase Authentication console
 
+**Facebook login setup:**
+- Go to Facebook developers website: https://developers.facebook.com/
+- Once logged in with Facebook account, click on the 'Add a New project' button
+- Select the 'Build Connected Experiences' option. Give the project a name
+  - If problem occurs with security check, enable adBlock or use a different browser
+- In Facebook developers dashboard, select the *Add Products icon* in menu on the left
+  - Click on Facebook Login -> Set Up button. Then select for the Web
+- In the Settings menu on the left, click on Basic tab
+  - Copy the App ID and copy the App Secret
+- Go to Firebase Authentication page and under the 'Sign-in method' tab
+  - Enable Facebook Sign-in
+  - Paste in the App ID and App Secret
+  - Copy the OAuth redirect URI underneath it
+  - Don't forget to Save
+- In the *Facebook Login* menu on the left, click on Settings tab
+  - We need to provide info for: Valid OAuth Redirect URIs
+  - Paste in the OAuth Redirect URI
+  - Don't forget to Save changes
 
+**Implement Facebook login functionality:**
+- In src/auth.js file:
+  - Instantiate a Facebook provider by calling `new firebase.auth.FacebookAuthProvider()`
+  - Write a logInWithFacebook function that logs in a user with facebook provider
+    - Call the `firebase.auth().signInWithPopup()` method and pass in the facebookProvider as an argument. This is an async operation so add the await keyword in front of it. What we get back is the user data and assign it to a `data` variable
+    - Console log the data to see what we get back, because we will use this data to create a new user object in our database
+    - Write an if statement that if `data.additionalUserInfo.isNewUser` is true, call createUser() to create a new user in our graphQL database
+      - Destructure the properties from data.user we need in order to populate the user data
+      - Create a `variables` object that contains the user properties/values
+      - Pass this `variables` object to the createUser() method as an argument
+    - We're not handling any errors from the promise at the moment. We will do that later
+  - Then pass down the logInWithFacebook function to `AuthContext.Provider` to make it available in our components
+    ```js
+    const facebookProvider = new firebase.auth.FacebookAuthProvider();
+    // const googleProvider = new firebase.auth.GoogleAuthProvider();
 
+    async function logInWithFacebook() {
+      const data = await firebase.auth().signInWithPopup(facebookProvider);
+      if (data.additionalUserInfo.isNewUser) {
+        // console.log({ data });
+        const { uid, displayName, email, photoURL } = data.user
+        const username = `${displayName.replace(/\s+/g, "")}${uid.slice(-5)}`
+        const variables = {
+          userId: uid,
+          name: displayName,
+          username,
+          email,
+          bio: '',
+          website: '',
+          phoneNumber: '',
+          profileImage: photoURL
+        };
+        await createUser({ variables });
+      }
+    }
+    ```
+- In src/pages/login.js file:
+  - Import the AuthError component from signup.js file
+  - Import AuthContext from auth.js file
+  - Call useContext() hook and pass in AuthContext as an argument. Destructure the logInWithFacebook function from it
+  - Call useHistory() hook and assign the result to a `history` variable. Later we want to call history.push() to redirect user to feed page once they're successfully logged in
+  - Create a piece of error state and initialize it to an empty string
+  - In the return section:
+    - Render the `<AuthError />` component just below the Facebook Log In button. Pass down error props and set it to error state. In any error occurs during login with Facebook, the error message will be displayed here
+    - In the Facebook button element, add an onClick event handler and set it to handleLogInWithFacebook function
+  - Write an async handleLogInWithFacebook function that calls the logInWithFacebook() method to login user through Facebook
+    - Use a try/catch block to make the request and catch an errors from Firebase auth
+    - If successful with log in with Facebook, call history.push() to redirect user to feed page
+    - If an error comes back from the promise, 
+      - console log the error to the console
+      - call setError() and pass in error.message as an argument to set error state. The AuthError component will display error message stored in error state to the login page
+    ```js
+    export function LoginWithFacebook({ color, iconColor, variant }) {
+      const { logInWithFacebook } = useContext(AuthContext);
+      const [error, setError] = useState('');
+      const history = useHistory();
+
+      async function handleLogInWithFacebook() {
+        try {
+          await logInWithFacebook();
+          history.push('/');
+        } catch (error) {
+          console.error('Error logging in with Facebook', error);
+          setError(error.message);
+        }
+      }
+
+      return (
+        <Fragment>
+          <Button
+            onClick={handleLogInWithFacebook}
+            fullWidth
+            color={color}
+            variant={variant}
+          >
+            <img
+              src={facebookIcon}
+              alt='facebook icon'
+              className={classes.facebookIcon}
+            />
+            Log In With Facebook
+          </Button>
+          <AuthError error={error} />
+        </Fragment>
+      );
+    }
+    ```
 
 
 
