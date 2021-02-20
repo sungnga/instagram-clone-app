@@ -1320,7 +1320,7 @@
     `;
     ```
   - Name export the GET_USER_EMAIL query
-  - NOTE: it's best to write the getUserEmail query function in the Hasura console and run and make sure that it works. And then just paste the code here
+  - NOTE: it's best to write the getUserEmail query function in the Hasura console and run it to make sure that it works. And then just paste the code here
     - In our case, provide the required input in the QUERY VARIABLES section like this:
       ```js
       {
@@ -1541,6 +1541,103 @@
       );
     }
     ```
+
+
+## ME SUBSCRIPTION AND EDITING USER DATA
+- Now that we've got authentication, we can focus on all of the routes that only logged in users can see
+- The first page that we'll work on is the Edit Profile page
+
+### 42. Creating a ME subscription and UserContext:
+- Before that, we want to find the means to pass all of the current users information to any components or page in our app. A convenient means of doing that, like we've done in auth.js file is context. We created some context for authorization related information. Now we're going to create some context for the user information
+- The way we're going to get the currently logged in user's info is by getting the user's id and use it to perform a request in order to get the user's current info at that time from Hasura
+- Then we're going to provide the user data to all authenticated user routes/pages via user context provider
+
+**Create the UserContext:**
+- In src/app.js file and in App component:
+  - Above the App component, call createContext() hook to create a new context and assign it to a variable called UserContext. Name export it
+  - Write a ternary that if we're authenticated (if isAuth is true), get the current user id from Firebase Auth in `authState.user.uid`. Assign this uid to userId variable. If not authenticated, assign userId to null
+  - Then pass down this userId as an object to a `variables` variable. We're going to use this `variables` to make a request to Hasura graphQL to get the user info from the database
+  ```js
+  export const UserContext = createContext();
+
+  const userId = isAuth ? authState.user.uid : null;
+  const variables = { userId };
+  ```
+  
+**Create a ME subscription:**
+- In src/graphql/subscriptions.js file:
+  - Write a ME subscription (this is convention when getting the current user's info) that executes the me subscription function
+  - The me subscription function
+    - accepts userId as a parameter and it's optional
+    - it tries to the user with the matching given userId
+    - returns the user data we requested
+    ```js
+    import { gql } from '@apollo/client';
+
+    export const ME = gql`
+      subscription me($userId: String) {
+        users(where: { user_id: { _eq: $userId } }) {
+          id
+          user_id
+          name
+          username
+          profile_image
+          last_checked
+        }
+      }
+    `;
+    ```
+  - Name export ME
+  - NOTE: it's best to write the me subscription function in the Hasura console and run it to make sure that we get the user data. And then just paste the code here
+
+**Subscribe to ME subscription and provide UserContext to user routes:**
+- In src/app.js file:
+  - Name import useSubscription hook from @apollo/client
+  - Name import ME subscription from subscriptions.js file
+  - Import the LoadingScreen component
+  - Call the useSubscription() hook and pass in the ME subscription as the 1st arg and an object that contains the variables as 2nd arg. This hook will execute the Me subscription based on the userId we provide. What we get back is the user data and loading properties and we can destructure those
+  - If we're loading, we want to show the loading screen. Write an if statement to check if loading is true. If it is, return the `<LoadingScreen />` component
+  - Then create a variable for `me`, that is the current user. This is the value that we're going to be using across our app to get all of the data that we requested. The user data object can be found at `data.users[0]`
+  - Write a ternary that if `isAuth` is true AND `data` exists, then assign `data.users[0]` to the `me` variable. Else set `me` variable to null
+  - Create a `currentUserId` variable and set it to `me.id`
+  - Lastly, to make the user data be available to all authenticated user routes, wrap all the routes inside the `<UserContext.Provider />` provider component
+    - Pass down an object which contains me and currentUserId as a value props
+    ```js
+    import { useSubscription } from '@apollo/client';
+    import { ME } from './graphql/subscriptions';
+    import LoadingScreen from './components/shared/LoadingScreen';
+
+    const { data, loading } = useSubscription(ME, { variables });
+
+    if (loading) return <LoadingScreen />;
+
+    const me = isAuth && data ? data.users[0] : null;
+    const currentUserId = me.id;
+
+    return (
+      <UserContext.Provider value={{ me, currentUserId }}>
+        <Switch location={isModalOpen ? prevLocation.current : location}>
+          <Route path='/' exact component={FeedPage} />
+          <Route path='/explore' component={ExplorePage} />
+          <Route path='/:username' exact component={ProfilePage} />
+          <Route path='/p/:postId' exact component={PostPage} />
+          <Route path='/accounts/edit' component={EditProfilePage} />
+          <Route path='/accounts/login' component={LoginPage} />
+          <Route path='/accounts/emailsignup' component={SignUpPage} />
+          <Route path='*' component={NotFoundPage} />
+        </Switch>
+        {isModalOpen && <Route exact path='/p/:postId' component={PostModal} />}
+      </UserContext.Provider>
+    );
+    ```
+
+
+
+
+
+
+
+
 
 
 
