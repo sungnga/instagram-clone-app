@@ -40,7 +40,7 @@ function LoginPage() {
 				input = await getUserEmail(input);
 			}
 			// console.log({ data });
-			await logInWithEmailAndPassword(input, password);
+      await logInWithEmailAndPassword(input, password);
 			// Wrap the push operation in a setTimeout() to ensure it runs right after the promise
 			setTimeout(() => history.push('/'), 0);
 		} catch (error) {
@@ -169,7 +169,7 @@ export function LoginWithFacebook({ color, iconColor, variant }) {
 	async function handleLogInWithFacebook() {
 		try {
 			await logInWithFacebook();
-			history.push('/');
+			setTimeout(() => history.push('/'), 0);
 		} catch (error) {
 			console.error('Error logging in with Facebook', error);
 			setError(error.message);

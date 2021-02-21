@@ -1631,8 +1631,61 @@
     );
     ```
 
+### 43. Getting edit user profile data:
+- Let's populate the user data in Edit User Profile form
+- To get the user data, we send a query to Hasura graphQL with the currentUserId
+- Once we get the data back we can pass it down to the EditUserInfo component
+- **Write a GET_EDIT_USER_PROFILE query:**
+  - In src/graphql/queries.js file:
+    - Write a query that executes the getEditUserProfile query function
+      - the getEditUserProfile accepts an id as a parameter
+      - it returns a user information requested
+    - Using `users_by_pk` means return users by primary key, which we set to id. This will return a single user object by id. Using `users` will return an array of users
+    ```js
+    export const GET_EDIT_USER_PROFILE = gql`
+      query getEditUserProfile($id: uuid!) {
+        users_by_pk(id: $id) {
+          bio
+          email
+          id
+          name
+          phone_number
+          profile_image
+          website
+          username
+        }
+      }
+    `;
+    ```
+- **Make a GET_EDIT_USER_PROFILE query in EditProfilePage component:**
+  - In src/pages/edit-profile.js file
+    - Import UserContext from App.js file
+    - Import LoadingScreen component
+    - Import GET_EDIT_USER_PROFILE query
+    - Call useContext() hook and pass in UserContext as an argument. This way we have access to the currentUserId and we can destructure from it
+    - Create a `variables` variable and set it to an object which contains an id property of currentUserId
+    - Call the useQuery() hook to make a query request to Hasura
+      - 1st arg is the name of the query, GET_EDIT_USER_PROFILE
+      - 2nd arg is an object of the `variables` that we created
+      - What we get back is the data and loading
+    - Write an if statement that loading is true, return the `<LoadingScreen />` component
+    - Lastly, pass down the user data found in `data.users_by_pk` to the `<EditUserInfo />` child component
+    ```js
+    import { UserContext } from '../App';
+    import LoadingScreen from '../components/shared/LoadingScreen';
+    import { GET_EDIT_USER_PROFILE } from '../graphql/queries';
 
+    const { currentUserId } = useContext(UserContext);
+    // console.log({me, currentUserId})
+    const variables = {id: currentUserId}
+    const { data, loading} = useQuery(GET_EDIT_USER_PROFILE, {variables})
 
+    if (loading) return <LoadingScreen />
+
+    <main>
+      {path.includes('edit') && <EditUserInfo user={data.users_by_pk} />}
+    </main>
+    ```
 
 
 

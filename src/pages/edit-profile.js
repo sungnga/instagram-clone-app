@@ -1,3 +1,4 @@
+import { useQuery } from '@apollo/client';
 import {
 	Button,
 	Drawer,
@@ -10,16 +11,25 @@ import {
 	Typography
 } from '@material-ui/core';
 import { Menu } from '@material-ui/icons';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { UserContext } from '../App';
 import Layout from '../components/shared/Layout';
+import LoadingScreen from '../components/shared/LoadingScreen';
 import ProfilePicture from '../components/shared/ProfilePicture';
-import { defaultCurrentUser } from '../data';
+// import { defaultCurrentUser } from '../data';
+import { GET_EDIT_USER_PROFILE } from '../graphql/queries';
 import { useEditProfilePageStyles } from '../styles';
 
 function EditProfilePage({ history }) {
 	const classes = useEditProfilePageStyles();
 	const path = history.location.pathname;
 	const [showDraw, setDrawer] = useState(false);
+	const { currentUserId } = useContext(UserContext);
+  // console.log({me, currentUserId})
+  const variables = {id: currentUserId}
+  const { data, loading} = useQuery(GET_EDIT_USER_PROFILE, {variables})
+
+  if (loading) return <LoadingScreen />
 
 	function handleToggleDrawer() {
 		setDrawer((prev) => !prev);
@@ -115,7 +125,7 @@ function EditProfilePage({ history }) {
 					</Hidden>
 				</nav>
 				<main>
-					{path.includes('edit') && <EditUserInfo user={defaultCurrentUser} />}
+					{path.includes('edit') && <EditUserInfo user={data.users_by_pk} />}
 				</main>
 			</section>
 		</Layout>
@@ -128,7 +138,7 @@ function EditUserInfo({ user }) {
 	return (
 		<section className={classes.container}>
 			<div className={classes.pictureSectionItem}>
-				<ProfilePicture size={38} user={user} />
+				<ProfilePicture size={38} image={user.profile_image} />
 				<div className={classes.justifySelfStart}>
 					<Typography className={classes.typography}>
 						{user.username}
