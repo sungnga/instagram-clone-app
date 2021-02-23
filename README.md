@@ -1705,7 +1705,7 @@
   import isMobilePhone from 'validator/lib/isMobilePhone';
   import isEmail from 'validator/lib/isEmail';
 
-	const { register, handleSubmit } = useForm({ mode: 'all' });
+  const { register, handleSubmit } = useForm({ mode: 'all' });
 
 	function onSubmit(data) {
 		console.log({ data });
@@ -1728,6 +1728,86 @@
     />
   </form>
   ```
+
+### 45. Updating the EditUserInfo in Postgres database:
+- The next step we need to do is to perform a mutation to update the user information in the Postgres(Hasura graphQL) database
+- **Perform an editUser mutation in Hasura console:**
+  - The name of the mutation is `editUser`
+  - The option we want to perform is `update_users`. The `update_users_by_pk` is ok too
+  - This mutation accepts these variables as arguments:
+    - $id: a uuid and it's required
+    - $name: a String type and it's required
+    - $username: a String type and it's required 
+    - $bio: a String type and it's required
+    - $email: a String type and it's required
+    - $website: a String type and it's required
+    - $phoneNumber: a String type and it's required
+  - Then use `_set` to set the name, username, bio, email, phone_number, and website properties to the matching variable names. This will update the user info in the database
+  - Check the `affected_rows` box
+  ```js
+  mutation editUser($id: uuid!, $name: String!, $username: String!, $bio: String!, $email: String!, $website: String!, $phoneNumber: String!) {
+    update_users(where: {id: {_eq: $id}}, _set: {bio: $bio, email: $email, name: $name, phone_number: $phoneNumber, username: $username, website: $website}) {
+      affected_rows
+    }
+  }
+  ```
+- **Create an EDIT_USER mutation:**
+- In src/graphql/mutations.js file:
+  - Write an EDIT_USER mutation that executes the editUser mutation function
+  ```js
+  export const EDIT_USER = gql`
+    mutation editUser(
+      $id: uuid!
+      $name: String!
+      $username: String!
+      $bio: String!
+      $email: String!
+      $website: String!
+      $phoneNumber: String!
+    ) {
+      update_users(
+        where: { id: { _eq: $id } }
+        _set: {
+          bio: $bio
+          email: $email
+          name: $name
+          phone_number: $phoneNumber
+          username: $username
+          website: $website
+        }
+      ) {
+        affected_rows
+      }
+    }
+  `;
+  ```
+- **Use the EDIT_USER mutation in EditUserInfo component:**
+- In src/pages/edit-profile.js file and in EditUserInfo component:
+  - Name import the EDIT_USER mutation from mutations.js file
+  - At the top of the EditUserInfo component, call the useMutation() hook and pass in the EDIT_USER mutation as an argument. What we get back is the editUser mutation function. We'll call this function inside the onSubmit function to make a request to update user info in the database
+  - In onSubmit function:
+    - Make the onSubmit function an async function
+    - Use a try/catch block to perform the editUser mutation
+    - Create a `variables` object that contains the existing data (use the spread operator) and set id to user.id
+    - Call the editUser() mutation and pass in the `variables` object as an argument. This is an async operation so add the await keyword in front of it
+    ```js
+    import { EDIT_USER } from '../graphql/mutations';
+
+    const [editUser] = useMutation(EDIT_USER);
+
+    async function onSubmit(data) {
+      try {
+        const variables = { ...data, id: user.id };
+        await editUser({ variables });
+      } catch (error) {
+
+      }
+    }
+    ```
+
+
+
+
 
 
 

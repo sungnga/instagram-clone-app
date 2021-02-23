@@ -1,4 +1,4 @@
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import {
 	Button,
 	Drawer,
@@ -23,6 +23,7 @@ import ProfilePicture from '../components/shared/ProfilePicture';
 // import { defaultCurrentUser } from '../data';
 import { GET_EDIT_USER_PROFILE } from '../graphql/queries';
 import { useEditProfilePageStyles } from '../styles';
+import { EDIT_USER } from '../graphql/mutations';
 
 function EditProfilePage({ history }) {
 	const classes = useEditProfilePageStyles();
@@ -139,9 +140,15 @@ function EditProfilePage({ history }) {
 function EditUserInfo({ user }) {
 	const classes = useEditProfilePageStyles();
 	const { register, handleSubmit } = useForm({ mode: 'all' });
+	const [editUser] = useMutation(EDIT_USER);
 
-	function onSubmit(data) {
-		console.log({ data });
+	async function onSubmit(data) {
+		try {
+			const variables = { ...data, id: user.id };
+			await editUser({ variables });
+		} catch (error) {
+
+		}
 	}
 
 	return (
