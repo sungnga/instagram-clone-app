@@ -1551,8 +1551,7 @@
 - Before that, we want to find the means to pass all of the current users information to any components or page in our app. A convenient means of doing that, like we've done in auth.js file is context. We created some context for authorization related information. Now we're going to create some context for the user information
 - The way we're going to get the currently logged in user's info is by getting the user's id and use it to perform a request in order to get the user's current info at that time from Hasura
 - Then we're going to provide the user data to all authenticated user routes/pages via user context provider
-
-**Create the UserContext:**
+- **Create the UserContext:**
 - In src/app.js file and in App component:
   - Above the App component, call createContext() hook to create a new context and assign it to a variable called UserContext. Name export it
   - Write a ternary that if we're authenticated (if isAuth is true), get the current user id from Firebase Auth in `authState.user.uid`. Assign this uid to userId variable. If not authenticated, assign userId to null
@@ -1563,8 +1562,7 @@
   const userId = isAuth ? authState.user.uid : null;
   const variables = { userId };
   ```
-  
-**Create a ME subscription:**
+- **Create a ME subscription:**
 - In src/graphql/subscriptions.js file:
   - Write a ME subscription (this is convention when getting the current user's info) that executes the me subscription function
   - The me subscription function
@@ -1589,8 +1587,7 @@
     ```
   - Name export ME
   - NOTE: it's best to write the me subscription function in the Hasura console and run it to make sure that we get the user data. And then just paste the code here
-
-**Subscribe to ME subscription and provide UserContext to user routes:**
+- **Subscribe to ME subscription and provide UserContext to user routes:**
 - In src/app.js file:
   - Name import useSubscription hook from @apollo/client
   - Name import ME subscription from subscriptions.js file
@@ -1687,9 +1684,50 @@
     </main>
     ```
 
+### 44. Client-side: Validating EditUserInfo form:
+- Now that the user information is populated in the user edit profile form, the user can change them. However, we still need to validate the form. For example, we want to make sure that the username isn't one that's taken by another user already, the website is an actual URL, the bio isn't too long, the email isn't another user's email, and that the phone number is an actual real phone number
+- We'll be using the useForm hook from react-hook-form again to do the validation
+- In src/pages/edit-profile.js file and in EditUserInfo component:
+  - Name import the useForm hook from react-hook-form
+  - Import isURL from validator/lib/isURL
+  - Call useForm() hook at the top of the EditUserInfo component and set the mode property to 'all'. What we get back are register and handleSubmit
+  - Then in the form element and add validation for each input field, 
+    - add an `inputRef` property and set it to the `register()` method. This method allows us to specify any requirements we want on the input field, such as whether it is required or not, the max and min length of characters, etc 
+    - add a `name` property and set it to the name of the field
+    - use `validate` property to check if the input is valid or not. Validate if the website URL is valid using isURL(), email input isEmail(), and phone number input isMobilePhone()
+  - For the onSubmit event handler of the form element, set it to the handleSubmit() method and pass in the `onSubmit` function
+  - Write an onSubmit function:
+    - This function receives data as an argument. The form data is collected by the handleSubmit() function from useForm() hook
+    - For now, lets console log the data to see what we get
+  ```js
+  import { useForm } from 'react-hook-form';
+  import isURL from 'validator/lib/isURL';
+  import isMobilePhone from 'validator/lib/isMobilePhone';
+  import isEmail from 'validator/lib/isEmail';
 
+	const { register, handleSubmit } = useForm({ mode: 'all' });
 
+	function onSubmit(data) {
+		console.log({ data });
+	}
 
+  <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
+    <SectionItem
+      name='website'
+      inputRef={register({
+        validate: (input) =>
+          Boolean(input)
+            ? isURL(input, {
+                protocols: ['http', 'https'],
+                require_protocol: true
+              })
+            : true
+      })}
+      text='Website'
+      formItem={user.website}
+    />
+  </form>
+  ```
 
 
 
