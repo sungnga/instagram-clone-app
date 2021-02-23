@@ -1805,6 +1805,42 @@
     }
     ```
 
+### 46. Updating user email in Firebase auth:
+- If the user decides to update their email address in EditUserInfo form, we need to update that in both the Postgress database and in Firebase Authentication. Firebase uses the email to authenticate a user when they log in or sign up. If the email is not updated in Firebase auth, the user won't be able to login with this updated email. For this, we need to write a separate function to update the user's email in Firebase auth
+- In src/auth.js file:
+  - Write an async updateEmail function that updates user email in Firebase auth
+    - This function accepts email as a parameter
+    - Call the `authState.user.updateEmail()` method and pass in the email as an argument to update the email
+    - Console log authState.user to make sure that the email is updated
+    ```js
+    async function updateEmail(email) {
+      await authState.user.updateEmail(email);
+      console.log(authState.user);
+    }
+    ```
+  - Pass down the updateEmail function as props to the `<AuthContext.Provider />` component to make it available for our app to consume
+- In src/pages/edit-profile.js file and in *EditUserInfo component*:
+  - Name import the AuthContext from auth.js file
+  - At the top of the EditUserInfo component, call useContext() hook and pass in the AuthContext as an argument. Then we can get the updateEmail function from it
+  - In the onSubmit function:
+    - IMPORTANT!: Call the updateEmail() method ABOVE the editUser() method and pass in data.email as an argument. We want to make sure that the email is updated on Firebase auth first before updating the email in Hasura database. The user must be authenticated first before they can update their info in the database, which is the editUser() function
+    - Updating the Firebase is an async operation so add the await keyword in front of updateEmail()
+    ```js
+    import { AuthContext } from '../auth';
+
+    const { updateEmail } = useContext(AuthContext);
+    
+    async function onSubmit(data) {
+      try {
+        const variables = { ...data, id: user.id };
+        await updateEmail(data.email);
+        await editUser({ variables });
+      } catch (error) {
+        console.error('Error updating profile', error);
+      }
+    }
+    ```
+
 
 
 

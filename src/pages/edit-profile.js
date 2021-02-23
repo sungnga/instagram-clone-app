@@ -24,6 +24,7 @@ import ProfilePicture from '../components/shared/ProfilePicture';
 import { GET_EDIT_USER_PROFILE } from '../graphql/queries';
 import { useEditProfilePageStyles } from '../styles';
 import { EDIT_USER } from '../graphql/mutations';
+import { AuthContext } from '../auth';
 
 function EditProfilePage({ history }) {
 	const classes = useEditProfilePageStyles();
@@ -140,14 +141,16 @@ function EditProfilePage({ history }) {
 function EditUserInfo({ user }) {
 	const classes = useEditProfilePageStyles();
 	const { register, handleSubmit } = useForm({ mode: 'all' });
+	const { updateEmail } = useContext(AuthContext);
 	const [editUser] = useMutation(EDIT_USER);
 
 	async function onSubmit(data) {
 		try {
 			const variables = { ...data, id: user.id };
+			await updateEmail(data.email);
 			await editUser({ variables });
 		} catch (error) {
-
+			console.error('Error updating profile', error);
 		}
 	}
 
