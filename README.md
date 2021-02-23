@@ -1633,61 +1633,61 @@
 - To get the user data, we send a query to Hasura graphQL with the currentUserId
 - Once we get the data back we can pass it down to the EditUserInfo component
 - **Write a GET_EDIT_USER_PROFILE query:**
-  - In src/graphql/queries.js file:
-    - Write a query that executes the getEditUserProfile query function
-      - the getEditUserProfile accepts an id as a parameter
-      - it returns a user information requested
-    - Using `users_by_pk` means return users by primary key, which we set to id. This will return a single user object by id. Using `users` will return an array of users
-    ```js
-    export const GET_EDIT_USER_PROFILE = gql`
-      query getEditUserProfile($id: uuid!) {
-        users_by_pk(id: $id) {
-          bio
-          email
-          id
-          name
-          phone_number
-          profile_image
-          website
-          username
-        }
+- In src/graphql/queries.js file:
+  - Write a query that executes the getEditUserProfile query function
+    - the getEditUserProfile accepts an id as a parameter
+    - it returns a user information requested
+  - Using `users_by_pk` means return users by primary key, which we set to id. This will return a single user object by id. Using `users` will return an array of users
+  ```js
+  export const GET_EDIT_USER_PROFILE = gql`
+    query getEditUserProfile($id: uuid!) {
+      users_by_pk(id: $id) {
+        bio
+        email
+        id
+        name
+        phone_number
+        profile_image
+        website
+        username
       }
-    `;
-    ```
+    }
+  `;
+  ```
 - **Make a GET_EDIT_USER_PROFILE query in EditProfilePage component:**
-  - In src/pages/edit-profile.js file
-    - Import UserContext from App.js file
-    - Import LoadingScreen component
-    - Import GET_EDIT_USER_PROFILE query
-    - Call useContext() hook and pass in UserContext as an argument. This way we have access to the currentUserId and we can destructure from it
-    - Create a `variables` variable and set it to an object which contains an id property of currentUserId
-    - Call the useQuery() hook to make a query request to Hasura
-      - 1st arg is the name of the query, GET_EDIT_USER_PROFILE
-      - 2nd arg is an object of the `variables` that we created
-      - What we get back is the data and loading
-    - Write an if statement that loading is true, return the `<LoadingScreen />` component
-    - Lastly, pass down the user data found in `data.users_by_pk` to the `<EditUserInfo />` child component
-    ```js
-    import { UserContext } from '../App';
-    import LoadingScreen from '../components/shared/LoadingScreen';
-    import { GET_EDIT_USER_PROFILE } from '../graphql/queries';
+- In src/pages/edit-profile.js file
+  - Import UserContext from App.js file
+  - Import LoadingScreen component
+  - Import GET_EDIT_USER_PROFILE query
+  - Call useContext() hook and pass in UserContext as an argument. This way we have access to the currentUserId and we can destructure from it
+  - Create a `variables` variable and set it to an object which contains an id property of currentUserId
+  - Call the useQuery() hook to make a query request to Hasura
+    - 1st arg is the name of the query, GET_EDIT_USER_PROFILE
+    - 2nd arg is an object of the `variables` that we created
+    - What we get back is the data and loading
+  - Write an if statement that loading is true, return the `<LoadingScreen />` component
+  - Lastly, pass down the user data found in `data.users_by_pk` to the `<EditUserInfo />` child component
+  ```js
+  import { UserContext } from '../App';
+  import LoadingScreen from '../components/shared/LoadingScreen';
+  import { GET_EDIT_USER_PROFILE } from '../graphql/queries';
 
-    const { currentUserId } = useContext(UserContext);
-    // console.log({me, currentUserId})
-    const variables = {id: currentUserId}
-    const { data, loading} = useQuery(GET_EDIT_USER_PROFILE, {variables})
+  const { currentUserId } = useContext(UserContext);
+  // console.log({me, currentUserId})
+  const variables = {id: currentUserId}
+  const { data, loading} = useQuery(GET_EDIT_USER_PROFILE, {variables})
 
-    if (loading) return <LoadingScreen />
+  if (loading) return <LoadingScreen />
 
-    <main>
-      {path.includes('edit') && <EditUserInfo user={data.users_by_pk} />}
-    </main>
-    ```
+  <main>
+    {path.includes('edit') && <EditUserInfo user={data.users_by_pk} />}
+  </main>
+  ```
 
 ### 44. Client-side: Validating EditUserInfo form:
 - Now that the user information is populated in the user edit profile form, the user can change them. However, we still need to validate the form. For example, we want to make sure that the username isn't one that's taken by another user already, the website is an actual URL, the bio isn't too long, the email isn't another user's email, and that the phone number is an actual real phone number
 - We'll be using the useForm hook from react-hook-form again to do the validation
-- In src/pages/edit-profile.js file and in EditUserInfo component:
+- In src/pages/edit-profile.js file and in *EditUserInfo component*:
   - Name import the useForm hook from react-hook-form
   - Import isURL from validator/lib/isURL
   - Call useForm() hook at the top of the EditUserInfo component and set the mode property to 'all'. What we get back are register and handleSubmit
@@ -1699,41 +1699,42 @@
   - Write an onSubmit function:
     - This function receives data as an argument. The form data is collected by the handleSubmit() function from useForm() hook
     - For now, lets console log the data to see what we get
-  ```js
-  import { useForm } from 'react-hook-form';
-  import isURL from 'validator/lib/isURL';
-  import isMobilePhone from 'validator/lib/isMobilePhone';
-  import isEmail from 'validator/lib/isEmail';
+    ```js
+    import { useForm } from 'react-hook-form';
+    import isURL from 'validator/lib/isURL';
+    import isMobilePhone from 'validator/lib/isMobilePhone';
+    import isEmail from 'validator/lib/isEmail';
 
-  const { register, handleSubmit } = useForm({ mode: 'all' });
+    const { register, handleSubmit } = useForm({ mode: 'all' });
 
-	function onSubmit(data) {
-		console.log({ data });
-	}
+    function onSubmit(data) {
+      console.log({ data });
+    }
 
-  <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
-    <SectionItem
-      name='website'
-      inputRef={register({
-        validate: (input) =>
-          Boolean(input)
-            ? isURL(input, {
-                protocols: ['http', 'https'],
-                require_protocol: true
-              })
-            : true
-      })}
-      text='Website'
-      formItem={user.website}
-    />
-  </form>
-  ```
+    <form onSubmit={handleSubmit(onSubmit)} className={classes.form}>
+      <SectionItem
+        name='website'
+        inputRef={register({
+          validate: (input) =>
+            Boolean(input)
+              ? isURL(input, {
+                  protocols: ['http', 'https'],
+                  require_protocol: true
+                })
+              : true
+        })}
+        text='Website'
+        formItem={user.website}
+      />
+    </form>
+    ```
 
 ### 45. Updating the EditUserInfo in Postgres database:
 - The next step we need to do is to perform a mutation to update the user information in the Postgres(Hasura graphQL) database
 - **Perform an editUser mutation in Hasura console:**
   - The name of the mutation is `editUser`
-  - The option we want to perform is `update_users`. The `update_users_by_pk` is ok too
+  - The option we want to perform is `update_users`. Using the `update_users_by_pk` option is ok too
+  - We want to update a user `where` its id matches the given user id
   - This mutation accepts these variables as arguments:
     - $id: a uuid and it's required
     - $name: a String type and it's required
@@ -1782,7 +1783,7 @@
   `;
   ```
 - **Use the EDIT_USER mutation in EditUserInfo component:**
-- In src/pages/edit-profile.js file and in EditUserInfo component:
+- In src/pages/edit-profile.js file and in *EditUserInfo component*:
   - Name import the EDIT_USER mutation from mutations.js file
   - At the top of the EditUserInfo component, call the useMutation() hook and pass in the EDIT_USER mutation as an argument. What we get back is the editUser mutation function. We'll call this function inside the onSubmit function to make a request to update user info in the database
   - In onSubmit function:
@@ -1841,9 +1842,49 @@
     }
     ```
 
+### 47. Server-side: handling error and validating EditUserInfo form:
+- In src/pages/edit-profile.js file and in *EditUserInfo component*:
+  - Create a piece of `error` state and specify the `type` of error and the error `message` and initialize them to empty strings
+  - Write a handleError function that calls the setError() to update the error state. It's updating the error type and error message in error state
+  - In onSubmit function:
+    - In catch block, call the handleError() method and pass in the error as an argument. The error comes from the return promise
+    - Console log the error to the console as well
+  - Now that we have the error stored in the error state, we want to show the error message next to the input field (in SectionItem component) that generated the error
+    - In the EditUserInfo component:
+      - For the `<SectionItem />` components (for username and email input fields) in form element, we provide the error data to the `error` props 
+    - In the SectionItem component:
+      - It receives the error props from the EditUserInfo parent component
+      - In the TextField component, add the `helperText` property to display the error.message
+      - `helperText={error?.type === name && error.message}`
+  - NOTE: The first time when a user tries to update their email, they will get an error message saying they must first logout of our app and log back in with Facebook again. Once they successfully log back in, they need to go back to the EditUserProfile page and try to update their email again
+    - If successful, the email should now be updated in both Firebase auth and Postgres database
+  - Lastly, once the user fix the error and resubmit the form, we want to clear out the error message in error state and remove the error display shown in form
+    - In onSubmit function, call setError() to set the error state back to empty strings
+    ```js
+    const DEFAULT_ERROR = { type: '', message: '' };
 
+    const [error, setError] = useState(DEFAULT_ERROR);
 
+    async function onSubmit(data) {
+      try {
+        setError(DEFAULT_ERROR);
+        const variables = { ...data, id: user.id };
+        await updateEmail(data.email);
+        await editUser({ variables });
+      } catch (error) {
+        console.error('Error updating profile', error);
+        handleError(error);
+      }
+    }
 
+    function handleError(error) {
+      if (error.message.includes('users_username_key')) {
+        setError({ type: 'username', message: 'This username is already taken' });
+      } else if (error.code.includes('auth')) {
+        setError({ type: 'email', message: error.message });
+      }
+    }
+    ``` 
 
 
 
