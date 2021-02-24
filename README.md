@@ -1886,6 +1886,41 @@
     }
     ``` 
 
+### 48. Showing success snackbar after form submission:
+- Once the user info has been successfully updated, we want to show a snackbar to the user letting them know that their profile has been updated
+- The snackbar will display for 2 seconds and closes/disappears automatically
+- In src/pages/edit-profile.js file and in *EditUserInfo component*:
+  - Import the Snackbar and Slide components from Material UI
+  - Create a piece of state called open and initialize it to false. This state keeps track of whether the snackbar is open or not
+  - In the onSubmit function and in the try block:
+    - After the editUser() method, call setOpen() and pass in true
+    - The editUser() function is an async operation. Only after the user info has been updated in the database and a promise is returned then the open state is set to true and that in turn, render the Snackbar component 
+  - Render the `Snackbar />` component underneath the form element
+    - Set the open props to open state
+    - Set the autoHideDuration props to 3000 milliseconds
+    - For onClose event handler, inside a callback, call setOpen() and pass in false. This will close the snackbar
+    - Set the message props to say 'Profile updated' in a span element
+    ```js
+    import { Slide, Snackbar } from '@material-ui/core';
+    
+    const [open, setOpen] = useState(false);
+
+    <Snackbar
+      open={open}
+      autoHideDuration={2000}
+      TransitionComponent={Slide}
+      message={<span>Profile updated</span>}
+      onClose={() => setOpen(false)}
+    />
+    ```
+
+
+
+
+
+
+
+
 
 
 

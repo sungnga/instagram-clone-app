@@ -7,6 +7,8 @@ import {
 	List,
 	ListItem,
 	ListItemText,
+	Slide,
+	Snackbar,
 	TextField,
 	Typography
 } from '@material-ui/core';
@@ -146,6 +148,7 @@ function EditUserInfo({ user }) {
 	const { updateEmail } = useContext(AuthContext);
 	const [editUser] = useMutation(EDIT_USER);
 	const [error, setError] = useState(DEFAULT_ERROR);
+	const [open, setOpen] = useState(false);
 
 	async function onSubmit(data) {
 		try {
@@ -153,6 +156,7 @@ function EditUserInfo({ user }) {
 			const variables = { ...data, id: user.id };
 			await updateEmail(data.email);
 			await editUser({ variables });
+			setOpen(true);
 		} catch (error) {
 			console.error('Error updating profile', error);
 			handleError(error);
@@ -278,6 +282,13 @@ function EditUserInfo({ user }) {
 					</Button>
 				</div>
 			</form>
+			<Snackbar
+				open={open}
+				autoHideDuration={2000}
+				TransitionComponent={Slide}
+				message={<span>Profile updated</span>}
+				onClose={() => setOpen(false)}
+			/>
 		</section>
 	);
 }
