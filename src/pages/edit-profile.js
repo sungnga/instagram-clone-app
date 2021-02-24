@@ -27,6 +27,7 @@ import { GET_EDIT_USER_PROFILE } from '../graphql/queries';
 import { useEditProfilePageStyles } from '../styles';
 import { EDIT_USER } from '../graphql/mutations';
 import { AuthContext } from '../auth';
+import handleImageUpload from '../utils/handleImageUpload';
 
 function EditProfilePage({ history }) {
 	const classes = useEditProfilePageStyles();
@@ -171,6 +172,11 @@ function EditUserInfo({ user }) {
 		}
 	}
 
+	async function handleUpdateProfilePic(event) {
+		const url = await handleImageUpload(event.target.files[0]);
+		console.log({ url });
+	}
+
 	return (
 		<section className={classes.container}>
 			<div className={classes.pictureSectionItem}>
@@ -179,13 +185,22 @@ function EditUserInfo({ user }) {
 					<Typography className={classes.typography}>
 						{user.username}
 					</Typography>
-					<Typography
-						className={classes.typographyChangePic}
-						color='primary'
-						variant='body2'
-					>
-						Change Profile Photo
-					</Typography>
+					<input
+						accept='image/*'
+						id='image'
+						type='file'
+						style={{ display: 'none' }}
+						onChange={handleUpdateProfilePic}
+					/>
+					<label htmlFor='image'>
+						<Typography
+							className={classes.typographyChangePic}
+							color='primary'
+							variant='body2'
+						>
+							Change Profile Photo
+						</Typography>
+					</label>
 				</div>
 			</div>
 			<form onSubmit={handleSubmit(onSubmit)} className={classes.form}>

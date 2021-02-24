@@ -1915,10 +1915,94 @@
     ```
 
 
+## UPLOADING AVATARS AND ADDING USER SEARCH
+- The next feature we want to build is the ability to update/upload a profile photo
+  - A pop-up dialog box will open and will enable a current user to select whatever image they want to upload
+  - We will be using an image service called Cloudinary to upload and store the profile image. It will return to us a URL which we can then use to update the current user information
 
+### 49. Uploading image file to Cloudinary:
+- **Create upload preset in Cloudinary:**
+  - In Cloudinary console and at the top menu bar, select the Settings icon
+  - Then select the Upload tab at the top
+  - Scroll down to the 'Upload presets' section and click on the 'Add upload preset' button
+  - Set the following:
+    - Upload preset name: instagram (this name will be used for upload_preset in handleImageUpload function)
+    - Signing Mode: Unsigned
+    - Folder: Instagram
+  - Click the Save button
+- **Create a handleImageUpload utility function:**
+- In src/utils/handleImageUpload.js file:
+  - We will be uploading images in several places of our app, so it's best to write the image upload function as a utility function
+  - Write an async handleImageUpload function that makes a request to Cloudinary to upload an image
+    - This function accepts image as a parameter
+    - Call the fetch() method to make a request to Cloudinary
+      - 1st arg is the API Base URL
+      - 2nd arg we provide is an object that contains the method of request, the format type that it accepts, and the data itself
+      - This is an async operation, so add an await keyword in front of it
+    - What we get back is a response and we need to convert it into a json format
+    - Then return the url from the response object
+    ```js
+    async function handleImageUpload(image) {
+      // FormData() is a constructor that returns a data object
+      // What we append to data object is key/value pair
+      const data = new FormData();
+      data.append('file', image);
+      data.append('upload_preset', 'instagram');
+      data.append('cloud_name', 'sungnga');
+      const response = await fetch(
+        'https://api.cloudinary.com/v1_1/sungnga/image/upload',
+        {
+          method: 'POST',
+          accept: 'application/json',
+          body: data
+        }
+      );
+      const jsonResponse = await response.json();
+      return jsonResponse.url;
+    }
 
+    export default handleImageUpload;
+    ```
+- **Upload profile image file from Edit Profile form:**
+- Next is we need to get the image data from the file upload dialog box and pass it to the handleImageUpload function. In the EditUserInfo form, when a user clicks on the 'Change Profile Photo' link, a file dialog opens and they can select an image file to upload
+- In src/pages/edit-profile.js file and in *EditUserInfo component*:
+  - Import the handleImageUpload util function
+  - In the return section:
+    - Add an input element where
+      - its type is set to `file`. By setting the type to file, it'll open up a file dialog
+      - it accepts any type of images
+      - set the onChange event handler to the handleUpdateProfilePic function
+    - Now, we don't want to show this input element. Instead, we want to link it to the 'Change Profile Photo' button. So when the user clicks on the button, it'll open the file dialog
+    - This can be achieved by setting the id property to 'image' in the input element and wrap the button in a label element and set the htmlFor property to the same name of 'image'
+  - Write an async handleUpdateProfilePic function that executes that handleImageUpload method with the provided image file
+    - This function accepts an event as an argument. The event data comes from the input element
+    - The image file can be found at event.target.files[0]
+    - What we get back from the handleImageUpload() method is the image url from Cloudinary
+    ```js
+    import handleImageUpload from '../utils/handleImageUpload';
 
+    async function handleUpdateProfilePic(event) {
+      const url = await handleImageUpload(event.target.files[0]);
+      console.log({ url });
+    }
 
+    <input
+      accept='image/*'
+      id='image'
+      type='file'
+      style={{ display: 'none' }}
+      onChange={handleUpdateProfilePic}
+    />
+    <label htmlFor='image'>
+      <Typography
+        className={classes.typographyChangePic}
+        color='primary'
+        variant='body2'
+      >
+        Change Profile Photo
+      </Typography>
+    </label>
+    ```
 
 
 
