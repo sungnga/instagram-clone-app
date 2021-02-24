@@ -25,7 +25,7 @@ import ProfilePicture from '../components/shared/ProfilePicture';
 // import { defaultCurrentUser } from '../data';
 import { GET_EDIT_USER_PROFILE } from '../graphql/queries';
 import { useEditProfilePageStyles } from '../styles';
-import { EDIT_USER } from '../graphql/mutations';
+import { EDIT_USER, EDIT_USER_AVATAR } from '../graphql/mutations';
 import { AuthContext } from '../auth';
 import handleImageUpload from '../utils/handleImageUpload';
 
@@ -148,6 +148,8 @@ function EditUserInfo({ user }) {
 	const { register, handleSubmit } = useForm({ mode: 'all' });
 	const { updateEmail } = useContext(AuthContext);
 	const [editUser] = useMutation(EDIT_USER);
+	const [editUserAvatar] = useMutation(EDIT_USER_AVATAR);
+	const [profileImage, setProfileImage] = useState(user.profile_image);
 	const [error, setError] = useState(DEFAULT_ERROR);
 	const [open, setOpen] = useState(false);
 
@@ -174,13 +176,16 @@ function EditUserInfo({ user }) {
 
 	async function handleUpdateProfilePic(event) {
 		const url = await handleImageUpload(event.target.files[0]);
-		console.log({ url });
+		// console.log({ url });
+		const variables = { id: user.id, profileImage: url };
+		await editUserAvatar({ variables });
+		setProfileImage(url);
 	}
 
 	return (
 		<section className={classes.container}>
 			<div className={classes.pictureSectionItem}>
-				<ProfilePicture size={38} image={user.profile_image} />
+				<ProfilePicture size={38} image={profileImage} />
 				<div className={classes.justifySelfStart}>
 					<Typography className={classes.typography}>
 						{user.username}

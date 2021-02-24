@@ -2004,6 +2004,58 @@
     </label>
     ```
 
+### 50. Performing a mutation to update and display user avatar:
+- To display the profile image that the user just uploaded as their avatar, we first need to update the user's profile_image property in the database with the URL we get back from Cloudinary. We do this by creating an update users mutation in Hasura that updates the user profile image based on the given user id
+- **Create an update EDIT_USER_AVATAR mutation:**
+- In src/graphql/mutations.js file:
+  - Create an EDIT_USER_AVATAR mutation that executes the editUserAvatar mutation function
+  - The editUserAvatar() function accepts the id and profileImage variables as arguments
+    - It performs a users update based on the given user id
+    - It sets the provided image data to the profile_image property
+    ```js
+    export const EDIT_USER_AVATAR = gql`
+      mutation editUserAvatar($id: uuid!, $profileImage: String!) {
+        update_users(
+          where: { id: { _eq: $id } }
+          _set: { profile_image: $profileImage }
+        ) {
+          affected_rows
+        }
+      }
+    `;
+    ```
+- **Implement the upload user avatar functionality:**
+- In src/pages/edit-profile.js file and in *EditUserInfo component*:
+  - Name import the EDIT_USER_AVATAR mutation
+  - Call useMutation() hook and pass in the EDIT_USER_AVATAR mutation as an argument. We get back the editUserAvatar mutation function
+  - In the handleUpdateProfilePic function:
+    - Create a `variables` object which contains the user id data and the profileImage data
+    - Call the editUserAvatar() method and pass in the `variables` object as an argument
+  - To see the updated profile image in realtime when the page first loads, we want to create a piece of state to store the profileImage and the page will render the stored profileImage
+    - Create a state called profileImage and initialize it to `user.profile_image`. Remember that the EditUserInfo component has access the user data object from its EditProfilePage parent component. And the EditProfilePage component makes a query mutation to get the user info from the database
+    - By storing the profileImage in a state, the image persists when the page refreshes
+  - In the handleUpdateProfilePic function:
+    - After the `await editUserAvatar()` is completed and we get back the url, call the setProfileImage() and pass in the url as an argument. This will store the url in the profileImage state
+  - Then in the `<ProfilePicture />` component, set the image property to the profileImage state
+  ```js
+  import { EDIT_USER_AVATAR } from '../graphql/mutations';
+
+  const [editUserAvatar] = useMutation(EDIT_USER_AVATAR);
+  const [profileImage, setProfileImage] = useState(user.profile_image);
+
+	async function handleUpdateProfilePic(event) {
+		const url = await handleImageUpload(event.target.files[0]);
+		// console.log({ url });
+		const variables = { id: user.id, profileImage: url };
+		await editUserAvatar({ variables });
+		setProfileImage(url);
+	}
+
+  <ProfilePicture size={38} image={profileImage} />
+  ```
+
+
+
 
 
 
