@@ -1137,12 +1137,12 @@
 - **Implement the form submit functionality:**
   - Make the onSubmit function as an async function
   - Call the signUpWithEmailAndPassword method and pass in the data as an argument. This is an async operation since we're making a request to Firebase to sign up a user
-  - Once this is completed, call history.push() method to redirect user to home page
+  - Once this is completed, call history.push() method to redirect user to home page. Call the history.push() inside a setTimeout() function to ensure that the redirect get executed
   ```js
 	async function onSubmit(data) {
 		// console.log({ data });
 		await signUpWithEmailAndPassword(data);
-		history.push('/');
+		setTimeout(() => history.push('/'), 0);
 	}
   ```
 
@@ -1279,7 +1279,7 @@
   - Make the onSubmit function an async function:
     - This function accept input and password as parameters. Destructure from data.input and data.password
     - Call the signUpWithEmailAndPassword method and pass in the input and password as arguments. This is an async operation since we're making a request to Firebase to sign in a user
-    - Once this is completed, call history.push() method to redirect user to home page
+    - Once this is completed, call history.push() method to redirect user to home page. Call the history.push() inside a setTimeout() function to ensure that the redirect get executed
     ```js
     import { AuthContext } from '../auth';
     import { useHistory } from 'react-router-dom';
@@ -1293,7 +1293,7 @@
     async function onSubmit({ input, password }) {
       // console.log({ data });
       await signInWithEmailAndPassword(input, password);
-      history.push('/');
+      setTimeout(() => history.push('/'), 0);
     }
     ```
 
@@ -1354,7 +1354,7 @@
     - This is an async operation since we're making a query to graphQL database to get a user's email based on the given input
     - What we get back is an email and assign that to input. This will overwrite the initial value in input that was passed to the onSubmit function
     - For example, if the user provides nga1234 as in input, getUserEmail() will query the graphQL database with the provided input for the user's email and get back nga@gmail.com. The input value will now be nga@gmail.com, instead of nga1234. Then when logInWithEmailAndPassword() method is called, it will use this updated input as an argument to try to log in the user
-    - Lastly, to ensure that the history.push() operation get executed right after the promise, wrap it around a setTimeout() and set it to 0 seconds
+    - Lastly, to ensure that the history.push() operation get executed right after the promise, call it inside a setTimeout() function and set it to 0 seconds
     ```js
     import { useApolloClient } from '@apollo/client';
     import { GET_USER_EMAIL } from '../graphql/queries';
@@ -1501,7 +1501,7 @@
     - In the Facebook button element, add an onClick event handler and set it to handleLogInWithFacebook function
   - Write an async handleLogInWithFacebook function that calls the logInWithFacebook() method to login user through Facebook
     - Use a try/catch block to make the request and catch an errors from Firebase auth
-    - If successful with log in with Facebook, call history.push() to redirect user to feed page
+    - If successful with log in with Facebook, call history.push() to redirect user to feed page. Call the history.push() inside a setTimeout() function to ensure that the redirect get executed
     - If an error comes back from the promise, 
       - console log the error to the console
       - call setError() and pass in error.message as an argument to set error state. The AuthError component will display error message stored in error state to the login page
@@ -1514,7 +1514,7 @@
       async function handleLogInWithFacebook() {
         try {
           await logInWithFacebook();
-          history.push('/');
+          setTimeout(() => history.push('/'), 0);
         } catch (error) {
           console.error('Error logging in with Facebook', error);
           setError(error.message);
@@ -2117,6 +2117,24 @@
       // setResults(Array.from({ length: 5 }, () => getDefaultUser()));
     }, [query, data, searchUsers]);
     ```
+
+### 52. Displaying current user avatar in Navbar:
+- In src/components/shared/Navbar.js file and in the *Links component*:
+  - Name import the UserContext context
+  - Call useContext() hook and pass in the UserContext as an argument. What we get back from it is the `me` object which contains the current user info
+  - In the `<Avatar />` component, set the src props to `me.profile_image`
+  - Since the `me` subscription that we're executing is a subscription, we'll see the change in realtime whenever the avatar is updated within any page or component
+  ```js
+  import { UserContext } from '../../App';
+
+  const { me } = useContext(UserContext);
+
+  <Avatar src={me.profile_image} className={classes.profileImage} />
+  ```
+
+
+
+
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS

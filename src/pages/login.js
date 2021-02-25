@@ -40,7 +40,7 @@ function LoginPage() {
 				input = await getUserEmail(input);
 			}
 			// console.log({ data });
-      await logInWithEmailAndPassword(input, password);
+			await logInWithEmailAndPassword(input, password);
 			// Wrap the push operation in a setTimeout() to ensure it runs right after the promise
 			setTimeout(() => history.push('/'), 0);
 		} catch (error) {

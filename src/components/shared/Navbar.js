@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, Fragment, useContext } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import {
 	AppBar,
@@ -28,6 +28,7 @@ import NotificationTooltip from '../notification/NotificationTooltip';
 import NotificationList from '../notification/NotificationList';
 import { useLazyQuery } from '@apollo/client';
 import { SEARCH_USERS } from '../../graphql/queries';
+import { UserContext } from '../../App';
 
 function Navbar({ minimalNavbar }) {
 	const classes = useNavbarStyles();
@@ -153,6 +154,7 @@ function Links({ path }) {
 	const classes = useNavbarStyles();
 	const [showTooltip, setTooltip] = useState(true);
 	const [showList, setList] = useState(false);
+	const { me } = useContext(UserContext);
 
 	useEffect(() => {
 		const timeout = setTimeout(handleHideTooltip, 2000);
@@ -203,10 +205,7 @@ function Links({ path }) {
 								: ''
 						}
 					></div>
-					<Avatar
-						src={defaultCurrentUser.profile_image}
-						className={classes.profileImage}
-					/>
+					<Avatar src={me.profile_image} className={classes.profileImage} />
 				</Link>
 			</div>
 		</div>
