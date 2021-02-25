@@ -2133,6 +2133,83 @@
   ```
 
 
+## ADDING NEW POSTS AND UPLOADING MEDIA
+- The next feature we're going to build is for our current user to be able to add a new post
+  - To create a new post, the user can click on the Create Post icon on the Navbar menu
+  - A file upload dialog box opens and the user can select an image to upload
+  - Then a full-screen AddPostDialog box opens that allows users to write a caption for the post, add a location, and click the Share button to share the post
+  - The media file that the user uploaded will be stored in Cloudinary
+- We will be creating a posts table in Hasura to store the posts data. We'll also setup relationships between the post and the user who created it
+
+### 53. Client-side: building the add new posts functionality:
+- In src/components/shared/Navbar.js file and in the *Links component*:
+  - Create a piece of state called media and initialize it to null. This keeps track of the media file the user uploaded to create a new post
+  - Create a piece of state called showAddPostDialog and initialize it to false. This keeps track of whether the AddPostDialog screen is open or not
+  - Add an input element and set the type to file. This will accept a file as input. However, this input element won't be displayed. The AddIcon button will control the file upload functionality
+  - When the AddIcon link on the Navbar is clicked, it opens a file upload dialog box for user to upload a media. When the AddIcon is clicked, the OpenFileInput() method is executed to open the file dialog box
+  - Once a file is selected, handleAddPost() is triggered to take the file data and store it in media state. Also, setAddPostDialog() is called to set showAddPostDialog state to true
+  - Import the AddPostDialog component
+  - In the return section of the Links component:
+    - Just above the input element, render the `<AddPostDialog />` component IF showAddPostDialog state is true
+    - Pass down the media props and set it to media state and pass down the handleClose function as props to the AddPostDialog child component 
+    ```js
+    import AddPostDialog from '../post/AddPostDialog';
+
+    const [media, setMedia] = useState(null);
+    const [showAddPostDialog, setAddPostDialog] = useState(false);
+    const inputRef = useRef();
+
+    function openFileInput() {
+      inputRef.current.click();
+    }
+
+    function handleAddPost(event) {
+      setMedia(event.target.files[0]);
+      setAddPostDialog(true);
+    }
+
+    function handleClose() {
+      setAddPostDialog(false);
+    }
+
+    {showAddPostDialog && (
+      <AddPostDialog media={media} handleClose={handleClose} />
+    )}
+    <Hidden xsDown>
+      <input
+        type='file'
+        style={{ display: 'none' }}
+        ref={inputRef}
+        onChange={handleAddPost}
+      />
+      <AddIcon onClick={openFileInput} />
+    </Hidden>
+    ```
+- In src/components/post/AddPostDialog.js file:
+  - Receive the media and handleClose props from the Links parent component
+  - Just render some text for now. We just need to see that this component renders once a user uploaded a file
+  ```js
+  import React from 'react';
+
+  function AddPostDialog({ media, handleClose }) {
+    console.log('open');
+
+    return <span>AddPostDialog</span>;
+  }
+
+  export default AddPostDialog;
+  ```
+
+
+
+
+
+
+
+
+
+
+
 
 
 
