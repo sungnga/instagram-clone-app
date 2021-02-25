@@ -2200,6 +2200,41 @@
   export default AddPostDialog;
   ```
 
+### 54: Adding posts table and configure relationships in Hasura:
+- **Create posts table in Hasura graphQL:**
+  - In Hasura console, click on the DATA tab at the top and click on Create Table button
+  - Table Name: posts
+  - Columns:
+    - id : type of UUID : gen_random_uuid()
+    - media : type of Text
+    - caption : type of Text
+    - user_id : type of UUID
+    - location : type of Text
+    - created_at : type of Timestamp : now()
+  - Primary Key: id
+  - Now we have two tables in Hasura: users and posts
+- **Configure relationships between posts and users tables:**
+  - In Hasura console, click on the DATA tab at the top. This is where we configure the relationships
+  - When a post is created, we want to associate the post to the user who created it. A post as a user_id property and we can use that to reference to a user's id and vise versa
+  - Lets start with the users table. For every one user, there can be as many posts as they want to create. It's a one-to-many relationship. In Hasura terms, we call that an array relationship
+    - In users table, select the Relationships tab. Then click the Configure button
+    - Relationship Type: Array Relationship
+    - Relationship Name: posts
+    - Reference Schema: public
+    - Reference Table: posts
+    - From: id
+    - To: user_id
+    - Relationship: posts.user_id -> users.id (the post's user_id is associated with the user's id. The user_id reference a particular user)
+  - When we setup one table as an array relationship, we need to set the opposite table as an object relationship. This is a many-to-one relationship
+    - In the posts table, select the Relationships tab. Then click on the Configure button
+    - Relationship Type: Object Relationship
+    - Relationship Name: user
+    - Reference Schema: public
+    - Reference Table: users
+    - From: user_id
+    - To: id
+    - Relationship: posts.user_id -> users.id
+
 
 
 
