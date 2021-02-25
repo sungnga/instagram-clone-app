@@ -2054,10 +2054,69 @@
   <ProfilePicture size={38} image={profileImage} />
   ```
 
+### 51. Implementing the search bar functionality:
+- The next feature we want to implement is the ability to search for other users using the search bar. We can search by their name or username and search will give us a list of suggested users as we type
+- We perform a query operation in Hasura to get the users based on the query string
+- **Create a SEARCH_USERS query:**
+- In src/graphql/queries.js file:
+  - Write a SEARCH_USERS query that executes the searchUsers query function
+    - This function takes a query string variable as an argument
+    - Query the users database *where* the username *or* name *islike* the given query string. We use `_ilike` (isLike) instead of `_eq` (equal) because we don't want just the exact match. We want users that is like the query string variable
+    - It returns the id, name, username, and profile_image
+    ```js
+    export const SEARCH_USERS = gql`
+      query searchUsers($query: String) {
+        users(
+          where: {
+            _or: [{ username: { _ilike: $query } }, { name: { _ilike: $query } }]
+          }
+        ) {
+          id
+          name
+          username
+          profile_image
+        }
+      }
+    `;
+    ```
+  - Now, when performing the query, we need to wrap the query around a set of percent symbols. That's what allows us to do the search-ahead operation. It returns all users that's close to what we type into the search bar
+    ```js
+    {
+      "query": "%nga%"
+    }
+    ```
+- **Perform the SEARCH_USERS query in Navbar:**
+- In src/components/shared/Navbar.js file and in the *Search component*:
+  - Import the SEARCH_USERS query from queries.js file
+  - Import the useLazyQuery hook from @apollo/client
+  - We're going to use useLazyQuery() hook instead of useQuery() hook to perform the query operation
+    - A search operation is a good use-case for the lazy query because it doesn't need to be immediate and it's not something that we're performing once and get the exact results on
+    - Also it's a synchronous operation so we don't need to wait for a promise
+    - Since it's synchronous, we can call the query function inside useEffect() hook
+  - Call useLazyQuery() hook and pass in the SEARCH_USERS query as an argument. What we get back from the hook is an array:
+    - the 1st element is the searchUsers query function
+    - 2nd element is an object containing the data that we get back from calling the searchUsers() method
+    ```js
+    import { useLazyQuery } from '@apollo/client';
+    import { SEARCH_USERS } from '../../graphql/queries';
 
+    const [loading, setLoading] = useState(false);
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState([]);
+    const [searchUsers, { data }] = useLazyQuery(SEARCH_USERS);
 
-
-
+    useEffect(() => {
+      if (!query.trim()) return;
+      setLoading(true);
+      const variables = { query: `%${query}%` };
+      searchUsers({ variables });
+      if (data) {
+        setResults(data.users);
+        setLoading(false);
+      }
+      // setResults(Array.from({ length: 5 }, () => getDefaultUser()));
+    }, [query, data, searchUsers]);
+    ```
 
 
 ## COMMON DESIGN PATTERNS AND JS TRICKS

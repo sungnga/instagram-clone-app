@@ -26,6 +26,8 @@ import {
 import { defaultCurrentUser, getDefaultUser } from '../../data';
 import NotificationTooltip from '../notification/NotificationTooltip';
 import NotificationList from '../notification/NotificationList';
+import { useLazyQuery } from '@apollo/client';
+import { SEARCH_USERS } from '../../graphql/queries';
 
 function Navbar({ minimalNavbar }) {
 	const classes = useNavbarStyles();
@@ -68,16 +70,24 @@ function Logo() {
 
 function Search({ history }) {
 	const classes = useNavbarStyles();
-	const [loading] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const [query, setQuery] = useState('');
 	const [results, setResults] = useState([]);
+	const [searchUsers, { data }] = useLazyQuery(SEARCH_USERS);
 
 	const hasResults = Boolean(query) && results.length > 0;
 
 	useEffect(() => {
 		if (!query.trim()) return;
-		setResults(Array.from({ length: 5 }, () => getDefaultUser()));
-	}, [query]);
+		setLoading(true);
+		const variables = { query: `%${query}%` };
+		searchUsers({ variables });
+		if (data) {
+			setResults(data.users);
+			setLoading(false);
+		}
+		// setResults(Array.from({ length: 5 }, () => getDefaultUser()));
+	}, [query, data, searchUsers]);
 
 	function handleClearInput() {
 		setQuery('');
