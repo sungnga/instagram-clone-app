@@ -2354,7 +2354,7 @@
 
 ### 56. Server-side: Adding a new post to database and uploading media to Cloudinary 
 - A few things take place on the backend when a user clicks the Share post button to add a new post
-  - The handleImageUpload() utility function gets executed with the provided media data. This uploads the media file to Cloudinary and it returns a URL. All uploaded images are resized to 500x500px by Cloudinary
+  - The handleImageUpload utility function gets executed with the provided media data. This uploads the media file to Cloudinary and it returns a URL. All uploaded images are resized to 500x500px by Cloudinary
   - The createPost mutation function gets executed with the provided post data. This creates a new post in the Postgres database. And this post has a reference to the user that created it
   - The caption text is serialized to raw HTML text and it's formatted
 - **Serialize caption text input value to HTML:**
@@ -2477,8 +2477,108 @@
     ```
 
 
+## LIKING, SAVING, AND COMMENTING ON POSTS
 
-
+### 57: Adding likes, saved_posts, and comments tables in Hasura, configure relationships:
+- **Create the likes table in Hasura graphQL:**
+  - Table Name: likes
+  - Columns:
+    - id : type of UUID : gen_random_uuid()
+    - post_id : type of UUID
+    - user_id : type of UUID
+  - Primary Key: id
+- **Create the saved_posts table in Hasura graphQL:**
+  - Table Name: saved_posts
+  - Columns:
+    - id : type of UUID : gen_random_uuid()
+    - post_id : type of UUID
+    - user_id : type of UUID
+  - Primary Key: id
+- **Create the comments table in Hasura graphQL:**
+  - Table Name: saved_posts
+  - Columns:
+    - id : type of UUID : gen_random_uuid()
+    - post_id : type of UUID
+    - user_id : type of UUID
+    - created_at : type of Timestamp : now()
+    - content : type of Text
+  - Primary Key: id
+- **Configure relationships between tables:**
+- Relationships for posts table: 
+  - A post can have many likes. posts has an array relationship to likes
+  - Configure relationships between posts and likes:
+    - Relationship Type: Array Relationship
+    - Relationship Name: likes
+    - Reference Table: likes
+    - From: id (from the posts id)
+    - To: post_id (to the post_id stored in likes)
+  - A post can have many comments. posts has an array relationship to comments
+  - Configure relationships between posts and comments:
+    - Relationship Type: Array Relationship
+    - Relationship Name: comments
+    - Reference Table: comments
+    - From: id (from the posts id)
+    - To: post_id (to the post_id stored in comments)
+  - A post can be saved many times. posts has an array relationship to saved_posts
+  - Configure relationships between posts and saved_posts:
+    - Relationship Type: Array Relationship
+    - Relationship Name: saved_posts
+    - Reference Table: saved_posts
+    - From: id (from the posts id)
+    - To: post_id (to the post_id stored in saved_posts)
+- Relationships for users table:
+  - A user can have many comments. users has an array relationship with comments
+  - Configure relationships between users and comments:
+    - Relationship Type: Array Relationship
+    - Relationship Name: comments
+    - Reference Table: comments
+    - From: id (from the users id)
+    - To: user_id (to the user_id stored in comments)
+  - A user can have many saved_posts. users has an array relationship to saved_posts
+  - Configure relationships between users and saved_posts:
+    - Relationship Type: Array Relationship
+    - Relationship Name: saved_posts
+    - Reference Table: saved_posts
+    - From: id (from the users id)
+    - To: user_id (to the user_id stored in saved_posts)
+- Relationships for saved_posts table:
+  - A post is saved by a user. saved_posts has an object relationship to users
+  - Configure relationships between saved_posts and users:
+    - Relationship Type: Object Relationship
+    - Relationship Name: user
+    - Reference Table: users
+    - From: user_id (from the user_id stored in saved_posts)
+    - To: id (to the id on users table)
+  - A post can be marked as saved. saved_posts has an object relationship to posts
+  - Configure relationships between saved_posts and posts:
+    - Relationship Type: Object Relationship
+    - Relationship Name: post
+    - Reference Table: posts
+    - From: post_id (from the post_id stored in saved_posts)
+    - To: id (to the id on posts table)
+- Relationships for likes table:
+  - A post is liked. likes has an object relationship to posts
+  - Configure relationships between likes and posts:
+    - Relationship Type: Object Relationship
+    - Relationship Name: post
+    - Reference Table: posts
+    - From: post_id (from the post_id stored in likes)
+    - To: id (to the id on posts table)
+- Relationships for comments table:
+  - A comment is written by a user. comments has an object relationship to users
+  - Configure relationships between comments and users:
+    - Relationship Type: Object Relationship
+    - Relationship Name: user
+    - Reference Table: users
+    - From: user_id (from the user_id stored in comments)
+    - To: id (to the id on users table)
+  - A comment is written on a post. comments has an object relationship to posts
+  - Configure relationships between comments and posts:
+    - Relationship Type: Object Relationship
+    - Relationship Name: post
+    - Reference Table: posts
+    - From: post_id (from the post_id stored in comments)
+    - To: id (to the id on posts table)
 
 
 
