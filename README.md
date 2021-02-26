@@ -2135,9 +2135,9 @@
 
 ## ADDING NEW POSTS AND UPLOADING MEDIA
 - The next feature we're going to build is for our current user to be able to add a new post
-  - To create a new post, the user can click on the Create Post icon on the Navbar menu
+  - To create a new post, the user can click on the Add Post icon on the Navbar menu
   - A file upload dialog box opens and the user can select an image to upload
-  - Then a full-screen AddPostDialog box opens that allows users to write a caption for the post, add a location, and click the Share button to share the post
+  - Then a full-screen AddPostDialog box opens that allows users to write a caption for the post, add a location, and click the Share button to share the post. This is a rich text editor (using Slate library), allowing users to format their caption text
   - The media file that the user uploaded will be stored in Cloudinary
 - We will be creating a posts table in Hasura to store the posts data. We'll also setup relationships between the post and the user who created it
 
@@ -2288,7 +2288,6 @@
       - The media avatar displayed on the right side comes from media props received from parent component
       - The handleClose function is a props received from parent component
       - The caption text value will be stored in the value state
-      -  
       ```js
       import { useAddPostDialogStyles } from '../../styles';
       import { UserContext } from '../../App';
@@ -2353,7 +2352,129 @@
       }
       ```
 
+### 56. Server-side: Adding a new post to database and uploading media to Cloudinary 
+- A few things take place on the backend when a user clicks the Share post button to add a new post
+  - The handleImageUpload() utility function gets executed with the provided media data. This uploads the media file to Cloudinary and it returns a URL. All uploaded images are resized to 500x500px by Cloudinary
+  - The createPost mutation function gets executed with the provided post data. This creates a new post in the Postgres database. And this post has a reference to the user that created it
+  - The caption text is serialized to raw HTML text and it's formatted
+- **Serialize caption text input value to HTML:**
+  - Serializing to HTML docs: https://docs.slatejs.org/concepts/09-serializing#html
+  - Import: `npm i escape-html`
+  - In src/utils/serializeToHtml.js file:
+    - Write a serialize util function that serializes our paragraph text into raw HTML
+    - Go to the docs link above and copy the code from the serialize HTML section
+    - For the paragraph text, we are adding a line break `<br>` after each children text
+    - This process of serializing text into raw HTML starts when the user clicks on the Share button in the AddPostDialog box. So the serialize function get executed in the AddPostDialog component
+    ```js
+    import escapeHtml from 'escape-html';
+    import { Text } from 'slate';
 
+    const serialize = (node) => {
+      if (Text.isText(node)) {
+        return escapeHtml(node.text);
+      }
+
+      const children = node.children.map((n) => serialize(n)).join('');
+
+      switch (node.type) {
+        case 'paragraph':
+          return `${children}<br>`;
+        case 'link':
+          return `<a href="${escapeHtml(node.url)}">${children}</a>`;
+        default:
+          return children;
+      }
+    };
+
+    export default serialize;
+    ```
+- **Resize uploading image in Cloudinary:**
+  - Before we submit the image along with the post, we want to resize all incoming images to 500x500 pixels. We configure this in Cloudinary
+  - In Cloudinary console, click on the Settings icon at the top
+  - Then select the Upload tab and scroll down to the Upload presets section
+  - Click on the Edit button for instagram project
+  - Select Upload Manipulations on the left menu
+  - In the Incoming Transformation section, click on the Edit button
+  - Set both the Width and Height to 500
+- **Create a CREATE_POST mutation:**
+- In src/graphql/mutations.js file:
+  - Write a CREATE_POST mutation that executes the createPost mutation function
+    - The createPost function takes useId, media, location, and caption variables as arguments
+    - Use the `insert_posts` operator to insert a post as an object
+    - This mutation doesn't return anything, so select the `affect_rows` option
+    ```js
+    export const CREATE_POST = gql`
+      mutation createPost(
+        $userId: uuid!
+        $media: String!
+        $location: String!
+        $caption: String!
+      ) {
+        insert_posts(
+          objects: {
+            user_id: $userId
+            media: $media
+            location: $location
+            caption: $caption
+          }
+        ) {
+          affected_rows
+        }
+      }
+    `;
+    ```
+- **Implement share a post:**
+- In src/components/post/AddPostDialog.js file:
+  - Import the serialize util function
+  - Import the handleImageUpload util function
+  - Import the CREATE_POST mutation
+  - We don't want our user to be able to submit the post twice. So we're going to disable the Share button while the post is submitting
+    - Create a piece of state called isSubmitting and initialize it to false
+    - In the Share button component, add a disabled props and set it to isSubmitting state
+  - Call the useMutation() hook and pass in the CREATE_POST mutation as an argument. What we get back is the createPost mutation function
+  - In the Share button component, set the onClick event handler to handleSharePost
+  - Write an async handleSharePost function that executes the handleImageUpload, serialize, and createPost methods
+    - Call setSubmitting() and pass in true to set isSubmitting state to true. This will disable the Share button while the post is submitting
+    - Call the handleImageUpload() method and pass in media as an argument. This uploads the media file to Cloudinary and it returns a URL. This is an async operation
+    - Create a `variables` object that contains the post data
+    - Call the createPost() mutation function and pass in the `variables` object as an argument. This is an async operation and it doesn't return anything. This mutation creates a new post in Hasura database
+    - Call setSubmitting() to set isSubmitting state back to false
+    - Finally, do a full window reload at the end
+    ```js
+    import { useMutation } from '@apollo/client';
+    import serialize from '../../utils/serializeToHtml';
+    import handleImageUpload from '../../utils/handleImageUpload';
+    import { CREATE_POST } from '../../graphql/mutations';
+
+    const { me, currentUserId } = useContext(UserContext);
+    const [submitting, setSubmitting] = useState(false);
+    const [value, setValue] = useState(initialValue);
+    const [location, setLocation] = useState('');
+    const [createPost] = useMutation(CREATE_POST);
+
+    async function handleSharePost() {
+      setSubmitting(true);
+      const url = await handleImageUpload(media);
+      const variables = {
+        userId: currentUserId,
+        location,
+        caption: serialize({ children: value }),
+        media: url
+      };
+      await createPost({ variables });
+      setSubmitting(false);
+      window.location.reload();
+    }
+
+    <Button
+      color='primary'
+      className={classes.share}
+      disabled={isSubmitting}
+      onClick={handleSharePost}
+    >
+      Share
+    </Button>
+    ```
 
 
 
