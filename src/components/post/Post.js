@@ -19,18 +19,21 @@ import {
 import { usePostStyles } from '../../styles';
 import UserCard from '../shared/UserCard';
 import OptionsDialog from '../shared/OptionsDialog';
-import { defaultPost } from '../../data';
+// import { defaultPost } from '../../data';
 import PostSkeleton from './PostSkeleton';
+import { useSubscription } from '@apollo/client';
+import { GET_POST } from '../../graphql/subscriptions';
 
-function Post() {
+function Post({ postId }) {
 	const classes = usePostStyles();
-	const [loading, setLoading] = useState(true);
 	const [showOptionsDialog, setOptionsDialog] = useState(false);
+	const variables = { postId };
+	const { data, loading } = useSubscription(GET_POST, { variables });
 
-	setTimeout(() => setLoading(false), 2000);
+	// setTimeout(() => setLoading(false), 2000);
 	if (loading) return <PostSkeleton />;
 
-	const { id, media, likes, user, caption, comments } = defaultPost;
+	const { id, media, likes, user, caption, comments } = data.posts_by_pk;
 	return (
 		<div className={classes.postContainer}>
 			<article className={classes.article}>

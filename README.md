@@ -2580,9 +2580,67 @@
     - From: post_id (from the post_id stored in comments)
     - To: id (to the id on posts table)
 
+### 58. Getting a post from Hasura database:
+- Next thing we want to do is querying for a post in Hasura database and display it in our app. We want to subscribe to a post, so that we'll always get a realtime post data when there's an update to the post
+- **Create a GET_POST subscription:**
+- In src/graphql/subscriptions.js file:
+  - The GET_POST subscription executes the getPost subscription function
+  - Use the `posts_by_pk` operator to get a post by its primary key, which is an id. This id is the postId that we provide
+  - It returns the post's id, caption, created_at, media, location, the user info that created the post, the likes_aggregate, saved_posts (which is who saved this post), and comments
+  ```js
+  export const GET_POST = gql`
+    subscription getPost($postId: uuid!) {
+      posts_by_pk(id: $postId) {
+        id
+        caption
+        created_at
+        media
+        location
+        user {
+          id
+          username
+          name
+          profile_image
+        }
+        likes_aggregate {
+          aggregate {
+            count
+          }
+        }
+        saved_posts {
+          id
+          user_id
+        }
+        comments(order_by: { created_at: desc }) {
+          id
+          content
+          created_at
+          user {
+            username
+            profile_image
+          }
+        }
+      }
+    }
+  `;
+  ```
+- In src/pages/post.js file:
+  - Pass down the postId value as postId props to the Post child component
+- **Perform a GET_POST subscription operation in Post component:**
+- In src/components/post/Post.js file and in the *Post component*:
+  - Receive the postId props from the PostPage parent component
+  - Import the GET_POST subscription from subscriptions.js file
+  - Create a `variables` object that contains the postId data. We use this variable object to make a request to backend to get a post based on this postId
+  - Call a useSubscription() hook and pass in the GET_POST subscription as 1st arg, and the variables object as 2nd arg. What we get back are the data and loading properties
+  - Now we can destructure all the properties we need from the `data.posts_by_pk` object. BTW, it's a good idea to perform the query in Hasura console first to see the structure of the results that we get back
+  ```js
+  import { useSubscription } from '@apollo/client';
+  import { GET_POST } from '../../graphql/subscriptions';
 
-
-
+	const variables = { postId };
+	const { data, loading } = useSubscription(GET_POST, { variables });
+  const { id, media, likes, user, caption, comments } = data.posts_by_pk;
+  ```
 
 
 
