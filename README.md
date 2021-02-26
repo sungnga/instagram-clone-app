@@ -2235,6 +2235,124 @@
     - To: id
     - Relationship: posts.user_id -> users.id
 
+### 55. Client-side: building the AddPostDialog box component:
+- **Create a rich text editor for post caption using Slate library:**
+  - Slate docs: https://docs.slatejs.org/walkthroughs/01-installing-slate
+  - Import: `npm slate slate-react`
+  - Peer dependencies: `npm i react react-dom`
+  - Before building out the AddPostDialog component, we want the ability to format text for a given post caption, such as the ability to write on multiple lines. So we need a way to turn what the user typed in to the caption text field (the raw text) into formatted html text. In other words, we need to serialize our text into html
+  - To help us do this, we will be using a library called Slate. Slate allows us to build rich text editors
+  - In src/components/post/AddPostDialog.js file:
+    - Go to Slate docs website and follow the installation instructions
+    ```js
+    import React, { useEffect, useMemo, useState } from 'react';
+    import { createEditor } from 'slate';
+    import { Slate, Editable, withReact } from 'slate-react';
+
+    const initialValue = [
+      {
+        type: 'paragraph',
+        children: [{ text: 'this is a paragraph' }]
+      }
+    ];
+
+    function AddPostDialog({ media, handleClose }) {
+      // Create a Slate editor object that won't change across renders
+      const editor = useMemo(() => withReact(createEditor()), []);
+      // Keep track of state for the value of the editor
+      // Add the initial value when setting up our state.
+      const [value, setValue] = useState(initialValue);
+
+      // Render the Slate context
+      // Add the editable component inside the context
+      return (
+        <Slate
+          editor={editor}
+          value={value}
+          onChange={(newValue) => setValue(newValue)}
+        >
+          <Editable />
+        </Slate>
+      );
+    }
+    ```
+- **Style the AddPostDialog component:**
+  - In src/styles.js file:
+    - Write a useAddPostDialogStyles hook that defines the styles for the AddPostDialog component
+    - Name export it
+- **Build the AddPostDialog component:**
+  - In src/components/post/AddPostDialog.js file:
+    - Call useContext() hook and pass in the UserContext as an argument. Now we have access to `me` object, which is the current user information
+    - Create a piece of state called location and initialize it to an empty string. This will store the location value from the location input TextField
+    - Build the JSX of the AddPostDialog component. Use Material UI `<Dialog />` component to create the dialog box
+      - The media avatar displayed on the right side comes from media props received from parent component
+      - The handleClose function is a props received from parent component
+      - The caption text value will be stored in the value state
+      -  
+      ```js
+      import { useAddPostDialogStyles } from '../../styles';
+      import { UserContext } from '../../App';
+
+      function AddPostDialog({ media, handleClose }) {
+        const classes = useAddPostDialogStyles();
+        const { me } = useContext(UserContext);
+        const [value, setValue] = useState(initialValue);
+        const [location, setLocation] = useState('');
+
+        return (
+          <Dialog fullScreen open onClose={handleClose}>
+            <AppBar className={classes.appBar}>
+              <Toolbar className={classes.toolBar}>
+                <ArrowBackIos onClick={handleClose} />
+                <Typography align='center' variant='body1' className={classes.title}>
+                  New Post
+                </Typography>
+                <Button color='primary' className={classes.share}>
+                  Share
+                </Button>
+              </Toolbar>
+            </AppBar>
+            <Divider />
+            <Paper className={classes.paper}>
+              <Avatar src={me.profile_image} />
+              <Slate
+                editor={editor}
+                value={value}
+                onChange={(newValue) => setValue(newValue)}
+              >
+                <Editable
+                  className={classes.editor}
+                  placeholder='Write your caption...'
+                />
+              </Slate>
+              <Avatar
+                src={URL.createObjectURL(media)}
+                className={classes.avatarLarge}
+                variant='square'
+              />
+            </Paper>
+            <TextField
+              fullWidth
+              placeholder='Location'
+              InputProps={{
+                classes: {
+                  root: classes.root,
+                  input: classes.input,
+                  underline: classes.underline
+                },
+                startAdornment: (
+                  <InputAdornment>
+                    <PinDrop />
+                  </InputAdornment>
+                )
+              }}
+              onChange={(event) => setLocation(event.target.value)}
+            />
+          </Dialog>
+        );
+      }
+      ```
+
 
 
 
@@ -2345,6 +2463,8 @@ function handleChange(event) {
   - Connecting client to GraphQL API
 - react-hook-form and validator
   - Add validation to forms
+- slate
+  - Building a rich text editor for post caption
 
 
 **In vercel.json file:**
