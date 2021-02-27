@@ -2637,11 +2637,32 @@
   import { useSubscription } from '@apollo/client';
   import { GET_POST } from '../../graphql/subscriptions';
 
-	const variables = { postId };
+  const variables = { postId };
 	const { data, loading } = useSubscription(GET_POST, { variables });
-  const { id, media, likes, user, caption, comments } = data.posts_by_pk;
+  const { id, media, likes, user, created_at, caption, comments } = data.posts_by_pk;
   ```
 
+### 59. Post component revisited: populating post data:
+- **Populate post data in Post component:**
+  - Now that we have the post data from the database, we can replace our existing dummy post data with the actual post data in Post component
+  - The Post component is being rendered by the PostPage parent component. The change is reflected on the post page. Route: /p/:postId
+- **Building the AuthorCaption component:**
+- In src/components/post/Post.js file:
+  - Below the Post component, write a AuthorCaption component
+  - It receives the user, caption, and createdAt props from the Post parent component
+  - The AuthorCaption component renders:
+    - the user avatar
+    - the user username
+    - the post caption
+    - created at - when the post was created at
+- **Building the UserComment component:**
+  - Just below the AuthorCaption component, write a UserComment component
+  - It receives the comment props from the Post parent component
+  - It renders:
+    - the comment user avatar
+    - the comment user username
+    - the comment content
+    - when the comment was made
 
 
 

@@ -10,6 +10,7 @@ import {
 	SaveIcon
 } from '../../icons';
 import {
+	Avatar,
 	Button,
 	Divider,
 	Hidden,
@@ -33,13 +34,26 @@ function Post({ postId }) {
 	// setTimeout(() => setLoading(false), 2000);
 	if (loading) return <PostSkeleton />;
 
-	const { id, media, likes, user, caption, comments } = data.posts_by_pk;
+	const {
+		id,
+		media,
+		likes,
+		likes_aggregate,
+		location,
+		saved_posts,
+		user_id,
+		user,
+		created_at,
+		caption,
+		comments
+	} = data.posts_by_pk;
+	const likesCount = likes_aggregate.aggregate.count;
 	return (
 		<div className={classes.postContainer}>
 			<article className={classes.article}>
 				{/* Post Header */}
 				<div className={classes.postHeader}>
-					<UserCard user={user} avatarSize={32} />
+					<UserCard user={user} location={location} avatarSize={32} />
 					<MoreIcon
 						onClick={() => setOptionsDialog(true)}
 						className={classes.moreIcon}
@@ -52,7 +66,7 @@ function Post({ postId }) {
 				{/* Post Buttons */}
 				<div className={classes.postButtonsWrapper}>
 					<div className={classes.postButtons}>
-						<LikeButton />
+						<LikeButton likes={likes} postId={id} authorId={user.id} />
 						<Link to={`/p/${id}`}>
 							<CommentIcon />
 						</Link>
@@ -60,30 +74,22 @@ function Post({ postId }) {
 						<SaveButton />
 					</div>
 					<Typography className={classes.likes} variant='subtitle2'>
-						<span>{likes === 1 ? '1 like' : `${likes} likes`}</span>
+						<span>{likesCount === 1 ? '1 like' : `${likesCount} likes`}</span>
 					</Typography>
-					<div className={classes.postCaptionContainer}>
-						<Typography
-							variant='body2'
-							component='span'
-							className={classes.postCaption}
-							dangerouslySetInnerHTML={{ __html: caption }}
+					<div
+						style={{
+							overflowY: 'scroll',
+							padding: '16px 12px',
+							height: '100%'
+						}}
+					>
+						<AuthorCaption
+							user={user}
+							createdAt={created_at}
+							caption={caption}
 						/>
 						{comments.map((comment) => (
-							<div key={comment.id}>
-								<Link to={`/${comment.user.username}`}>
-									<Typography
-										variant='subtitle2'
-										component='span'
-										className={classes.commentUsername}
-									>
-										{comment.user.username}
-									</Typography>{' '}
-									<Typography variant='body2' component='span'>
-										{comment.content}
-									</Typography>
-								</Link>
-							</div>
+							<UserComment key={comment.id} comment={comment} />
 						))}
 					</div>
 					<Typography color='textSecondary' className={classes.datePosted}>
@@ -104,7 +110,102 @@ function Post({ postId }) {
 	);
 }
 
-function LikeButton() {
+function AuthorCaption({ user, caption, createdAt }) {
+	const classes = usePostStyles();
+
+	return (
+		<div style={{ display: 'flex' }}>
+			<Avatar
+				src={user.profile_image}
+				alt='User avatar'
+				style={{
+					marginRight: 14,
+					width: 32,
+					height: 32
+				}}
+			/>
+			<div style={{ display: 'flex', flexDirection: 'column' }}>
+				<Link to={user.username}>
+					<Typography
+						variant='subtitle2'
+						component='span'
+						className={classes.username}
+					>
+						{user.username}
+					</Typography>
+				</Link>
+				<Typography
+					variant='body2'
+					component='span'
+					className={classes.postCaption}
+					style={{ paddingLeft: 0 }}
+					dangerouslySetInnerHTML={{ __html: caption }}
+				/>
+				<Typography
+					style={{
+						marginTop: 16,
+						marginBottom: 4,
+						display: 'inline-block'
+					}}
+					color='textSecondary'
+					variant='caption'
+				>
+					{createdAt}
+				</Typography>
+			</div>
+		</div>
+	);
+}
+
+function UserComment({ comment }) {
+	const classes = usePostStyles();
+
+	return (
+		<div style={{ display: 'flex' }}>
+			<Avatar
+				src={comment.user.profile_image}
+				alt='User avatar'
+				style={{
+					marginRight: 14,
+					width: 32,
+					height: 32
+				}}
+			/>
+			<div style={{ display: 'flex', flexDirection: 'column' }}>
+				<Link to={comment.user.username}>
+					<Typography
+						variant='subtitle2'
+						component='span'
+						className={classes.username}
+					>
+						{comment.user.username}
+					</Typography>
+				</Link>
+				<Typography
+					variant='body2'
+					component='span'
+					className={classes.postCaption}
+					style={{ paddingLeft: 0 }}
+				>
+					{comment.content}
+				</Typography>
+				<Typography
+					style={{
+						marginTop: 16,
+						marginBottom: 4,
+						display: 'inline-block'
+					}}
+					color='textSecondary'
+					variant='caption'
+				>
+					{comment.created_at}
+				</Typography>
+			</div>
+		</div>
+	);
+}
+
+function LikeButton({ likes, authorId, postId }) {
 	const classes = usePostStyles();
 	const [liked, setLiked] = useState(false);
 	const Icon = liked ? UnlikeIcon : LikeIcon;

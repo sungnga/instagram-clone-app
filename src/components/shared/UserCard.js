@@ -4,7 +4,7 @@ import { Avatar, Typography } from '@material-ui/core';
 import { useUserCardStyles } from '../../styles';
 import { defaultUser } from '../../data';
 
-function UserCard({ user = defaultUser, avatarSize = 40 }) {
+function UserCard({ user = defaultUser, avatarSize = 40, location }) {
 	// console.log(user)
   const classes = useUserCardStyles({ avatarSize });
   const {username, name, profile_image} = user
@@ -29,7 +29,7 @@ function UserCard({ user = defaultUser, avatarSize = 40 }) {
 					variant='body2'
 					className={classes.typography}
 				>
-					{name}
+					{location || name}
 				</Typography>
 			</div>
 		</div>
