@@ -84,3 +84,21 @@ export const CREATE_POST = gql`
 		}
 	}
 `;
+
+export const LIKE_POST = gql`
+	mutation likePost($postId: uuid!, $userId: uuid!) {
+		insert_likes(objects: { user_id: $userId, post_id: $postId }) {
+			affected_rows
+		}
+	}
+`;
+
+export const UNLIKE_POST = gql`
+	mutation unlikePost($postId: uuid!, $userId: uuid!) {
+		delete_likes(
+			where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
+		) {
+			affected_rows
+		}
+	}
+`;

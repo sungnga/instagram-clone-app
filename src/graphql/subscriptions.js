@@ -21,6 +21,7 @@ export const GET_POST = gql`
 			created_at
 			media
 			location
+      user_id
 			user {
 				id
 				username
@@ -31,6 +32,10 @@ export const GET_POST = gql`
 				aggregate {
 					count
 				}
+			}
+			likes {
+				id
+				user_id
 			}
 			saved_posts {
 				id

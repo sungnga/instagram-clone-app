@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
 	CommentIcon,
@@ -22,8 +22,10 @@ import UserCard from '../shared/UserCard';
 import OptionsDialog from '../shared/OptionsDialog';
 // import { defaultPost } from '../../data';
 import PostSkeleton from './PostSkeleton';
-import { useSubscription } from '@apollo/client';
+import { useMutation, useSubscription } from '@apollo/client';
 import { GET_POST } from '../../graphql/subscriptions';
+import { UserContext } from '../../App';
+import { LIKE_POST, UNLIKE_POST } from '../../graphql/mutations';
 
 function Post({ postId }) {
 	const classes = usePostStyles();
@@ -92,6 +94,7 @@ function Post({ postId }) {
 							<UserComment key={comment.id} comment={comment} />
 						))}
 					</div>
+
 					<Typography color='textSecondary' className={classes.datePosted}>
 						5 DAYS AGO
 					</Typography>
@@ -207,19 +210,30 @@ function UserComment({ comment }) {
 
 function LikeButton({ likes, authorId, postId }) {
 	const classes = usePostStyles();
-	const [liked, setLiked] = useState(false);
+	const { currentUserId } = useContext(UserContext);
+	const isAlreadyLiked = likes.some(({ user_id }) => user_id === currentUserId);
+	const [liked, setLiked] = useState(isAlreadyLiked || false);
 	const Icon = liked ? UnlikeIcon : LikeIcon;
 	const className = liked ? classes.liked : classes.like;
 	const onClick = liked ? handleUnlike : handleLike;
+	const [likePost] = useMutation(LIKE_POST);
+	const [unlikePost] = useMutation(UNLIKE_POST);
+	const variables = {
+		postId,
+		userId: currentUserId
+		// profileId: authorId
+	};
 
 	function handleLike() {
-		console.log('like');
+		// console.log('like');
 		setLiked(true);
+		likePost({ variables });
 	}
 
 	function handleUnlike() {
-		console.log('unlike');
+		// console.log('unlike');
 		setLiked(false);
+		unlikePost({ variables });
 	}
 
 	return <Icon onClick={onClick} className={className} />;

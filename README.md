@@ -1565,10 +1565,10 @@
 - **Create a ME subscription:**
 - In src/graphql/subscriptions.js file:
   - Write a ME subscription (this is convention when getting the current user's info) that executes the me subscription function
-  - The me subscription function
-    - accepts userId as a parameter and it's optional
-    - it tries to the user with the matching given userId
-    - returns the user data we requested
+  - The me subscription function:
+    - accepts a userId as a parameter and it's optional
+    - finds a user by the given userId
+    - returns the user data that we specified
     ```js
     import { gql } from '@apollo/client';
 
@@ -2478,6 +2478,9 @@
 
 
 ## LIKING, SAVING, AND COMMENTING ON POSTS
+- The next feature we want to work on is enable a user to like and unlike a post, save and unsave a post, and comment on a post
+- We first need to create the likes, saved_posts, and comments tables in Hasura. And configure relationships between the users, posts, likes, comments, and saved_posts tables
+- We create a post subscription in order to display realtime post data in our app
 
 ### 57: Adding likes, saved_posts, and comments tables in Hasura, configure relationships:
 - **Create the likes table in Hasura graphQL:**
@@ -2607,6 +2610,10 @@
             count
           }
         }
+        likes {
+          id
+          user_id
+        }
         saved_posts {
           id
           user_id
@@ -2663,6 +2670,112 @@
     - the comment user username
     - the comment content
     - when the comment was made
+
+### 60. Implementing like and unlike a post:
+- When a user clicks the like button to like a post, we want to perform a LIKE_POST mutation in Hasura to insert a like instance to the likes table. A like instance contains a postId and userId properties
+- When a user clicks unlike button, we perform an UNLIKE_POST mutation in Hasura to delete a like instance to the likes table based on the postId and userId
+- We keep track of the liked state for the current user. So the user can toggle between like and unlike button and we display the correct UI button
+- Also, since the post is a subscription, any changes made to the post data our app will immediately get updated. In this case, the likesCount UI will automatically get updated when a user likes or unlikes a post
+- **Create a LIKE_POST mutation:**
+  - This mutation inserts a like instance into the likes table based on the given postId and userId
+  - Use the `insert_likes` operator to insert a like
+  - Since this is a subscription, we don't need to return anything and check the `affected_rows` box
+  ```js
+  export const LIKE_POST = gql`
+    mutation likePost($postId: uuid!, $userId: uuid!) {
+      insert_likes(objects: { user_id: $userId, post_id: $postId }) {
+        affected_rows
+      }
+    }
+  `;
+  ```
+- **Create an UNLIKE_POST mutation:**
+  - This mutation deletes a like instance from the likes table based on the given postId and userId
+  - Use the `delete_likes` operator to delete a like
+  - Since this is a subscription, we don't need to return anything and check the `affected_rows` box
+  ```js
+  export const UNLIKE_POST = gql`
+    mutation unlikePost($postId: uuid!, $userId: uuid!) {
+      delete_likes(
+        where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
+      ) {
+        affected_rows
+      }
+    }
+  `;
+  ```
+- **Like and unlike a post:**
+- In src/components/post/Post.js file and in the *LikeButton component*:
+  - Import the UserContext from App.js file
+  - Import the LIKE_POST and UNLIKE_POST mutations
+  - The LikeButton component receives the likes, authorId, and postId props from the Post parent component
+  - Call the useContext() hook and pass in the UserContext as an argument. What we get back is the currentUserId 
+  - First thing is we want to check is whether the post has been previously liked by the current user
+  - We use the currentUserId to see if it matches a user_id in the likes array. If there's a match, assign a truthy value to the isAlreadyLiked variable
+  - Then we can set isAlreadyLiked as an initial value for the liked state
+  - Next 
+  - Create a `variables` object that contains the postId data and the userId as currentUserId. We use this variables object to perform the mutations in Hasura
+  - Call the useMutation() hook and pass in the LIKE_POST mutation as an argument. We get back the likePost mutation function. Do the same thing for UNLIKE_POST to get the unlikePost mutation function
+  - In the handleLike function, call the likePost() and pass in the variables object as an argument
+  - In the handleUnlike function, call the unlikePost() and pass in the variables object as an argument
+  ```js
+  import { UserContext } from '../../App';
+  import { LIKE_POST, UNLIKE_POST } from '../../graphql/mutations';
+
+  function LikeButton({ likes, authorId, postId }) {
+    const classes = usePostStyles();
+    const { currentUserId } = useContext(UserContext);
+    const isAlreadyLiked = likes.some(({ user_id }) => user_id === currentUserId);
+    const [liked, setLiked] = useState(isAlreadyLiked || false);
+    const Icon = liked ? UnlikeIcon : LikeIcon;
+    const className = liked ? classes.liked : classes.like;
+    const onClick = liked ? handleUnlike : handleLike;
+    const [likePost] = useMutation(LIKE_POST);
+    const [unlikePost] = useMutation(UNLIKE_POST);
+    const variables = {
+      postId,
+      userId: currentUserId
+      // profileId: authorId
+    };
+
+    function handleLike() {
+      // console.log('like');
+      setLiked(true);
+      likePost({ variables });
+    }
+
+    function handleUnlike() {
+      // console.log('unlike');
+      setLiked(false);
+      unlikePost({ variables });
+    }
+
+    return <Icon onClick={onClick} className={className} />;
+  }
+  ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
