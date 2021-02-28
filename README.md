@@ -2873,7 +2873,83 @@
     ```
 
 
+## CREATING AND DISPLAYING NOTIFICATIONS
 
+### 62. Performing like notification mutations:
+- When a user likes a post, the owner of the post will get a notification about the like
+- To implement this feature, we need to create a notifications table in the database and perform notifications mutations of insert or delete a notification whenever a user likes or unlikes a post. The notification instance is associated with a postId, userId, and profileId and has a type of like. There are other types of notifications such as comment and follow, which we will work on later
+- **Create a notifications table in Hasura graphQL:**
+  - Table Name: notifications
+  - Columns:
+    - id : type of UUID : gen_random_uuid()
+    - created_at : type of Timestamp : now()
+    - post_id : type of UUID
+    - user_id : type of UUID
+    - profile_id : type of UUID
+    - type : type of Text
+  - Primary Key: id
+- **Update the LIKE_POST mutation to include insert_notifications mutation:**
+- In src/graphql/mutations.js file:
+  - So when a user clicks on the like button, we're going to perform a LIKE_POST mutation, but we're going to perform 2 mutations when making this request
+    - the 1st is `insert_likes` to insert a like to the likes table
+    - the 2nd is `insert_notifications` to insert a notification to the notifications table
+  - The likePost mutation now accepts one additional argument: profileId
+  - The `insert_notifications` mutation accepts 4 arguments: postId, userId, profileId, and type. The type is hard-coded to 'like' value
+  ```js
+  export const LIKE_POST = gql`
+    mutation likePost($postId: uuid!, $userId: uuid!, $profileId: uuid!) {
+      insert_likes(objects: { user_id: $userId, post_id: $postId }) {
+        affected_rows
+      }
+      insert_notifications(
+        objects: {
+          post_id: $profileId
+          user_id: $userId
+          profile_id: $profileId
+          type: "like"
+        }
+      ) {
+        affected_rows
+      }
+    }
+  `;
+  ```
+- **Update the UNLIKE_POST mutation to include delete_notifications mutation:**
+- In src/graphql/mutations.js file:
+  - When a user unlike a post, we want to delete the like notification associated with that user in the notifications table
+  - The process is exactly the same as `insert_notifications` mutation for like. Now we want to perform a `delete_notifications` mutation in UNLIKE_POST mutation
+  ```js
+  export const UNLIKE_POST = gql`
+    mutation unlikePost($postId: uuid!, $userId: uuid!, $profileId: uuid!) {
+      delete_likes(
+        where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
+      ) {
+        affected_rows
+      }
+      delete_notifications(
+        where: {
+          post_id: { _eq: $postId }
+          user_id: { _eq: $userId }
+          profile_id: { _eq: $profileId }
+          type: { _eq: "like" }
+        }
+      ) {
+        affected_rows
+      }
+    }
+  `;
+  ```
+- **Update the LikeButton component:**
+- In src/components/post/Post.js file and in the *LikeButton component*:
+  - Update the `variables` object to include the profileId data
+    ```js
+    const variables = {
+      postId,
+      userId: currentUserId,
+      profileId: authorId
+    };
+    ```
+- Now whenever a user likes a post, a like notification instance is created in the notifications table. When a user unlike a post, the like notification instance gets deleted
 
 
 

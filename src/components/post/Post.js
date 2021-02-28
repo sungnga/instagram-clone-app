@@ -49,7 +49,6 @@ function Post({ postId }) {
 		likes_aggregate,
 		location,
 		saved_posts,
-		user_id,
 		user,
 		created_at,
 		caption,
@@ -226,8 +225,8 @@ function LikeButton({ likes, authorId, postId }) {
 	const [unlikePost] = useMutation(UNLIKE_POST);
 	const variables = {
 		postId,
-		userId: currentUserId
-		// profileId: authorId
+		userId: currentUserId,
+		profileId: authorId
 	};
 
 	function handleLike() {
@@ -288,8 +287,8 @@ function Comment({ postId }) {
 			postId,
 			userId: currentUserId
 		};
-    createComment({ variables });
-    setContent('');
+		createComment({ variables });
+		setContent('');
 	}
 
 	return (
