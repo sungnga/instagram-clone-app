@@ -2822,9 +2822,55 @@
   }
   ```
 
+### 62. Implementing create comment on a post:
+- The steps to implementing create comment on a post is very much similar to like/unlike and save/unsave functionalities
+- **Create a CREATE_COMMENT mutation:**
+- In src/graphql/mutations.js file:
+  - The createComment mutation function accepts the postId, userId, and content variables as arguments
+  - Since we're subscribing to a post, we don't need to return anything. So check the `affected_rows` box
+  ```js
+  export const CREATE_COMMENT = gql`
+    mutation createComment($postId: uuid!, $userId: uuid!, $content: String!) {
+      insert_comments(
+        objects: { post_id: $postId, user_id: $userId, content: $content }
+      ) {
+        affected_rows
+      }
+    }
+  `;
+  ```
+- **Create a comment on a post:**
+- In src/components/post/Post.js file and in the *Comment component*:
+  - The Comment component receives the postId props from the Post parent component
+  - Call the useContext() hook and pass in the UserContext as an argument. We get back the currentUserId
+  - Call the useMutation() hook and pass in the CREATE_COMMENT mutation as an argument. We get back the createComment mutation function
+  - In the button element, add an onClick event handler and set it to handleAddComment
+  - Write a handleAddComment function that executes the createComment mutation function. This makes a request to backend to create a comment with the provided data
+    - Create a `variables` object which contains the content, postId, and userId data
+    - Call the createComment() mutation and pass in the `variables` object as an argument
+    - After the comment is submitted, we need to clear the input content. Call setContent() to set the content state back to an empty string
+    ```js
+    import { useMutation } from '@apollo/client';
+    import { UserContext } from '../../App';
+    import { CREATE_COMMENT } from '../../graphql/mutations';
 
+    function Comment({ postId }) {
+      const classes = usePostStyles();
+      const [content, setContent] = useState('');
+      const { currentUserId } = useContext(UserContext);
+      const [createComment] = useMutation(CREATE_COMMENT);
 
-
+      function handleAddComment() {
+        const variables = {
+          content,
+          postId,
+          userId: currentUserId
+        };
+        createComment({ variables });
+        setContent('');
+      }
+    }
+    ```
 
 
 

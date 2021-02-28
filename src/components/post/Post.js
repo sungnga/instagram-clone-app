@@ -29,7 +29,8 @@ import {
 	LIKE_POST,
 	UNLIKE_POST,
 	SAVE_POST,
-	UNSAVE_POST
+	UNSAVE_POST,
+	CREATE_COMMENT
 } from '../../graphql/mutations';
 
 function Post({ postId }) {
@@ -55,6 +56,7 @@ function Post({ postId }) {
 		comments
 	} = data.posts_by_pk;
 	const likesCount = likes_aggregate.aggregate.count;
+
 	return (
 		<div className={classes.postContainer}>
 			<article className={classes.article}>
@@ -99,14 +101,13 @@ function Post({ postId }) {
 							<UserComment key={comment.id} comment={comment} />
 						))}
 					</div>
-
 					<Typography color='textSecondary' className={classes.datePosted}>
 						5 DAYS AGO
 					</Typography>
 					<Hidden xsDown>
 						<div className={classes.comment}>
 							<Divider />
-							<Comment />
+							<Comment postId={id} />
 						</div>
 					</Hidden>
 				</div>
@@ -141,14 +142,14 @@ function AuthorCaption({ user, caption, createdAt }) {
 					>
 						{user.username}
 					</Typography>
+					<Typography
+						variant='body2'
+						component='span'
+						className={classes.postCaption}
+						style={{ paddingLeft: 0 }}
+						dangerouslySetInnerHTML={{ __html: caption }}
+					/>
 				</Link>
-				<Typography
-					variant='body2'
-					component='span'
-					className={classes.postCaption}
-					style={{ paddingLeft: 0 }}
-					dangerouslySetInnerHTML={{ __html: caption }}
-				/>
 				<Typography
 					style={{
 						marginTop: 16,
@@ -188,15 +189,15 @@ function UserComment({ comment }) {
 					>
 						{comment.user.username}
 					</Typography>
+					<Typography
+						variant='body2'
+						component='span'
+						className={classes.postCaption}
+						style={{ paddingLeft: 0 }}
+					>
+						{comment.content}
+					</Typography>
 				</Link>
-				<Typography
-					variant='body2'
-					component='span'
-					className={classes.postCaption}
-					style={{ paddingLeft: 0 }}
-				>
-					{comment.content}
-				</Typography>
 				<Typography
 					style={{
 						marginTop: 16,
@@ -275,9 +276,21 @@ function SaveButton({ savedPosts, postId }) {
 	return <Icon onClick={onClick} className={classes.saveIcon} />;
 }
 
-function Comment() {
+function Comment({ postId }) {
 	const classes = usePostStyles();
 	const [content, setContent] = useState('');
+	const { currentUserId } = useContext(UserContext);
+	const [createComment] = useMutation(CREATE_COMMENT);
+
+	function handleAddComment() {
+		const variables = {
+			content,
+			postId,
+			userId: currentUserId
+		};
+    createComment({ variables });
+    setContent('');
+	}
 
 	return (
 		<div className={classes.commentContainer}>
@@ -298,6 +311,7 @@ function Comment() {
 				}}
 			/>
 			<Button
+				onClick={handleAddComment}
 				color='primary'
 				className={classes.commentButton}
 				disabled={!content.trim()}

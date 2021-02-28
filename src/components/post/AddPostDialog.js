@@ -25,10 +25,6 @@ const initialValue = [
 	{
 		type: 'paragraph',
 		children: [{ text: '' }]
-	},
-	{
-		type: 'link',
-		children: [{ text: '' }]
 	}
 ];
 
