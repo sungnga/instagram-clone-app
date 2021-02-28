@@ -2677,6 +2677,7 @@
 - We keep track of the liked state for the current user. So the user can toggle between like and unlike button and we display the correct UI button
 - Also, since the post is a subscription, any changes made to the post data our app will immediately get updated. In this case, the likesCount UI will automatically get updated when a user likes or unlikes a post
 - **Create a LIKE_POST mutation:**
+- In src/graphql/mutations.js file:
   - This mutation inserts a like instance into the likes table based on the given postId and userId
   - Use the `insert_likes` operator to insert a like
   - Since this is a subscription, we don't need to return anything and check the `affected_rows` box
@@ -2690,6 +2691,7 @@
   `;
   ```
 - **Create an UNLIKE_POST mutation:**
+- In src/graphql/mutations.js file:
   - This mutation deletes a like instance from the likes table based on the given postId and userId
   - Use the `delete_likes` operator to delete a like
   - Since this is a subscription, we don't need to return anything and check the `affected_rows` box
@@ -2754,9 +2756,71 @@
   }
   ```
 
+### 61. Implementing save and unsave a post:
+- The process of implementing the save and unsave a post functionality is very similar to like and unlike a post
+- **Create a SAVE_POST mutation:**
+- In src/graphql/mutations.js file:
+  ```js
+  export const SAVE_POST = gql`
+    mutation savePost($postId: uuid!, $userId: uuid!) {
+      insert_saved_posts(objects: { user_id: $userId, post_id: $postId }) {
+        affected_rows
+      }
+    }
+  `;
+  ```
+- **Create an UNSAVE_POST mutation:**
+- In src/graphql/mutations.js file:
+  ```js
+  export const UNSAVE_POST = gql`
+    mutation unsavePost($postId: uuid!, $userId: uuid!) {
+      delete_saved_posts(
+        where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
+      ) {
+        affected_rows
+      }
+    }
+  `;
+  ```
+- **Save and unsave a post:**
+- In src/components/post/Post.js file and in the *SaveButton component*:
+  - The SaveButton component receives the savedPosts and postId props from the Post parent component
+  ```js
+  import { useMutation } from '@apollo/client';
+  import { UserContext } from '../../App';
+  import { SAVE_POST, UNSAVE_POST } from '../../graphql/mutations';
 
+  function SaveButton({ savedPosts, postId }) {
+    const classes = usePostStyles();
+    const { currentUserId } = useContext(UserContext);
+    const isAlreadySaved = savedPosts.some(
+      ({ user_id }) => user_id === currentUserId
+    );
+    const [saved, setSaved] = useState(isAlreadySaved || false);
+    const Icon = saved ? RemoveIcon : SaveIcon;
+    const onClick = saved ? handleRemove : handleSave;
+    const [savePost] = useMutation(SAVE_POST);
+    const [unsavePost] = useMutation(UNSAVE_POST);
+    const variables = {
+      postId,
+      userId: currentUserId
+    };
 
+    function handleSave() {
+      // console.log('save');
+      setSaved(true);
+      savePost({ variables });
+    }
 
+    function handleRemove() {
+      // console.log('remove');
+      setSaved(false);
+      unsavePost({ variables });
+    }
+
+    return <Icon onClick={onClick} className={classes.saveIcon} />;
+  }
+  ```
 
 
 
