@@ -3228,9 +3228,55 @@
   - In the UserComment component, call the formatDateToNowShort() method to format the comment created_at date
 
 
+## PROFILE PAGE, PLUS FOLLOWING AND UNFOLLOWING USERS
 
-
-
+### 66. Adding following and followers tables in Hasura, configure relationships:
+- **Create a following table in Hasura graphQL:**
+  - Table Name: following
+  - Columns:
+    - id : type of UUID : gen_random_uuid()
+    - user_id : type of UUID
+    - profile_id : type of UUID
+  - Primary Key: id
+- **Create a followers table in Hasura graphQL:**
+  - Table Name: followers
+  - Columns:
+    - id : type of UUID : gen_random_uuid()
+    - user_id : type of UUID
+    - profile_id : type of UUID
+  - Primary Key: id
+- **Configure relationships for tables:**
+  - Relationships for users table:
+    - A user may have many following (following many users). users has an array relationship with following
+    - Configure relationships between users and following:
+      - Relationship Type: Array Relationship
+      - Relationship Name: following
+      - Reference Table: following
+      - From: id (from the users id)
+      - To: user_id (to the user_id stored in following)
+    - A user may have many followers. users has an array relationship with followers
+    - Configure relationships between users and followers:
+      - Relationship Type: Array Relationship
+      - Relationship Name: followers
+      - Reference Table: followers
+      - From: id (from the users id)
+      - To: user_id (to the user_id stored in followers)
+  - Relationships for following table:
+    - A user who commits the following (profile_id). following has an object relationship to users
+    - Configure relationships between following and users:
+      - Relationship Type: Object Relationship
+      - Relationship Name: user
+      - Reference Table: users
+      - From: profile_id (from the profile_id stored in following)
+      - To: id (to the id on users table)
+  - Relationships for followers table:
+    - A follower of a user. followers has an object relationship to users
+    - Configure relationships between followers and users:
+      - Relationship Type: Object Relationship
+      - Relationship Name: user
+      - Reference Table: users
+      - From: profile_id (from the profile_id stored in followers)
+      - To: id (to the id on users table)
 
 
 
