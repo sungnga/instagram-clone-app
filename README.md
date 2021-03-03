@@ -2759,118 +2759,118 @@
 ### 61. Implementing save and unsave a post:
 - The process of implementing the save and unsave a post functionality is very similar to like and unlike a post
 - **Create a SAVE_POST mutation:**
-- In src/graphql/mutations.js file:
-  ```js
-  export const SAVE_POST = gql`
-    mutation savePost($postId: uuid!, $userId: uuid!) {
-      insert_saved_posts(objects: { user_id: $userId, post_id: $postId }) {
-        affected_rows
+  - In src/graphql/mutations.js file:
+    ```js
+    export const SAVE_POST = gql`
+      mutation savePost($postId: uuid!, $userId: uuid!) {
+        insert_saved_posts(objects: { user_id: $userId, post_id: $postId }) {
+          affected_rows
+        }
       }
-    }
-  `;
-  ```
+    `;
+    ```
 - **Create an UNSAVE_POST mutation:**
-- In src/graphql/mutations.js file:
-  ```js
-  export const UNSAVE_POST = gql`
-    mutation unsavePost($postId: uuid!, $userId: uuid!) {
-      delete_saved_posts(
-        where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
-      ) {
-        affected_rows
+  - In src/graphql/mutations.js file:
+    ```js
+    export const UNSAVE_POST = gql`
+      mutation unsavePost($postId: uuid!, $userId: uuid!) {
+        delete_saved_posts(
+          where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
+        ) {
+          affected_rows
+        }
       }
-    }
-  `;
+    `;
   ```
 - **Save and unsave a post:**
-- In src/components/post/Post.js file and in the *SaveButton component*:
-  - The SaveButton component receives the savedPosts and postId props from the Post parent component
-  ```js
-  import { useMutation } from '@apollo/client';
-  import { UserContext } from '../../App';
-  import { SAVE_POST, UNSAVE_POST } from '../../graphql/mutations';
+  - In src/components/post/Post.js file and in the *SaveButton component*:
+    - The SaveButton component receives the savedPosts and postId props from the Post parent component
+    ```js
+    import { useMutation } from '@apollo/client';
+    import { UserContext } from '../../App';
+    import { SAVE_POST, UNSAVE_POST } from '../../graphql/mutations';
 
-  function SaveButton({ savedPosts, postId }) {
-    const classes = usePostStyles();
-    const { currentUserId } = useContext(UserContext);
-    const isAlreadySaved = savedPosts.some(
-      ({ user_id }) => user_id === currentUserId
-    );
-    const [saved, setSaved] = useState(isAlreadySaved || false);
-    const Icon = saved ? RemoveIcon : SaveIcon;
-    const onClick = saved ? handleRemove : handleSave;
-    const [savePost] = useMutation(SAVE_POST);
-    const [unsavePost] = useMutation(UNSAVE_POST);
-    const variables = {
-      postId,
-      userId: currentUserId
-    };
+    function SaveButton({ savedPosts, postId }) {
+      const classes = usePostStyles();
+      const { currentUserId } = useContext(UserContext);
+      const isAlreadySaved = savedPosts.some(
+        ({ user_id }) => user_id === currentUserId
+      );
+      const [saved, setSaved] = useState(isAlreadySaved || false);
+      const Icon = saved ? RemoveIcon : SaveIcon;
+      const onClick = saved ? handleRemove : handleSave;
+      const [savePost] = useMutation(SAVE_POST);
+      const [unsavePost] = useMutation(UNSAVE_POST);
+      const variables = {
+        postId,
+        userId: currentUserId
+      };
 
-    function handleSave() {
-      // console.log('save');
-      setSaved(true);
-      savePost({ variables });
+      function handleSave() {
+        // console.log('save');
+        setSaved(true);
+        savePost({ variables });
+      }
+
+      function handleRemove() {
+        // console.log('remove');
+        setSaved(false);
+        unsavePost({ variables });
+      }
+
+      return <Icon onClick={onClick} className={classes.saveIcon} />;
     }
-
-    function handleRemove() {
-      // console.log('remove');
-      setSaved(false);
-      unsavePost({ variables });
-    }
-
-    return <Icon onClick={onClick} className={classes.saveIcon} />;
-  }
-  ```
+    ```
 
 ### 62. Implementing create comment on a post:
 - The steps to implementing create comment on a post is very much similar to like/unlike and save/unsave functionalities
 - **Create a CREATE_COMMENT mutation:**
-- In src/graphql/mutations.js file:
-  - The createComment mutation function accepts the postId, userId, and content variables as arguments
-  - Since we're subscribing to a post, we don't need to return anything. So check the `affected_rows` box
-  ```js
-  export const CREATE_COMMENT = gql`
-    mutation createComment($postId: uuid!, $userId: uuid!, $content: String!) {
-      insert_comments(
-        objects: { post_id: $postId, user_id: $userId, content: $content }
-      ) {
-        affected_rows
-      }
-    }
-  `;
-  ```
-- **Create a comment on a post:**
-- In src/components/post/Post.js file and in the *Comment component*:
-  - The Comment component receives the postId props from the Post parent component
-  - Call the useContext() hook and pass in the UserContext as an argument. We get back the currentUserId
-  - Call the useMutation() hook and pass in the CREATE_COMMENT mutation as an argument. We get back the createComment mutation function
-  - In the button element, add an onClick event handler and set it to handleAddComment
-  - Write a handleAddComment function that executes the createComment mutation function. This makes a request to backend to create a comment with the provided data
-    - Create a `variables` object which contains the content, postId, and userId data
-    - Call the createComment() mutation and pass in the `variables` object as an argument
-    - After the comment is submitted, we need to clear the input content. Call setContent() to set the content state back to an empty string
+  - In src/graphql/mutations.js file:
+    - The createComment mutation function accepts the postId, userId, and content variables as arguments
+    - Since we're subscribing to a post, we don't need to return anything. So check the `affected_rows` box
     ```js
-    import { useMutation } from '@apollo/client';
-    import { UserContext } from '../../App';
-    import { CREATE_COMMENT } from '../../graphql/mutations';
-
-    function Comment({ postId }) {
-      const classes = usePostStyles();
-      const [content, setContent] = useState('');
-      const { currentUserId } = useContext(UserContext);
-      const [createComment] = useMutation(CREATE_COMMENT);
-
-      function handleAddComment() {
-        const variables = {
-          content,
-          postId,
-          userId: currentUserId
-        };
-        createComment({ variables });
-        setContent('');
+    export const CREATE_COMMENT = gql`
+      mutation createComment($postId: uuid!, $userId: uuid!, $content: String!) {
+        insert_comments(
+          objects: { post_id: $postId, user_id: $userId, content: $content }
+        ) {
+          affected_rows
+        }
       }
-    }
+    `;
     ```
+- **Create a comment on a post:**
+  - In src/components/post/Post.js file and in the *Comment component*:
+    - The Comment component receives the postId props from the Post parent component
+    - Call the useContext() hook and pass in the UserContext as an argument. We get back the currentUserId
+    - Call the useMutation() hook and pass in the CREATE_COMMENT mutation as an argument. We get back the createComment mutation function
+    - In the button element, add an onClick event handler and set it to handleAddComment
+    - Write a handleAddComment function that executes the createComment mutation function. This makes a request to backend to create a comment with the provided data
+      - Create a `variables` object which contains the content, postId, and userId data
+      - Call the createComment() mutation and pass in the `variables` object as an argument
+      - After the comment is submitted, we need to clear the input content. Call setContent() to set the content state back to an empty string
+      ```js
+      import { useMutation } from '@apollo/client';
+      import { UserContext } from '../../App';
+      import { CREATE_COMMENT } from '../../graphql/mutations';
+
+      function Comment({ postId }) {
+        const classes = usePostStyles();
+        const [content, setContent] = useState('');
+        const { currentUserId } = useContext(UserContext);
+        const [createComment] = useMutation(CREATE_COMMENT);
+
+        function handleAddComment() {
+          const variables = {
+            content,
+            postId,
+            userId: currentUserId
+          };
+          createComment({ variables });
+          setContent('');
+        }
+      }
+      ```
 
 
 ## CREATING AND DISPLAYING NOTIFICATIONS
@@ -2920,195 +2920,194 @@
       - Reference Table: notifications
       - From: id (from the posts id)
       - To: post_id (to the post_id stored in notifications)
-    
 - **Update the LIKE_POST mutation to include insert_notifications mutation:**
-- In src/graphql/mutations.js file:
-  - So when a user clicks on the like button, we're going to perform a LIKE_POST mutation, but we're going to perform 2 mutations when making this request
-    - the 1st is `insert_likes` to insert a like to the likes table
-    - the 2nd is `insert_notifications` to insert a notification to the notifications table
-  - The likePost mutation now accepts one additional argument: profileId
-  - The `insert_notifications` mutation accepts 4 arguments: postId, userId, profileId, and type. The type is hard-coded to 'like' value
-  ```js
-  export const LIKE_POST = gql`
-    mutation likePost($postId: uuid!, $userId: uuid!, $profileId: uuid!) {
-      insert_likes(objects: { user_id: $userId, post_id: $postId }) {
-        affected_rows
-      }
-      insert_notifications(
-        objects: {
-          post_id: $profileId
-          user_id: $userId
-          profile_id: $profileId
-          type: "like"
-        }
-      ) {
-        affected_rows
-      }
-    }
-  `;
-  ```
-- **Update the UNLIKE_POST mutation to include delete_notifications mutation:**
-- In src/graphql/mutations.js file:
-  - When a user unlike a post, we want to delete the like notification associated with that user in the notifications table
-  - The process is exactly the same as `insert_notifications` mutation for like. Now we want to perform a `delete_notifications` mutation in UNLIKE_POST mutation
-  ```js
-  export const UNLIKE_POST = gql`
-    mutation unlikePost($postId: uuid!, $userId: uuid!, $profileId: uuid!) {
-      delete_likes(
-        where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
-      ) {
-        affected_rows
-      }
-      delete_notifications(
-        where: {
-          post_id: { _eq: $postId }
-          user_id: { _eq: $userId }
-          profile_id: { _eq: $profileId }
-          type: { _eq: "like" }
-        }
-      ) {
-        affected_rows
-      }
-    }
-  `;
-  ```
-- **Update the LikeButton component:**
-- In src/components/post/Post.js file and in the *LikeButton component*:
-  - Update the `variables` object to include the profileId data
+  - In src/graphql/mutations.js file:
+    - So when a user clicks on the like button, we're going to perform a LIKE_POST mutation, but we're going to perform 2 mutations when making this request
+      - the 1st is `insert_likes` to insert a like to the likes table
+      - the 2nd is `insert_notifications` to insert a notification to the notifications table
+    - The likePost mutation now accepts one additional argument: profileId
+    - The `insert_notifications` mutation accepts 4 arguments: postId, userId, profileId, and type. The type is hard-coded to 'like' value
     ```js
-    const variables = {
-      postId,
-      userId: currentUserId,
-      profileId: authorId
-    };
+    export const LIKE_POST = gql`
+      mutation likePost($postId: uuid!, $userId: uuid!, $profileId: uuid!) {
+        insert_likes(objects: { user_id: $userId, post_id: $postId }) {
+          affected_rows
+        }
+        insert_notifications(
+          objects: {
+            post_id: $profileId
+            user_id: $userId
+            profile_id: $profileId
+            type: "like"
+          }
+        ) {
+          affected_rows
+        }
+      }
+    `;
     ```
+- **Update the UNLIKE_POST mutation to include delete_notifications mutation:**
+  - In src/graphql/mutations.js file:
+    - When a user unlike a post, we want to delete the like notification associated with that user in the notifications table
+    - The process is exactly the same as `insert_notifications` mutation for like. Now we want to perform a `delete_notifications` mutation in UNLIKE_POST mutation
+    ```js
+    export const UNLIKE_POST = gql`
+      mutation unlikePost($postId: uuid!, $userId: uuid!, $profileId: uuid!) {
+        delete_likes(
+          where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
+        ) {
+          affected_rows
+        }
+        delete_notifications(
+          where: {
+            post_id: { _eq: $postId }
+            user_id: { _eq: $userId }
+            profile_id: { _eq: $profileId }
+            type: { _eq: "like" }
+          }
+        ) {
+          affected_rows
+        }
+      }
+    `;
+    ```
+- **Update the LikeButton component:**
+  - In src/components/post/Post.js file and in the *LikeButton component*:
+    - Update the `variables` object to include the profileId data
+      ```js
+      const variables = {
+        postId,
+        userId: currentUserId,
+        profileId: authorId
+      };
+      ```
 - Now whenever a user likes a post, a like notification instance is created in the notifications table. When a user unlike a post, the like notification instance gets deleted
 
 ### 63. Displaying notifications in NotificationList and NotificationTooltip:
 - **Update the ME subscription to include notifications:**
-- In src/graphql/subscriptions.js file:
-  - Update the ME subscription to include the notifications field. Set the `order_by` property to created_at timestamp in descending order. This means that a user will get notifications on the most recent notification instances
-  ```js
-  export const ME = gql`
-    subscription me($userId: String) {
-      users(where: { user_id: { _eq: $userId } }) {
-        id
-        user_id
-        name
-        username
-        profile_image
-        last_checked
-        notifications(order_by: { created_at: desc }) {
+  - In src/graphql/subscriptions.js file:
+    - Update the ME subscription to include the notifications field. Set the `order_by` property to created_at timestamp in descending order. This means that a user will get notifications on the most recent notification instances
+    ```js
+    export const ME = gql`
+      subscription me($userId: String) {
+        users(where: { user_id: { _eq: $userId } }) {
           id
-          type
-          created_at
-          post {
+          user_id
+          name
+          username
+          profile_image
+          last_checked
+          notifications(order_by: { created_at: desc }) {
             id
-            media
-          }
-          user {
-            id
-            username
-            profile_image
+            type
+            created_at
+            post {
+              id
+              media
+            }
+            user {
+              id
+              username
+              profile_image
+            }
           }
         }
       }
-    }
-  `;
-  ```
+    `;
+    ```
 - **Display the notifications:**
-- In src/components/shared/Navbar.js file and in the *Links component*:
-  - Import the isAfter method from date-fns library
-  - Now our `me` object that we get back from the UserContext contains the `notifications` property
-  - We can get the new notifications from the me.notifications array by filtering it by created_at date
-    - There's an `isAfter()` method provided by the `date-fns` library that we can use to compare the date of created_at against the date of me.last_checked
-    - If the created_at date IS AFTER the last_checked date, return and store the results (in an array) in a newNotifications variable
-  - If newNotification.length is greater than 0, then set the truthy value in a hasNotifications variable. This variable controls the notifications visibility in the tooltips
-  - In the showTooltip state, initialize its value to the hasNotifications variable. So the value of showTooltip state (true or false) is controlled by the hasNotifications value
-  - In the `<NotificationList />` component, pass down the me.notifications value as notifications props. The me.notifications array contains all of the notifications on the current user
-  - Inside the RedTooltip component and in the `<NotificationTooltip />` component, pass down the newNotifications array as notifications props
-  ```js
-  import { isAfter } from 'date-fns';
+  - In src/components/shared/Navbar.js file and in the *Links component*:
+    - Import the isAfter method from date-fns library
+    - Now our `me` object that we get back from the UserContext contains the `notifications` property
+    - We can get the new notifications from the me.notifications array by filtering it by created_at date
+      - There's an `isAfter()` method provided by the `date-fns` library that we can use to compare the date of created_at against the date of me.last_checked
+      - If the created_at date IS AFTER the last_checked date, return and store the results (in an array) in a newNotifications variable
+    - If newNotification.length is greater than 0, then set the truthy value in a hasNotifications variable. This variable controls the notifications visibility in the tooltips
+    - In the showTooltip state, initialize its value to the hasNotifications variable. So the value of showTooltip state (true or false) is controlled by the hasNotifications value
+    - In the `<NotificationList />` component, pass down the me.notifications value as notifications props. The me.notifications array contains all of the notifications on the current user
+    - Inside the RedTooltip component and in the `<NotificationTooltip />` component, pass down the newNotifications array as notifications props
+    ```js
+    import { isAfter } from 'date-fns';
 
-  function Links({ path }) {
-    const { me } = useContext(UserContext);
-    const newNotifications = me.notifications.filter(({ created_at }) =>
-      isAfter(new Date(created_at), new Date(me.last_checked))
-    );
-    // console.log({newNotifications})
-    const hasNotifications = newNotifications.length > 0;
-    const [showTooltip, setTooltip] = useState(hasNotifications);
+    function Links({ path }) {
+      const { me } = useContext(UserContext);
+      const newNotifications = me.notifications.filter(({ created_at }) =>
+        isAfter(new Date(created_at), new Date(me.last_checked))
+      );
+      // console.log({newNotifications})
+      const hasNotifications = newNotifications.length > 0;
+      const [showTooltip, setTooltip] = useState(hasNotifications);
 
-    return (
-      {showList && (
-				<NotificationList
-					notifications={me.notifications}
-					handleHideList={handleHideList}
-				/>
-			)}
+      return (
+        {showList && (
+          <NotificationList
+            notifications={me.notifications}
+            handleHideList={handleHideList}
+          />
+        )}
 
-      <RedTooltip
-        arrow
-        open={showTooltip}
-        onOpen={handleHideTooltip}
-        TransitionComponent={Zoom}
-        title={<NotificationTooltip notifications={newNotifications} />}
-      >
-    )
-  }
+        <RedTooltip
+          arrow
+          open={showTooltip}
+          onOpen={handleHideTooltip}
+          TransitionComponent={Zoom}
+          title={<NotificationTooltip notifications={newNotifications} />}
+        >
+      )
+    }
   ```
 - **Display the notifications data in NotificationList component:**
-- In the notification list of our current user, we want to display all of the notifications found in me.notifications here
-- In src/components/notification/NotificationList.js file:
-  - Receive the notifications props from the Links parent component
-  - Then replace the `defaultNotifications` array with the `notifications` array instead. So when mapping over the notifications array, it will display the actual notification data
-  - Also display the correct date when the notification was created_at, for both like and follow
-  ```js
-  function NotificationList({ handleHideList, notifications }) {
-    {notifications.map((notification) => { ... })}
-  }
-  ```
-- **Display notifications in NotificationTooltip component:**
-- In the NotificationTooltip component, we only want to display the redToolTip notifications when there's a new notification for the current user
-- We want to show the type of notification and its count in the redTooltip. For example, there are 5 new likes and 2 new followers
-- In src/components/notification/NotificationTooltip.js file:
-  - Receive the notifications props from the Links parent component
-  - Then we want to figure out how many like notifications and how many follow notifications there are and display them next to the icons
-  - Write a countNotifications function that returns a count based on the given notification type
-    - This function accepts notificationType as an argument
-    - Use the filter() method on the notifications array to filter by the `type` property
-    - Return the length of the notifications where its type property is equal to the given notificationType
-  - Call the countNotifications() method and pass in 'follow' type as an argument. Store the returned count value in a followCount variable
-  - Call the countNotifications() method and pass in 'like' type as an argument. Store the returned count value in a likeCount variable
-  - In the return section, write a conditional that if followCount is greater than 0, display/interpolate the followCount value. Do the same to display the likeCount
-  ```js
-  function NotificationTooltip({ notifications }) {
-    const classes = useNavbarStyles();
-    const followCount = countNotifications('follow');
-    const likeCount = countNotifications('like');
-
-    function countNotifications(notificationType) {
-      return notifications.filter(({ type }) => type === notificationType).length;
+  - In the notification list of our current user, we want to display all of the notifications found in me.notifications here
+  - In src/components/notification/NotificationList.js file:
+    - Receive the notifications props from the Links parent component
+    - Then replace the `defaultNotifications` array with the `notifications` array instead. So when mapping over the notifications array, it will display the actual notification data
+    - Also display the correct date when the notification was created_at, for both like and follow
+    ```js
+    function NotificationList({ handleHideList, notifications }) {
+      {notifications.map((notification) => { ... })}
     }
+    ```
+- **Display notifications in NotificationTooltip component:**
+  - In the NotificationTooltip component, we only want to display the redToolTip notifications when there's a new notification for the current user
+  - We want to show the type of notification and its count in the redTooltip. For example, there are 5 new likes and 2 new followers
+  - In src/components/notification/NotificationTooltip.js file:
+    - Receive the notifications props from the Links parent component
+    - Then we want to figure out how many like notifications and how many follow notifications there are and display them next to the icons
+    - Write a countNotifications function that returns a count based on the given notification type
+      - This function accepts notificationType as an argument
+      - Use the filter() method on the notifications array to filter by the `type` property
+      - Return the length of the notifications where its type property is equal to the given notificationType
+    - Call the countNotifications() method and pass in 'follow' type as an argument. Store the returned count value in a followCount variable
+    - Call the countNotifications() method and pass in 'like' type as an argument. Store the returned count value in a likeCount variable
+    - In the return section, write a conditional that if followCount is greater than 0, display/interpolate the followCount value. Do the same to display the likeCount
+    ```js
+    function NotificationTooltip({ notifications }) {
+      const classes = useNavbarStyles();
+      const followCount = countNotifications('follow');
+      const likeCount = countNotifications('like');
 
-    return (
-      <div className={classes.tooltipContainer}>
-        {followCount > 0 && (
-          <div className={classes.tooltip}>
-            <span aria-label='Followers' className={classes.followers} />
-            <Typography>{followCount}</Typography>
-          </div>
-        )}
-        {likeCount > 0 && (
-          <div className={classes.tooltip}>
-            <span aria-label='Likes' className={classes.likes} />
-            <Typography>{likeCount}</Typography>
-          </div>
-        )}
-      </div>
-    );
-  }
-  ```
+      function countNotifications(notificationType) {
+        return notifications.filter(({ type }) => type === notificationType).length;
+      }
+
+      return (
+        <div className={classes.tooltipContainer}>
+          {followCount > 0 && (
+            <div className={classes.tooltip}>
+              <span aria-label='Followers' className={classes.followers} />
+              <Typography>{followCount}</Typography>
+            </div>
+          )}
+          {likeCount > 0 && (
+            <div className={classes.tooltip}>
+              <span aria-label='Likes' className={classes.likes} />
+              <Typography>{likeCount}</Typography>
+            </div>
+          )}
+        </div>
+      );
+    }
+    ```
 
 ### 64. Clearing out notifications:
 - After the current user has viewed the new notifications by clicking on the heart icon on the Navbar, we want to clear the notifications. When there's a new notification, a red dot is shown underneath the heart icon
@@ -3170,6 +3169,64 @@
       {showList ? <LikeActiveIcon /> : <LikeIcon />}
     </div>
     ```
+
+### 65. Formatting dates:
+- date-fns docs: https://date-fns.org/docs/
+- In src/utils/formatDate.js file:
+  ```js
+  import { format, formatDistanceStrict, isThisYear } from 'date-fns';
+
+  // If date is not in current year, include the year
+  // If date is in current year, include the month and day only
+  export function formatPostDate(date) {
+    // MARCH 2
+    const formatShort = format(new Date(date), 'MMMM d').toUpperCase();
+    // MARCH 2, 2020
+    const formatLong = format(new Date(date), 'MMMM d, yyy').toUpperCase();
+
+    // Check if given date is this year
+    // If it is, return short format date
+    // Else return long format date
+    return isThisYear(new Date(date)) ? formatShort : formatLong;
+  }
+
+  export function formatDateToNowShort(date) {
+    // 5 days ago -> 5 days -> ['5', 'days'] -> ['5', 'd'] -> 5d
+    // 7 weeks ago -> 7w
+    return (
+      formatDistanceStrict(new Date(date), new Date(Date.now()))
+        // split it on a space and get a new array back: ['5', 'days']
+        .split(' ')
+        // if there is a second index, take only the first char of the string
+        // else return the entire string
+        // ['5', 'days'] -> ['5', 'd']
+        .map((s, i) => (i === 1 ? s[0] : s))
+        // join an array back to a string
+        .join('')
+    );
+  }
+  ```
+- In src/components/notification/NotificationList.js file:
+  - Name import the formatDateToNowShort function
+  - Format the like and follow notification dates in the notification list
+    ```js
+    import { formatDateToNowShort } from '../../utils/formatDate';
+
+    {isLike &&
+      `likes your photo. ${formatDateToNowShort(
+        notification.created_at
+      )}`}
+    {isFollow &&
+      `started following you. ${formatDateToNowShort(
+        notification.created_at
+      )}`}
+    ```
+- In src/components/post/Post.js file:
+  - Name import the formatPostDate and formatDateToNowShort utility functions
+  - In the Post component, call the formatPostDate() method to format the post created_at date
+  - In the AuthorCaption component, call the formatDateToNowShort() method and pass in createAt date
+  - In the UserComment component, call the formatDateToNowShort() method to format the comment created_at date
+
 
 
 
@@ -3279,6 +3336,8 @@ function handleChange(event) {
   - Add validation to forms
 - slate
   - Building a rich text editor for post caption
+- date-fns
+  - Allows us to format dates
 
 
 **In vercel.json file:**
