@@ -36,6 +36,7 @@ import { useLazyQuery } from '@apollo/client';
 import { SEARCH_USERS } from '../../graphql/queries';
 import { UserContext } from '../../App';
 import AddPostDialog from '../post/AddPostDialog';
+import { isAfter } from 'date-fns';
 
 function Navbar({ minimalNavbar }) {
 	const classes = useNavbarStyles();
@@ -159,9 +160,14 @@ function Search({ history }) {
 
 function Links({ path }) {
 	const classes = useNavbarStyles();
-	const [showTooltip, setTooltip] = useState(true);
-	const [showList, setList] = useState(false);
 	const { me } = useContext(UserContext);
+	const newNotifications = me.notifications.filter(({ created_at }) =>
+		isAfter(new Date(created_at), new Date(me.last_checked))
+	);
+	// console.log({newNotifications})
+	const hasNotifications = newNotifications.length > 0;
+	const [showTooltip, setTooltip] = useState(hasNotifications);
+	const [showList, setList] = useState(false);
 	const [media, setMedia] = useState(null);
 	const [showAddPostDialog, setAddPostDialog] = useState(false);
 	const inputRef = useRef();
@@ -200,7 +206,12 @@ function Links({ path }) {
 
 	return (
 		<div className={classes.linksContainer}>
-			{showList && <NotificationList handleHideList={handleHideList} />}
+			{showList && (
+				<NotificationList
+					notifications={me.notifications}
+					handleHideList={handleHideList}
+				/>
+			)}
 			<div className={classes.linksWrapper}>
 				{showAddPostDialog && (
 					<AddPostDialog media={media} handleClose={handleClose} />
@@ -223,9 +234,12 @@ function Links({ path }) {
 					open={showTooltip}
 					onOpen={handleHideTooltip}
 					TransitionComponent={Zoom}
-					title={<NotificationTooltip />}
+					title={<NotificationTooltip notifications={newNotifications} />}
 				>
-					<div onClick={handleToggleList} className={classes.notifications}>
+					<div
+						onClick={handleToggleList}
+						className={classes.notifications}
+					>
 						{showList ? <LikeActiveIcon /> : <LikeIcon />}
 					</div>
 				</RedTooltip>

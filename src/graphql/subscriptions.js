@@ -9,6 +9,20 @@ export const ME = gql`
 			username
 			profile_image
 			last_checked
+			notifications(order_by: { created_at: desc }) {
+				id
+				type
+				created_at
+				post {
+					id
+					media
+				}
+				user {
+					id
+					username
+					profile_image
+				}
+			}
 		}
 	}
 `;
@@ -21,7 +35,7 @@ export const GET_POST = gql`
 			created_at
 			media
 			location
-      user_id
+			user_id
 			user {
 				id
 				username
