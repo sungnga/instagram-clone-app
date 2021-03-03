@@ -3278,6 +3278,96 @@
       - From: profile_id (from the profile_id stored in followers)
       - To: id (to the id on users table)
 
+### 67. Querying for a user profile data:
+- Query for a user profile data based on the username and display the data on a user profile page
+- **Create a GET_USER_PROFILE query:**
+- In src/graphql/queries.js file
+  - The getUserProfile query function accepts a username as an argument
+  - It returns all the necessary data of that user to render a user profile page
+  - Note that when we call this query using useQuery() hook, we get back the data object and loading
+  ```js
+  export const GET_USER_PROFILE = gql`
+    query getUserProfile($username: String!) {
+      users(where: { username: { _eq: $username } }) {
+        id
+        name
+        username
+        profile_image
+        website
+        bio
+        posts_aggregate {
+          aggregate {
+            count
+          }
+        }
+        followers_aggregate {
+          aggregate {
+            count
+          }
+        }
+        following_aggregate {
+          aggregate {
+            count
+          }
+        }
+        posts {
+          id
+          media
+          likes_aggregate {
+            aggregate {
+              count
+            }
+          }
+          comments_aggregate {
+            aggregate {
+              count
+            }
+          }
+        }
+      }
+    }
+  `;
+  ```
+- **Perform a GET_USER_PROFILE query and display the data in ProfilePage component:**
+- In src/pages/profile.js file and in the *ProfilePage component*:
+  - Import the GET_USER_PROFILE query
+  - Import the LoadingScreen component
+  - Import the UserContext from App.js file
+  - Get the username we need to make the query from the profile page params using the useParams() hook
+  - Create a `variables` object that contains the `username` data
+  - Call useQuery() hook and pass in the GET_USER_PROFILE query as 1st arg and the variables object as 2nd arg. We get back the data object and loading
+  - Call the useContext() hook and pass in the UserContext as an argument. We get back the currentUserId
+  - Write an if statement that if loading is true, return the `<LoadingScreen />` component
+  - The user data that we get back from the query is found in `data.users[0]`. We can assign it to a `user` variable
+  - Then check to see if user.id is equal to the currentUserId. If it is, assign the truthy value to the `isOwner` variable. The current user is looking at their own profile page
+  - Instead of passing down the defaultCurrentUser data, we want to pass down the actual user data we get back from the database. So in the return section, replace all `defaultCurrentUser` with `user`
+  - Go into GridPost.js file:
+    - Fix the way we get and display the likes count
+      - `const likesCount = post.likes_aggregate.aggregate.count;`
+    - Fix the way we get and display the comments count
+      - `const commentsCount = post.comments_aggregate.aggregate.count;`
+    ```js
+    import { useParams } from 'react-router-dom';
+    import { useQuery } from '@apollo/client';
+    import { GET_USER_PROFILE } from '../graphql/queries';
+    import LoadingScreen from '../components/shared/LoadingScreen';
+    import { UserContext } from '../App';
+
+
+    const { username } = useParams();
+    const variables = { username };
+    const [data, loading] = useQuery(GET_USER_PROFILE, { variables });
+    const { currentUserId } = useContext(UserContext);
+
+    if (loading) return <LoadingScreen />;
+    const user = data.users[0]
+    const isOwner = user.id === currentUserId;
+    ```
+
+
+
+
+
 
 
 
