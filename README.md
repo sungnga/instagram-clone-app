@@ -3110,6 +3110,70 @@
   }
   ```
 
+### 64. Clearing out notifications:
+- After the current user has viewed the new notifications by clicking on the heart icon on the Navbar, we want to clear the notifications. When there's a new notification, a red dot is shown underneath the heart icon
+- The way to clearing the new notifications is by updating the value of last_checked of the current user. At the moment it's always set to null. Whenever a current user clicks on the heart icon notifications, we want to set a timestamp to their last_checked field. If a notification created_at time is older than the last_checked time, then we don't show the notifications red dot. Since users is a subscription, any new notifications (the red dot) gets updated in realtime
+- We need to perform a mutation to update a users last_check field in the database
+- **Create a CHECK_NOTIFICATIONS mutation:**
+  - In src/graphql/mutations.js file:
+    - The checkNotifications mutation function accepts the userId and lastChecked as parameters
+      - It finds a user where its id is equal to the provided userId and sets the last_checked field to the provided lastChecked value
+      - Since users is a subscription we don't need to return anything. So check the `affected_rows` box
+    ```js
+    export const CHECK_NOTIFICATIONS = gql`
+      mutation checkNotifications($userId: uuid!, $lastChecked: String!) {
+        update_users(
+          where: { id: { _eq: $userId } }
+          _set: { last_checked: $lastChecked }
+        ) {
+          affected_rows
+        }
+      }
+    `;
+    ```
+- **Perform the CHECK_NOTIFICATIONS mutation in NotificationList component:**
+  - In src/components/shared/Navbar.js file and in the *Links component*:
+    - Destructure the currentUserId from useContext(UserContext) hook
+    - In the `<NotificationList />` component, pass down the currentUserId as props
+  - In src/components/notification/NotificationList.js file:
+    - Import the CHECK_NOTIFICATIONS mutation
+    - Receive the currentUserId props from the Link parent component
+    - Call useMutation() hook and pass in the CHECK_NOTIFICATIONS mutation as an argument. We get back the checkNotifications mutation function
+    - We want to perform the checkNotifications mutation function when the NotificationList component mounts and when it first loads
+    - Inside the useEffect() hook:
+      - Create a `variables` object that contains the userId that's set to the currentUserId and the lastChecked that's set to the current time. lastChecked is set with a timestamp when the user clicks on the heart icon notifications
+      - Call the checkNotifications mutation and pass in the variables object as an argument
+      - For the dependencies array, pass in the currentUserId and the checkNotifications function. Whenever there's a change to these items, the component will reload causing the page to re-render
+      ```js
+      import React, { useEffect } from 'react';
+      import { useMutation } from '@apollo/client';
+      import { CHECK_NOTIFICATIONS } from '../../graphql/mutations';
+
+      const [checkNotifications] = useMutation(CHECK_NOTIFICATIONS);
+
+      useEffect(() => {
+        const variables = {
+          userId: currentUserId,
+          lastChecked: new Date().toISOString()
+        };
+        checkNotifications({ variables });
+      }, [currentUserId, checkNotifications]);
+      ```
+- **Display the red dot notifications:**
+  - In src/components/shared/Navbar.js file and in the *Links component*:
+    - Use the hasNotifications value to conditionally display the `class.notifications`. This is the red dot underneath the heart icon notification. If hasNotifications is true, show this class
+    ```js
+    <div
+      onClick={handleToggleList}
+      className={hasNotifications ? classes.notifications : ''}
+    >
+      {showList ? <LikeActiveIcon /> : <LikeIcon />}
+    </div>
+    ```
+
+
+
+
 
 
 

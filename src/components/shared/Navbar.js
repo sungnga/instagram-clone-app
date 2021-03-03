@@ -160,7 +160,7 @@ function Search({ history }) {
 
 function Links({ path }) {
 	const classes = useNavbarStyles();
-	const { me } = useContext(UserContext);
+	const { me, currentUserId } = useContext(UserContext);
 	const newNotifications = me.notifications.filter(({ created_at }) =>
 		isAfter(new Date(created_at), new Date(me.last_checked))
 	);
@@ -210,6 +210,7 @@ function Links({ path }) {
 				<NotificationList
 					notifications={me.notifications}
 					handleHideList={handleHideList}
+					currentUserId={currentUserId}
 				/>
 			)}
 			<div className={classes.linksWrapper}>
@@ -238,7 +239,7 @@ function Links({ path }) {
 				>
 					<div
 						onClick={handleToggleList}
-						className={classes.notifications}
+						className={hasNotifications ? classes.notifications : ''}
 					>
 						{showList ? <LikeActiveIcon /> : <LikeIcon />}
 					</div>

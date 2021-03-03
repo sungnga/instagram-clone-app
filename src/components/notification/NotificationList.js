@@ -1,17 +1,28 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Avatar, Grid, Typography } from '@material-ui/core';
 import { useNotificationListStyles } from '../../styles';
 // import { defaultNotifications } from '../../data';
 import FollowButton from '../shared/FollowButton';
-import useOutsideClick from "@rooks/use-outside-click";
+import useOutsideClick from '@rooks/use-outside-click';
+import { useMutation } from '@apollo/client';
+import { CHECK_NOTIFICATIONS } from '../../graphql/mutations';
 
-function NotificationList({ handleHideList, notifications }) {
+function NotificationList({ handleHideList, notifications, currentUserId }) {
 	const classes = useNotificationListStyles();
 	const listContainerRef = useRef();
 	useOutsideClick(listContainerRef, handleHideList);
+	const [checkNotifications] = useMutation(CHECK_NOTIFICATIONS);
 
-  // ref={listContainerRef}
+	useEffect(() => {
+		const variables = {
+			userId: currentUserId,
+			lastChecked: new Date().toISOString()
+		};
+		checkNotifications({ variables });
+	}, [currentUserId, checkNotifications]);
+
+	// ref={listContainerRef}
 	return (
 		<Grid className={classes.listContainer} container>
 			{notifications.map((notification) => {
@@ -39,7 +50,8 @@ function NotificationList({ handleHideList, notifications }) {
 									className={classes.typography}
 								>
 									{isLike && `likes your photo. ${notification.created_at}`}
-									{isFollow && `started following you. ${notification.created_at}`}
+									{isFollow &&
+										`started following you. ${notification.created_at}`}
 								</Typography>
 							</div>
 						</div>
