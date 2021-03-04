@@ -456,7 +456,7 @@
     - Add an overlay and style the overlay
     - onRequestClose, execute a callback and run the `history.goBack()` method to go back. And in our case, it's the `/explore` route
     - Add style to the Modal
-  - Inside the Modal component, import and render the Post component. Pass down the id props and set its value to postId: `<Post id={postId} />`
+  - Inside the Modal component, import and render the Post component. Pass down the id props and set its value to postId: `<Post postId={postId} />`
   - Outside of and below the Modal component, import and render the CloseIcon component inside a div tag. Add an onClick event handler that will execute the `history.goBack()` method when the CloseIcon is clicked on
 
 ### 22. Building the Post component:
@@ -3324,6 +3324,22 @@
             }
           }
         }
+        saved_posts {
+          post {
+            id
+            media
+            likes_aggregate {
+              aggregate {
+                count
+              }
+            }
+            comments_aggregate {
+              aggregate {
+                count
+              }
+            }
+          }
+        }
       }
     }
   `;
@@ -3438,6 +3454,40 @@
     }
     ```
 
+### 69. Displaying saved_posts data in ProfileTabs component:
+- In src/components/profile/ProfileTabs.js file and in the *SavedPosts component*:
+  - Write an if statement that if the length of user.saved_posts array is equal to 0, return the "No saved posts found" text
+  - If there are saved_posts, map over the user.saved_posts array and display each post data in the PostGrid component
+  ```js
+  function SavedPosts({ user }) {
+    const classes = useProfileTabsStyles();
+
+    if (user.saved_posts.length === 0) {
+      return (
+        <section className={classes.savedPostsSection}>
+          <div className={classes.noContent}>
+            <div className={classes.savePhotoIcon} />
+            <Typography variant='h4'>Save</Typography>
+            <Typography align='center'>
+              Save photos and videos that you want to see again. No one is
+              notified, and only you can see what you've saved.
+            </Typography>
+          </div>
+        </section>
+      );
+    }
+
+    return (
+      <article className={classes.article}>
+        <div className={classes.postContainer}>
+          {user.saved_posts.map(({ post }) => (
+            <GridPost key={post.id} post={post} />
+          ))}
+        </div>
+      </article>
+    );
+  }
+  ```
 
 
 
