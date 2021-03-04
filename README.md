@@ -3364,9 +3364,79 @@
     const isOwner = user.id === currentUserId;
     ```
 
+### 68. Editing the profile picture:
+- We want our current user to be able to edit their main profile picture by uploading a new image file. If successful, the avatar on the Navbar should sync up with the new profile picture
+- In src/components/shared/ProfilePicture.js file:
+  - Receive the image and isOwner props from the ProfilePage parent component
+  - In a ternary, if there is an image,
+    - In the wrapper div, add an onClick event handler that if isOwner is true, call the openFileInput function, else call a function that's going to return null
+  - Add an `input` element that will be hidden by setting the `display` to `none`
+    - Create an inputRef using useRef() hook and store it in an `inputRef` variable
+    - Set the input ref props to inputRef
+    - Set the input type props to file
+    - Set the onChange event handler to handleUpdateProfilePic
+  - Write an openFileInput function
+    - Call the inputRef.current.click()
+  - Import the handleImageUpload utility function
+  - Import the EDIT_USER_AVATAR mutation
+  - Import the UserContext
+  - Call useMutation() hook and pass in the EDIT_USER_AVATAR mutation to get the editUserAvatar mutation function
+  - Call useContext() hook and pass in the UserContext and we get back the currentUserId
+  - Create an `img` state and initialize it to the `image` props that this component receives from parent component
+  - Write a handleUpdateProfilePic function
+    - We've written this function in edit-profile.js file before. Use the same function here
+    - In the variables object, set the id to the currentUserId
+    - Call setImg() to set the image once it's updated with the uploaded image and we get back the url
+  - Lastly, in the img element, set the src to the img state to render the updated profile picture
+    ```js
+    import React, { useContext, useRef, useState } from 'react';
+    import handleImageUpload from '../../utils/handleImageUpload';
+    import { useMutation } from '@apollo/client';
+    import { EDIT_USER_AVATAR } from '../../graphql/mutations';
+    import { UserContext } from '../../App';
 
+    function ProfilePicture({ size, image, isOwner }) {
+      const classes = useProfilePictureStyles({ size, isOwner });
+      const inputRef = useRef();
+      const [editUserAvatar] = useMutation(EDIT_USER_AVATAR);
+      const [img, setImg] = useState(image);
+      const { currentUserId } = useContext(UserContext);
 
+      function openFileInput() {
+        inputRef.current.click();
+      }
 
+      async function handleUpdateProfilePic(event) {
+        const url = await handleImageUpload(event.target.files[0]);
+        const variables = { id: currentUserId, profileImage: url };
+        await editUserAvatar({ variables });
+        setImg(url);
+      }
+
+      return (
+        <section className={classes.section}>
+          <input
+            style={{ display: 'none' }}
+            ref={inputRef}
+            type='file'
+            onChange={handleUpdateProfilePic}
+          />
+          {image ? (
+            <div
+              className={classes.wrapper}
+              onClick={isOwner ? openFileInput : () => null}
+            >
+              <img src={img} alt='User profile' className={classes.image} />
+            </div>
+          ) : (
+            <div className={classes.wrapper}>
+              <Person className={classes.person} />
+            </div>
+          )}
+        </section>
+      );
+    }
+    ```
 
 
 
