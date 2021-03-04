@@ -2781,7 +2781,7 @@
         }
       }
     `;
-  ```
+    ```
 - **Save and unsave a post:**
   - In src/components/post/Post.js file and in the *SaveButton component*:
     - The SaveButton component receives the savedPosts and postId props from the Post parent component
@@ -3055,7 +3055,7 @@
         >
       )
     }
-  ```
+    ```
 - **Display the notifications data in NotificationList component:**
   - In the notification list of our current user, we want to display all of the notifications found in me.notifications here
   - In src/components/notification/NotificationList.js file:
@@ -3228,7 +3228,7 @@
   - In the UserComment component, call the formatDateToNowShort() method to format the comment created_at date
 
 
-## PROFILE PAGE, PLUS FOLLOWING AND UNFOLLOWING USERS
+## USER PROFILE PAGE, PLUS FOLLOWING AND UNFOLLOWING USERS
 
 ### 66. Adding following and followers tables in Hasura, configure relationships:
 - **Create a following table in Hasura graphQL:**
@@ -3489,6 +3489,236 @@
   }
   ```
 
+### 70. Following and unfollowing a user:
+- The next feature we want to build is enable a user to follow or unfollow another user and send a notification to the user whose being followed
+- **Create a FOLLOW_USER mutation:**
+  - In src/graphql/mutations.js file:
+    - The followUser mutation function accepts userIdToFollow and currentUserId as arguments
+      - The currentUserId wants to follow the userIdToFollow
+      - This mutation performs 3 mutation operations: insert_followers(), insert_following(), and insert_notifications()
+      - It creates a new follower instance, a new following instance, and a new notification instance
+      - It doesn't return anything, so mark each operation as `affected_rows` 
+      ```js
+      export const FOLLOW_USER = gql`
+        mutation followUser($userIdToFollow: uuid!, $currentUserId: uuid!) {
+          insert_followers(
+            objects: { user_id: $userIdToFollow, profile_id: $currentUserId }
+          ) {
+            affected_rows
+          }
+          insert_following(
+            objects: { user_id: $currentUserId, profile_id: $userIdToFollow }
+          ) {
+            affected_rows
+          }
+          insert_notifications(
+            objects: {
+              user_id: $currentUserId
+              profile_id: $userIdToFollow
+              type: "follow"
+            }
+          ) {
+            affected_rows
+          }
+        }
+      `;
+      ```
+- **Create an UNFOLLOW_USER mutation:**
+  - In src/graphql/mutations.js file:
+    - The unfollowUser mutation function accepts userIdToFollow and currentUserId as arguments
+      - The currentUserId wants to follow the userIdToFollow
+      - This mutation performs 3 mutation operations: delete_followers(), delete_following(), and delete_notifications()
+      - It deletes a follower, following, and notification instances
+      - It doesn't return anything, so mark each operation as `affected_rows` 
+      ```js
+      export const UNFOLLOW_USER = gql`
+        mutation unfollowUser($userIdToFollow: uuid!, $currentUserId: uuid!) {
+          delete_followers(
+            where: {
+              user_id: { _eq: $userIdToFollow }
+              profile_id: { _eq: $currentUserId }
+            }
+          ) {
+            affected_rows
+          }
+          delete_following(
+            where: {
+              user_id: { _eq: $currentUserId }
+              profile_id: { _eq: $userIdToFollow }
+            }
+          ) {
+            affected_rows
+          }
+          delete_notifications(
+            where: {
+              user_id: { _eq: $currentUserId }
+              profile_id: { _eq: $userIdToFollow }
+              type: { _eq: "follow" }
+            }
+          ) {
+            affected_rows
+          }
+        }
+      `;
+      ```
+- **Update the ME subscription to include followers and following:**
+  - In src/graphql/subscriptions file:
+    - We want to subscribe to the followers and following fields of a current user as well
+    ```js
+    followers {
+      user {
+        id
+        user_id
+      }
+    }
+    following {
+      user {
+        id
+        user_id
+      }
+    }
+    ```
+- **Update the UserContext to include followingIds and followerIds:**
+  - In src/App.js file:
+    - Now that we have access to the following and followers fields of me object, we can map over each of the arrays and get the user id
+    - Then pass down the followingIds and followerIds as value props so any components in our app can have access to them
+    - We want to have these ids available because we want to be able to check if these ids are in the following or followers array. Based on that, we perform mutations to either follow or unfollow a particular user. For example, if the current user is visiting another user profile page and if this user id isn't in the current user's following array, then we want to display the Follow button so that the current user can follow this user
+    ```js
+    const followingIds = me.following.map(({ user }) => user.id);
+    const followerIds = me.followers.map(({ user }) => user.id);
+
+  	<UserContext.Provider
+			value={{ me, currentUserId, followingIds, followerIds }}
+		>
+    ```
+- **Perform a FOLLOW_USER mutation in the ProfileNameSection component:**
+  - When we (current user) is visiting another user profile page:
+    - If this user.id exists in the followingIds array, display the Following button. We're already following this user
+    - If we're not following this user AND this user.id exists in the followerIds array, display the Follow Back button. This user follows us. And when this button is clicked, execute the followUser mutation
+    - Else display the Follow the button. When this button is clicked, execute the followUser mutation
+  - In src/pages/profile.js file and in the *ProfileNameSection component*:
+    - This component receives the user props from the ProfilePage parent component
+    - Import UserContext from App.js file
+    - Call useContext() hook and pass in the UserContext as an argument. We get back the currentUserId, followingIds, and followerIds
+    - Call the .some() method to iterate over the followingIds array to check if the user.id exists in this array. That is, if we're already following this user. If there is, assign a truthy value to an isAlreadyFollowing variable
+    - Create a piece of state called isFollowing and initialize its value to isAlreadyFollowing
+    - If isFollowing state is true, we want to display the Following button. And when we click on it, it's going to show the UnfollowDialog to enable us to unfollow
+    - Then we want to write a conditional that if we're not following this user (`!isFollowing`) but this user.id exists in the followerIds array, then this user is a follower. Assign a truthy value to the isFollower variable. In this case, we want to display a Follow Back button to follow this user back
+    - So in the Follow Back button element, add an onClick event handler to call the handleFollowUser function
+    - Import the FOLLOW_USER mutation
+    - Call useMutation() hook and pass in the FOLLOW_USER mutation as an argument. We get back the followUser mutation function
+    - Create a variables object that contains the data for the userIdToFollow and currentUserId variables
+    - Write a handleFollowUser function that executes the followUser mutation
+      - Call setFollowing() to set isFollowing state to true. This will display the Following button instead of the Follow Back button
+      - Call the followUser mutation and pass in the variables object as an argument
+    - Lastly, when we click on the Follow button, add an onClick event handler to call the handleFollowUser function as well
+    ```js
+    import { UserContext } from '../App';
+    import { FOLLOW_USER } from '../graphql/mutations';
+
+    function ProfileNameSection({ user, isOwner, handleOptionsMenuClick }) {
+      const [showUnfollowDialog, setUnfollowDialog] = useState(false);
+      const { currentUserId, followingIds, followerIds } = useContext(UserContext);
+      // If we're already following that user
+      const isAlreadyFollowing = followingIds.some((id) => id === user.id);
+      const [isFollowing, setFollowing] = useState(isAlreadyFollowing);
+      // This user follows us but we're not following this user
+      const isFollower = !isFollowing && followerIds.some((id) => id === user.id);
+      const variables = {
+        userIdToFollow: user.id,
+        currentUserId
+      };
+      const [followUser] = useMutation(FOLLOW_USER);
+
+      function handleFollowUser() {
+        setFollowing(true);
+        followUser({ variables });
+      }
+
+      let followButton;
+      if (isFollowing) {
+        followButton = (
+          <Button onClick={() => setUnfollowDialog(true)}>
+            Following
+          </Button>
+        );
+      } else if (isFollower) {
+        followButton = (
+          <Button onClick={handleFollowUser}>
+            Follow Back
+          </Button>
+        );
+      } else {
+        followButton = (
+          <Button onClick={handleFollowUser}>
+            Follow
+          </Button>
+        );
+      }
+    }
+    ```
+- **Perform an UNFOLLOW_USER mutation in the UnfollowDialog component:**
+  - The current user can unfollow another user by clicking on the Following button. This will open up the UnfollowDialog box. The dialog contains the Unfollow button and Cancel button. When the user clicks on the Unfollow button, we want to perform an UNFOLLOW_USER mutation, change the Following button by setting isFollowing state to false, and close the dialog box
+  - In src/pages/profile.js file and in the *UnfollowDialog component*:
+    - This component receives the user and onClose props from the ProfileNameSection parent component
+    - Import the UserContext from App.js file
+    - Call the useContext() hook and pass in the UserContext as an argument. We want to get back the currentUserId
+    - Import the UNFOLLOW_USER mutation
+    - Call the useMutation() hook and pass in the UNFOLLOW_USER mutation as an argument. We get back the unfollowUser mutation function
+    - Write a handleUnfollowUser function:
+      - Create a variables object that contains the data for the userIdToFollow and currentUserId variables
+      - Call the unfollowUser mutation and pass in the variables object as an argument
+      ```js
+      const { currentUserId } = useContext(UserContext);
+      const [unfollowUser] = useMutation(UNFOLLOW_USER);
+
+      function handleUnfollowUser() {
+        const variables = {
+          currentUserId,
+          userIdToFollow: user.id
+        };
+        unfollowUser({ variables });
+      }
+      ```
+  - Additionally, after unfollowing a user, we want to
+      - close the UnfollowDialog box 
+      - set isFollowing state in ProfileNameSection parent component back to false. This will remove the Following button and replace it with either Follow or Follow Back depending on whether this user is following us or not
+  - So we want to pass down a function that sets isFollowing state to false and set the showUnfollowDialog state to false from the ProfileNameSection parent component to the UnfollowDialog component
+  - In src/pages/profile.js file and in the *ProfileNameSection component*:
+    - Create an onUnfollowUser function that 
+      - calls setUnfollowUser() and set the isFollowing state to false
+      - call setUnfollowDialog() and set the showUnfollowDialog state to false
+    - Pass down this function as onUnfollowUser props to the UnfollowDialog child component  
+    ```js
+    const onUnfollowUser = useCallback(() => {
+      setUnfollowDialog(false);
+      setFollowing(false);
+    }, []);
+
+    <UnfollowDialog
+      user={user}
+      onClose={() => setUnfollowDialog(false)}
+      onUnfollowUser={onUnfollowUser}
+    />
+    ```
+  - Back in the *UnfollowDialog component*:
+    - Receive the onUnfollowUser props
+    - Then inside the handleUnfollowUser function, call onUnfollowUser() at the very end
+    - In the Unfollow button element, add an onClick event handler to call the handleUnfollowUser function
+    ```js
+    function handleUnfollowUser() {
+      const variables = {
+        currentUserId,
+        userIdToFollow: user.id
+      };
+      unfollowUser({ variables });
+      onUnfollowUser();
+    }
+
+    <Button onClick={handleUnfollowUser} className={classes.unfollowButton}>
+      Unfollow
+    </Button>
+    ```
 
 
 

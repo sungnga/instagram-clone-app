@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useState } from 'react';
 import { Link, useHistory, useParams } from 'react-router-dom';
 import Layout from '../components/shared/Layout';
 import { useProfilePageStyles } from '../styles';
@@ -19,10 +19,11 @@ import ProfilePicture from '../components/shared/ProfilePicture';
 import ProfileTabs from '../components/profile/ProfileTabs';
 import { GearIcon } from '../icons';
 import { AuthContext } from '../auth';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { GET_USER_PROFILE } from '../graphql/queries';
 import LoadingScreen from '../components/shared/LoadingScreen';
 import { UserContext } from '../App';
+import { FOLLOW_USER, UNFOLLOW_USER } from '../graphql/mutations';
 
 function ProfilePage() {
 	const classes = useProfilePageStyles();
@@ -91,10 +92,30 @@ function ProfilePage() {
 function ProfileNameSection({ user, isOwner, handleOptionsMenuClick }) {
 	const classes = useProfilePageStyles();
 	const [showUnfollowDialog, setUnfollowDialog] = useState(false);
+	const { currentUserId, followingIds, followerIds } = useContext(UserContext);
+	// If we're already following that user
+	const isAlreadyFollowing = followingIds.some((id) => id === user.id);
+	const [isFollowing, setFollowing] = useState(isAlreadyFollowing);
+	// This user follows us but we're not following this user
+	const isFollower = !isFollowing && followerIds.some((id) => id === user.id);
+	const variables = {
+		userIdToFollow: user.id,
+		currentUserId
+	};
+	const [followUser] = useMutation(FOLLOW_USER);
+
+	function handleFollowUser() {
+		setFollowing(true);
+		followUser({ variables });
+	}
+
+	const onUnfollowUser = useCallback(() => {
+		setUnfollowDialog(false);
+		setFollowing(false);
+	}, []);
 
 	let followButton;
-	const isFollowing = true;
-	const isFollower = false;
+	// const isFollowing = true;
 	if (isFollowing) {
 		followButton = (
 			<Button
@@ -107,13 +128,23 @@ function ProfileNameSection({ user, isOwner, handleOptionsMenuClick }) {
 		);
 	} else if (isFollower) {
 		followButton = (
-			<Button variant='contained' color='primary' className={classes.button}>
+			<Button
+				onClick={handleFollowUser}
+				variant='contained'
+				color='primary'
+				className={classes.button}
+			>
 				Follow Back
 			</Button>
 		);
 	} else {
 		followButton = (
-			<Button variant='contained' color='primary' className={classes.button}>
+			<Button
+				onClick={handleFollowUser}
+				variant='contained'
+				color='primary'
+				className={classes.button}
+			>
 				Follow
 			</Button>
 		);
@@ -168,14 +199,29 @@ function ProfileNameSection({ user, isOwner, handleOptionsMenuClick }) {
 				</section>
 			</Hidden>
 			{showUnfollowDialog && (
-				<UnfollowDialog user={user} onClose={() => setUnfollowDialog(false)} />
+				<UnfollowDialog
+					user={user}
+					onClose={() => setUnfollowDialog(false)}
+					onUnfollowUser={onUnfollowUser}
+				/>
 			)}
 		</Fragment>
 	);
 }
 
-function UnfollowDialog({ onClose, user }) {
+function UnfollowDialog({ onClose, user, onUnfollowUser }) {
 	const classes = useProfilePageStyles();
+	const { currentUserId } = useContext(UserContext);
+	const [unfollowUser] = useMutation(UNFOLLOW_USER);
+
+	function handleUnfollowUser() {
+		const variables = {
+			currentUserId,
+			userIdToFollow: user.id
+		};
+		unfollowUser({ variables });
+		onUnfollowUser();
+	}
 
 	return (
 		<Dialog
@@ -183,7 +229,7 @@ function UnfollowDialog({ onClose, user }) {
 			classes={{
 				scrollPaper: classes.unfollowDialogScrollPaper
 			}}
-			onClose
+			onClose={onClose}
 			TransitionComponent={Zoom}
 		>
 			<div className={classes.wrapper}>
@@ -201,7 +247,9 @@ function UnfollowDialog({ onClose, user }) {
 				Unfollow @{user.username}?
 			</Typography>
 			<Divider />
-			<Button className={classes.unfollowButton}>Unfollow</Button>
+			<Button onClick={handleUnfollowUser} className={classes.unfollowButton}>
+				Unfollow
+			</Button>
 			<Divider />
 			<Button onClick={onClose} className={classes.cancelButton}>
 				Cancel
