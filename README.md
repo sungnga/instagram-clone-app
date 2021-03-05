@@ -3740,7 +3740,71 @@
 - Another thing we can do to ensure that when we make a request we're always fetching from the network and not read from the cache is we can set the individual fetch policy for a given query
   - In the ProfilePage component, when we query for the GET_USER_PROFILE, we can pass in the fetchPolicy option and set it to 'no-cache'
 
+### 72. Suggesting users to the current user:
+- We're going use to the followerIds array and check to see if there are any followers. And if there are, we're going to display them as suggested users to our current user to follow them back. If a brand new user has no followers at the moment, we still want to show suggested users that have been created around the same time as the new user
+- Display the suggest users in a slider in explore page
+- **Create a SUGGEST_USERS query:**
+  - In src/graphql/queries.js file:
+    - The suggestUsers mutation accepts limit, followerIds, and created_at as arguments
+    - It queries the users table for a given limit number of users where there's ids in the followerIds array or the created_at field is greater than the given created_at date
+    - Returns id, username, name, and profile_image. We use this data to display in suggest users list
+    ```js
+    export const SUGGEST_USERS = gql`
+      query suggestUsers(
+        $limit: Int!
+        $followerIds: [uuid!]
+        $created_at: timestamptz!
+      ) {
+        users(
+          limit: $limit
+          where: {
+            _or: [
+              { id: { _in: $followerIds } }
+              { created_at: { _gt: $created_at } }
+            ]
+          }
+        ) {
+          id
+          username
+          name
+          profile_image
+        }
+      }
+    `;
+    ```
+  - Querying in Hasura GraphiQL console:
+    ```js
+    {
+      "limit": 20,
+      "followerIds": [],
+      "created_at": "2021-03-04T23:53:12.700784+00:00"
+    }
+    ```
+- **Update the ME subscription to return created_at field:**
+  - In src/graphql/subscriptions.js file:
+    - In the ME subscription, add the created_at field to be returned
+- **Perform a SUGGEST_USERS query in FollowSuggestions component:**
+  - This will display the suggest users in the explore page in a slider
+  - In src/components/shared/FollowSuggestions.js file and in the *FollowSuggestions component*:
+    - Import UserContext from App.js to get access to followerIds and me object
+    - Import the SUGGEST_USERS query to query suggest users in the database
+    - Call useContext() hook and pass in the UserContext as an argument. We get back followerIds and me. Specifically we want me.created_at
+    - Create a variables object that contains the data for limit, followerIds, and created_at variables
+    - Call useQuery() hook and pass in the SUGGEST_USERS query as 1st arg and the variable object as 2nd arg. We get back data and loading properties
+    - Instead of rendering the dummy data of suggest users from getDefaultUser, we can render actual users data that we got back from the database in `data.users`
+    ```js
+    import { UserContext } from '../../App';
+    import { useQuery } from '@apollo/client';
+    import { SUGGEST_USERS } from '../../graphql/queries';
 
+    const { followerIds, me } = useContext(UserContext);
+    const variables = { limit: 10, followerIds, created_at: me.created_at };
+    const { data, loading } = useQuery(SUGGEST_USERS, { variables });
+
+    {data.users.map((user) => (
+      <FollowSuggestionsItem key={user.id} user={user} />
+    ))}
+    ```
 
 
 

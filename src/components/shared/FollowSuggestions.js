@@ -1,18 +1,24 @@
 import { Avatar, Typography } from '@material-ui/core';
-import React from 'react';
+import React, { useContext } from 'react';
 import { LoadingLargeIcon } from '../../icons';
 import { useFollowSuggestionsStyles } from '../../styles';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { getDefaultUser } from '../../data';
+// import { getDefaultUser } from '../../data';
 import { Link } from 'react-router-dom';
 import FollowButton from './FollowButton';
+import { UserContext } from '../../App';
+import { useQuery } from '@apollo/client';
+import { SUGGEST_USERS } from '../../graphql/queries';
 
 function FollowSuggestions({ hideHeader }) {
 	const classes = useFollowSuggestionsStyles();
+	const { followerIds, me } = useContext(UserContext);
+	const variables = { limit: 20, followerIds, created_at: me.created_at };
+	const { data, loading } = useQuery(SUGGEST_USERS, { variables });
 
-	let loading = false;
+	// let loading = false;
 
 	return (
 		<div className={classes.container}>
@@ -41,7 +47,7 @@ function FollowSuggestions({ hideHeader }) {
 					slidesToScroll={3}
 					easing='ease-in-out'
 				>
-					{Array.from({ length: 10 }, () => getDefaultUser()).map((user) => (
+					{data.users.map((user) => (
 						<FollowSuggestionsItem key={user.id} user={user} />
 					))}
 				</Slider>

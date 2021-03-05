@@ -107,3 +107,27 @@ export const GET_USER_PROFILE = gql`
 		}
 	}
 `;
+
+// Suggest users from followers and also users created around the same time
+export const SUGGEST_USERS = gql`
+	query suggestUsers(
+		$limit: Int!
+		$followerIds: [uuid!]
+		$created_at: timestamptz!
+	) {
+		users(
+			limit: $limit
+			where: {
+				_or: [
+					{ id: { _in: $followerIds } }
+					{ created_at: { _gt: $created_at } }
+				]
+			}
+		) {
+			id
+			username
+			name
+			profile_image
+		}
+	}
+`;
