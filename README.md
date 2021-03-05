@@ -951,6 +951,7 @@
   - phone_number : type of Text
   - profile_image : type of Text
   - last_checked : type of Text : Nullable is checked
+  - created_at : type of Timestamp : now()
 - Primary Key: id
 
 **Create a CREATE_USER mutation:**
@@ -2496,6 +2497,7 @@
     - id : type of UUID : gen_random_uuid()
     - post_id : type of UUID
     - user_id : type of UUID
+    - created_at : type of Timestamp : now()
   - Primary Key: id
 - **Create the comments table in Hasura graphQL:**
   - Table Name: saved_posts
@@ -3310,7 +3312,7 @@
             count
           }
         }
-        posts {
+        posts(order_by: { created_at: desc }) {
           id
           media
           likes_aggregate {
@@ -3324,7 +3326,7 @@
             }
           }
         }
-        saved_posts {
+        saved_posts(order_by: { created_at: desc }) {
           post {
             id
             media
@@ -3719,6 +3721,37 @@
       Unfollow
     </Button>
     ```
+
+
+## FINISHING THE EXPLORE PAGE
+
+### 71. Tying up loose ends of our app:
+- Added created_at column to users and saved_posts tables in Hasura
+- In GET_USER_PROFILE query in queries.js file, sort the returned saved_posts and posts in descending order, latest posts first. We display the latest post first in the posts grid and saved_posts grid
+- Our post media and the profile picture are distorted by trying to fit into the square 500x500px that we defined for upload image preset. We can modify our upload presets in Cloudinary to fix this problem
+  - For post image preset, set the Resize & crop mode to `Limit & Pad` and the width height to 500x500. This will not crop or stretch the image
+  - For profile avatar preset, 
+    - create another preset and call it `instagram-avatar`
+    - set the Resize & crop mode to `scale`
+    - set the width height to 200x200
+  - In handleImageUpload.js file, update the upload preset option to account for both post and avatar presets
+- Next is we want to ensure that we're fetching fresh data of a given user when making request and not getting old data from the cache. For example, once a user is logged in and they visit their profile page, we might get an error of user undefined. This error occurs because the data for the profile page is attempted to be served from the cache
+  - In the OptionsMenu component when a user clicks the Logout button we need to clear the cache. We want to clear out all the data from a previous session once a user logs out. To do this, we want to useApolloClient hook and call client.clearStore(). The clearStore method removes all the data associated with a given session and it returns a promise
+- Another thing we can do to ensure that when we make a request we're always fetching from the network and not read from the cache is we can set the individual fetch policy for a given query
+  - In the ProfilePage component, when we query for the GET_USER_PROFILE, we can pass in the fetchPolicy option and set it to 'no-cache'
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
