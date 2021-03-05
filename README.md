@@ -3806,8 +3806,71 @@
     ))}
     ```
 
+### 73. Following and unfollowing suggested users:
+- Enable a current user to follow and unfollow suggested users
+- In src/components/shared/FollowSuggestions.js file and in the *FollowSuggestionsItem component*:
+  - Pass down the user id as id props to the FollowButton child component
+- **Perform FOLLOW_USER and UNFOLLOW_USER mutations in FollowButton component:**
+  - In src/components/shared/FollowButton.js file and in the *FollowButton component*:
+    - Import the FOLLOW_USER and UNFOLLOW_USER mutations
+    - Import UserContext to get followingIds and currentUserId
+    - This component receives the id props from the FollowSuggestionsItem parent component
+    - Call useContext() hook to get currentUserId and followingIds from UserContext
+    - Call useMutation() hook to get the followUser mutation function from FOLLOW_USER
+    - Call useMutation() hook to get the unfollowUser mutation function from UNFOLLOW_USER
+    - Create a variables object that contains the data for userIdToFollow and currentUserId variables necessary to make the request
+    - Write a handleFollowUser function that
+      - calls setFollowing() to set the isFollowing state to true
+      - executes the followUser() mutation with the provided variables object
+    - Write a handleUnfollowUser function that
+      - calls setFollowing() to set the isFollowing state to false
+      - executes the unfollowUser() mutation with the provided variables object
+    - For the Follow button element, set the onClick event handler to handleFollowUser function
+    - For the Unfollow button element, set the onClick event handler to handleUnfollowUser function
+    ```js
+    import { UserContext } from '../../App';
+    import { useMutation } from '@apollo/client';
+    import { FOLLOW_USER, UNFOLLOW_USER } from '../../graphql/mutations';
 
+    function FollowButton({ side, id }) {
+      const classes = useFollowButtonStyles({ side });
+      const { currentUserId, followingIds } = useContext(UserContext);
+      const isAlreadyFollowing = followingIds.some(
+        (followingId) => followingId === id
+      );
+      const [isFollowing, setFollowing] = useState(isAlreadyFollowing);
+      const [followUser] = useMutation(FOLLOW_USER);
+      const [unfollowUser] = useMutation(UNFOLLOW_USER);
+      const variables = {
+        userIdToFollow: id,
+        currentUserId
+      };
 
+      function handleFollowUser() {
+        setFollowing(true);
+        followUser({ variables });
+      }
+
+      function handleUnfollowUser() {
+        setFollowing(false);
+        unfollowUser({ variables });
+      }
+
+      const followButton = (
+        <Button onClick={handleFollowUser}>
+          Follow
+        </Button>
+      );
+
+      const followingButton = (
+        <Button onClick={handleUnfollowUser}>
+          Following
+        </Button>
+      );
+
+      return isFollowing ? followingButton : followButton;
+    }
+    ```
 
 
 
