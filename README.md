@@ -3928,6 +3928,139 @@
     ))}
     ```
 
+### 75. Querying to get more posts from a given user:
+- When visiting an individual post page, we want to display more posts from that given user at the bottom of the page. This area is limited to 6 additional posts
+- **Create a GET_MORE_POSTS_FROM_USER query:**
+  - In src/graphql/queries.js file:
+    - We get back a limit of 6 posts
+    - It queries for posts based on the given userId, but NOT for the post with the provided postId. This post is our current post that we're displaying above
+    ```js
+    export const GET_MORE_POSTS_FROM_USER = gql`
+      query getMorePostsFromUser($userId: uuid!, $postId: uuid) {
+        posts(
+          limit: 6
+          where: { user_id: { _eq: $userId }, _not: { id: { _eq: $postId } } }
+        ) {
+          id
+          media
+          likes_aggregate {
+            aggregate {
+              count
+            }
+          }
+          comments_aggregate {
+            aggregate {
+              count
+            }
+          }
+        }
+      }
+    `;
+    ```
+- **Create a GET_POST query:**
+  - In src/graphql/queries.js file:
+    - It returns the postId and the userId and username who created the post
+    ```js
+    export const GET_POST = gql`
+      query getPost($postId: uuid!) {
+        posts_by_pk(id: $postId) {
+          id
+          user {
+            id
+            username
+          }
+        }
+      }
+    `;
+    ```
+- **Get postId in post page params to GetMorePostsFromUser component:**
+  - In src/pages/post.js file and in the *PostPage component*:
+    - Pass down the postId params as props to the GetMorePostsFromUser child component
+    ```js
+    const { postId } = useParams();
+    
+    <MorePostsFromUser postId={postId} />
+    ```
+- **Perform the GET_MORE_POSTS_FROM_USER and GET_POST queries in GetMorePostsFromUser component:**
+  - In src/components/post/MorePostsFromUser.js file and in the *GetMorePostsFromUser component*:
+    - Receive the postId props from the PostPage parent component
+    - Import both the GET_MORE_POSTS_FROM_USER and GET_POST queries
+    - Import useLazyQuery hook from @apollo/client
+    - We first going to perform a GET_POST query based on the postId params of post page and get back the postId and userId of the post
+    - Then we use that postId and userId to perform a GET_MORE_POSTS_FROM_USER lazy query to get the 6 posts by that userId, but not the post that has the given postId
+    - Create a variables object that contains the data for the postId variable. We need the postId to perform the GET_POST query
+    - Call useQuery() hook and pass in the GET_POST query as 1st arg and the variables object as 2nd arg. We get back the data and loading properties. This data object contains the postId, userId, and user username
+    - Call useLazyQuery() hook and pass in the GET_MORE_POSTS_FROM_USER query as an argument
+      - What we get back from this hook is an array in which the 1st element is the getMorePostsFromUser query function and the 2nd element is an object which contains the data and loading properties AFTER we call the getMorePostsFromUser() query. Since we already have a data object, we're going to rename it to be `morePosts` instead. We also already have loading, so rename it to `loading2`
+    - Since we're using a lazy query (we don't need to wait on the request to get back the results and there's no side effect), we can call the getMorePostsFromUser() query synchronously in a useEffect() hook
+    - In useEffect() hook:
+      - Write an if statement that if loading is true, we'er just going to return. That means we don't have our data yet
+      - We get the useId from `data.posts_by_pk.user.id` and assign it to a userId variable
+      - We get the postId from `data.posts_by_pk.id` and assign it to a postId variable
+      - Create a variable object and pass in the userId and postId properties
+      - Call the getMorePostsFromUser() query and pass in the variables object. We get back the data and loading as an array item in useLazyQuery hook
+      - For the dependencies array, pass in the data, loading, and getMorePostsFromUser. The component will re-render whenever there's a change to one of these items
+    - Then in the return section, 
+      - we check if we're loading or loading2, we show the `<LoadingLargeIcon />` component
+      - otherwise, we iterate over the morePosts.posts array and show the 6 posts by this user in the `<GridPost />` component
+      - lastly, we want to display the user's instagram username handle and it acts as a link that redirects to their profile page. The username is found at `data.posts_by_pk.user.username`
+    ```js
+    import { useQuery, useLazyQuery } from '@apollo/client';
+    import { GET_MORE_POSTS_FROM_USER, GET_POST } from '../../graphql/queries';
+
+    function MorePostsFromUser({ postId }) {
+      const classes = useMorePostsFromUserStyles();
+      const variables = { postId };
+      const { data, loading } = useQuery(GET_POST, { variables });
+      const [
+        getMorePostsFromUser,
+        { data: morePosts, loading: loading2 }
+      ] = useLazyQuery(GET_MORE_POSTS_FROM_USER);
+
+      // let loading = false;
+
+      useEffect(() => {
+        if (loading) return;
+        const userId = data.posts_by_pk.user.id;
+        const postId = data.posts_by_pk.id;
+        const variables = { userId, postId };
+        getMorePostsFromUser({ variables });
+      }, [data, loading, getMorePostsFromUser]);
+
+      return (
+        <div className={classes.container}>
+          {loading || loading2 ? (
+            <LoadingLargeIcon />
+          ) : (
+            <Fragment>
+              <Typography
+                color='textSecondary'
+                variant='subtitle2'
+                component='h2'
+                gutterBottom
+                className={classes.typography}
+              >
+                More posts from{' '}
+                <Link
+                  to={`/${data.posts_by_pk.user.username}`}
+                  className={classes.link}
+                >
+                  @{data.posts_by_pk.user.username}
+                </Link>
+              </Typography>
+              <article className={classes.article}>
+                <div className={classes.postContainer}>
+                  {morePosts?.posts.map((post) => (
+                    <GridPost key={post.id} post={post} />
+                  ))}
+                </div>
+              </article>
+            </Fragment>
+          )}
+        </div>
+      );
+    }
+    ```
 
 
 
