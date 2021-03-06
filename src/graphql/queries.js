@@ -131,3 +131,32 @@ export const SUGGEST_USERS = gql`
 		}
 	}
 `;
+
+// Posts with the most likes and comments at the top
+// Newest to oldest
+// Where the posts are NOT from users the current user is following
+export const EXPLORE_POSTS = gql`
+	query explorePosts($followingIds: [uuid!]!) {
+		posts(
+			order_by: {
+				likes_aggregate: { count: desc }
+				comments_aggregate: { count: desc }
+				created_at: desc
+			}
+			where: { id: { _nin: $followingIds } }
+		) {
+			id
+			media
+			likes_aggregate {
+				aggregate {
+					count
+				}
+			}
+			comments_aggregate {
+				aggregate {
+					count
+				}
+			}
+		}
+	}
+`;

@@ -3872,9 +3872,61 @@
     }
     ```
 
+### 74. Displaying explore posts in explore page:
+- We want to display explore posts in the explore page to our current user. These explore posts are from users that our current user isn't following. This helps our current user explore posts from users that they don't know about yet and help them find other followers and other sources of content
+- These explore posts should be popular posts where they have lots of likes and comments and we should display them in descending order with the most likes and comments go at the top
+- **Create an EXPLORE_POSTS query:**
+  - In src/graphql/queries.js file:
+    ```js
+    // Posts with the most likes and comments at the top
+    // Newest to oldest
+    // Where the posts are NOT from users the current user is following
+    export const EXPLORE_POSTS = gql`
+      query explorePosts($followingIds: [uuid!]!) {
+        posts(
+          order_by: {
+            likes_aggregate: { count: desc }
+            comments_aggregate: { count: desc }
+            created_at: desc
+          }
+          where: { id: { _nin: $followingIds } }
+        ) {
+          id
+          media
+          likes_aggregate {
+            aggregate {
+              count
+            }
+          }
+          comments_aggregate {
+            aggregate {
+              count
+            }
+          }
+        }
+      }
+    `;
+    ```
+- **Perform a EXPLORE_POSTS query in the ExploreGrid component:**
+  - In src/components/explore/ExploreGrid.js file and in the *ExploreGrid component*:
+    - Import the EXPLORE_POSTS query
+    - Call useContext() hook and pass in the UserContext as an argument. We get back the followingIds
+    - Create a variables object that contains the data for the followingIds variable
+    - Call useQuery() hook and pass in the EXPLORE_POSTS query as 1st arg and the variables object as 2nd arg. We get back the data and loading properties
+    - Instead of rendering the dummy posts data from getDefaultPost array, we can replace it with data.posts array. Iterate over the array and display each post in the `<GridPost />` component 
+    ```js
+    import { UserContext } from '../../App';
+    import { EXPLORE_POSTS } from '../../graphql/queries';
+    import { useQuery } from '@apollo/client';
 
+    const { followingIds } = useContext(UserContext);
+    const variables = { followingIds };
+    const { data, loading } = useQuery(EXPLORE_POSTS, { variables });
 
-
+    {data.posts.map((post) => (
+      <GridPost key={post.id} post={post} />
+    ))}
+    ```
 
 
 
