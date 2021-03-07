@@ -179,7 +179,7 @@ function EditUserInfo({ user }) {
 		// console.log({ url });
 		const variables = { id: user.id, profileImage: url };
 		await editUserAvatar({ variables });
-		setProfileImage(url);
+    setProfileImage(url);
 	}
 
 	return (

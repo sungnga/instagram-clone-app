@@ -25,7 +25,7 @@ function NotificationList({ handleHideList, notifications, currentUserId }) {
 
 	// ref={listContainerRef}
 	return (
-		<Grid className={classes.listContainer} container>
+		<Grid ref={listContainerRef} className={classes.listContainer} container>
 			{notifications.map((notification) => {
 				const isLike = notification.type === 'like';
 				const isFollow = notification.type === 'follow';
@@ -62,11 +62,11 @@ function NotificationList({ handleHideList, notifications, currentUserId }) {
 							</div>
 						</div>
 						<div>
-							{isLike && (
+							{isLike && notification.post ? (
 								<Link to={`/p/${notification.post.id}`}>
 									<Avatar src={notification.post.media} alt='Post cover' />
 								</Link>
-							)}
+							) : ''}
 							{isFollow && <FollowButton id={notification.user.id} />}
 						</div>
 					</Grid>

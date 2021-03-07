@@ -2239,7 +2239,7 @@
 ### 55. Client-side: building the AddPostDialog box component:
 - **Create a rich text editor for post caption using Slate library:**
   - Slate docs: https://docs.slatejs.org/walkthroughs/01-installing-slate
-  - Import: `npm slate slate-react`
+  - Import: `npm slate slate-react slate-history`
   - Peer dependencies: `npm i react react-dom`
   - Before building out the AddPostDialog component, we want the ability to format text for a given post caption, such as the ability to write on multiple lines. So we need a way to turn what the user typed in to the caption text field (the raw text) into formatted html text. In other words, we need to serialize our text into html
   - To help us do this, we will be using a library called Slate. Slate allows us to build rich text editors
@@ -4426,7 +4426,20 @@
     }
     ```
 
+### 80. Improving image loading performance:
+- We're going to use a library called React Graceful Image that will allows us to optionally lazy-load our images and gives us a placeholder and allows us to retry loading our images if they failed
+- React Graceful Image docs: https://www.npmjs.com/package/react-graceful-image
+- Install: `npm i react-graceful-image`
+- We're going to use this in our FeedPost and Post components
+- In src/components/feed/FeedPost.js file:
+  - Import the Img component from react-graceful-image
+  - Then replace our `img` element with `Img` component
+  ```js
+  import Img from 'react-graceful-image';
 
+  <Img src={media} alt='Post media' className={classes.image} />
+  ```
+- Do the same in Post component in src/components/post/Post.js file
 
 
 
