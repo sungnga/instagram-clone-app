@@ -4070,7 +4070,7 @@
 - **Create a DELETE_POST mutation:**
   - In src/graphql/mutations.js file:
     - The deletePost mutation performs 4 operations: delete_posts(), delete_likes(), delete_saved_posts(), and delete_notifications()
-    - When a post is deleted, it also deletes all the associated likes, comments, notifications, and saved_posts of the post
+    - When a post is deleted, it also deletes all the associated likes, comments, notifications, and saved_posts with the post
     ```js
     export const DELETE_POST = gql`
       mutation deletePost($postId: uuid!, $userId: uuid!) {
@@ -4117,55 +4117,55 @@
     - Write a handleUnfollowUser function that
       - executes the unfollowUser() mutation function. We need to collect the userIdToFollow and currentUserId variables object
       - closes the dialog box after the mutation is done
-      ```js
-      import React, { useContext } from 'react';
-      import { useHistory } from 'react-router-dom';
-      import { useMutation } from '@apollo/client';
-      import { UserContext } from '../../App';
-      import { DELETE_POST, UNFOLLOW_USER } from '../../graphql/mutations';
+    ```js
+    import React, { useContext } from 'react';
+    import { useHistory } from 'react-router-dom';
+    import { useMutation } from '@apollo/client';
+    import { UserContext } from '../../App';
+    import { DELETE_POST, UNFOLLOW_USER } from '../../graphql/mutations';
 
-      function OptionsDialog({ onClose, postId, authorId }) {
-        const { currentUserId, followingIds } = useContext(UserContext);
-        const isOwner = authorId === currentUserId;
-        const buttonText = isOwner ? 'Delete' : 'Unfollow';
-        const onClick = isOwner ? handleDeletePost : handleUnfollowUser;
-        const isFollowing = followingIds.some((id) => id === authorId);
-        const isUnrelatedUser = !isOwner && !isFollowing;
-        const [unfollowUser] = useMutation(UNFOLLOW_USER);
-        const [deletePost] = useMutation(DELETE_POST);
-        const history = useHistory();
+    function OptionsDialog({ onClose, postId, authorId }) {
+      const { currentUserId, followingIds } = useContext(UserContext);
+      const isOwner = authorId === currentUserId;
+      const buttonText = isOwner ? 'Delete' : 'Unfollow';
+      const onClick = isOwner ? handleDeletePost : handleUnfollowUser;
+      const isFollowing = followingIds.some((id) => id === authorId);
+      const isUnrelatedUser = !isOwner && !isFollowing;
+      const [unfollowUser] = useMutation(UNFOLLOW_USER);
+      const [deletePost] = useMutation(DELETE_POST);
+      const history = useHistory();
 
-        async function handleDeletePost() {
-          const variables = {
-            postId,
-            userId: currentUserId
-          };
-          await deletePost({ variables });
-          onClose();
-          history.push('/');
-          window.location.reload();
-        }
-
-        async function handleUnfollowUser() {
-          const variables = {
-            userIdToFollow: authorId,
-            currentUserId
-          };
-          await unfollowUser({ variables });
-          onClose();
-        }
-
-        return (
-          <Dialog>
-            {!isUnrelatedUser && (
-              <Button onClick={onClick} className={classes.redButton}>
-                {buttonText}
-              </Button>
-            )}
-          </Dialog>
-        );
+      async function handleDeletePost() {
+        const variables = {
+          postId,
+          userId: currentUserId
+        };
+        await deletePost({ variables });
+        onClose();
+        history.push('/');
+        window.location.reload();
       }
-      ```
+
+      async function handleUnfollowUser() {
+        const variables = {
+          userIdToFollow: authorId,
+          currentUserId
+        };
+        await unfollowUser({ variables });
+        onClose();
+      }
+
+      return (
+        <Dialog>
+          {!isUnrelatedUser && (
+            <Button onClick={onClick} className={classes.redButton}>
+              {buttonText}
+            </Button>
+          )}
+        </Dialog>
+      );
+    }
+    ```
 
 
 ## ADDING USER FEED WITH INFINITE SCROLL
@@ -4292,6 +4292,88 @@
         </div>
       ))
     )}
+    ```
+
+### 78. Implementing the infinite scroll and fetching more posts:
+- We will be using the infinite scroll functionality in multiple places across our app. So it's useful to have this as a separate utility function (a hook) that detects when we hit the bottom of the page when we're scrolling
+- **Create an infinite scroll hook:**
+  - In src/utils/usePageBottom.js file:
+    - Write a usePageBottom hook that tells us when a user scrolled to the bottom or not. So we need to figure out where the page bottom is
+    - The way we're going to keep track of this is with state. Create a bottom state and initialize to false
+    - In the end, we will be returning this bottom state in our usePageBottom hook. The component that calls this hook will get either a true or false value
+    ```js
+    import React, { useEffect, useState } from 'react';
+
+    function usePageBottom() {
+      const [bottom, setBottom] = useState(false);
+
+      useEffect(() => {
+        function handleScroll() {
+          const isBottom =
+            window.innerHeight + document.documentElement.scrollTop ===
+            document.documentElement.offsetHeight;
+          setBottom(isBottom);
+        }
+        window.addEventListener('scroll', handleScroll);
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+        };
+      }, []);
+
+      return bottom;
+    }
+
+    export default usePageBottom;
+    ```
+- **Implement infinite scroll and fetch more posts in FeedPage component:**
+  - In src/pages/feed.js file and in the *FeedPage component*:
+    - Import the usePageBottom hook
+    - Call usePageBottom() hook and assign the result to isPageBottom variable
+    - The next step is to fetch the next set of posts when isPageBottom is true
+    - In useQuery hook from @apollo/client, we also have access to the `fetchMore` method. Destructure this method in useQuery() hook (querying GET_FEED)
+    - In useEffect() hook:
+      - This useEffect hook runs as long as isPageBottom is true and the `fetchMore` method is executed
+      - Write an if statement that if not at isPageBottom OR we don't have the date, we're just going to return. We don't want to fetch more data if we're not at the bottom of the page
+      - Otherwise, if we are at the bottom of the page, we want to get the last timestamp of the last post that we loaded. We can get the last timestamp of the last post at `data.posts[data.posts.length - 1].created_at`. Assign it to a lastTimestamp variable
+      - Then create a variables object that contains the variables needed to make a request for more posts: feedIds, limit, and lastTimestamp
+      - Call fetchMore() method and pass in the options object, which are:
+        - the variables which contains the required variables values
+        - the updateQuery property and set it to handleUpdateQuery function
+      - For the dependencies array, pass in these items: isPageBottom, data, feedIds, fetchMore, handleUpdateQuery
+    - Write a handleUpdateQuery function that updates our previous query posts array with the fetchMoreResult posts array. Write this function inside a useCallback() hook and must be above the useEffect() hook
+      - This function gets 2 values: prev and fetchMoreResult
+      - The prev value contains previous fetch posts array
+      - The fetchMoreResult value contains newly fetched posts array
+      - Now we want to assemble the previous posts and the fetchMoreResult posts together
+      - Write an if statement that if there's no posts in fetchMoreResult.posts.length, then call setEndOfFeed() and set it to true (this will turn off the loading spinner) and return the prev posts array
+      - Otherwise, return an object which contains the posts array. The posts array consists of all the existing prev.posts and fetchMoreResult.posts. Note that we want to add the fetchMoreResult.posts at the end of the posts array
+    ```js
+    import React, { useEffect, useCallback } from 'react';
+    import usePageBottom from '../utils/usePageBottom';
+
+    const [isEndOfFeed, setEndOfFeed] = useState(false);
+    const { me, feedIds } = useContext(UserContext);
+    const { data, loading, fetchMore } = useQuery(GET_FEED, { variables });
+    const isPageBottom = usePageBottom();
+
+    const handleUpdateQuery = useCallback((prev, { fetchMoreResult }) => {
+      // console.log({prev, fetchMoreResult})
+      if (fetchMoreResult.posts.length === 0) {
+        setEndOfFeed(true);
+        return prev;
+      }
+      return { posts: [...prev.posts, ...fetchMoreResult.posts] };
+    }, []);
+
+    useEffect(() => {
+      if (!isPageBottom || !data) return;
+      const lastTimestamp = data.posts[data.posts.length - 1].created_at;
+      const variables = { feedIds, limit: 2, lastTimestamp };
+      fetchMore({
+        variables,
+        updateQuery: handleUpdateQuery
+      });
+    }, [isPageBottom, data, feedIds, fetchMore, handleUpdateQuery]);
     ```
 
 
