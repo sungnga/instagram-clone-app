@@ -3928,6 +3928,9 @@
     ))}
     ```
 
+
+## GETTING MORE POSTS FROM USER AND DELETING POSTS
+
 ### 75. Querying to get more posts from a given user:
 - When visiting an individual post page, we want to display more posts from that given user at the bottom of the page. This area is limited to 6 additional posts
 - **Create a GET_MORE_POSTS_FROM_USER query:**
@@ -4061,6 +4064,111 @@
       );
     }
     ```
+
+### 76. Deleting a post:
+- One way to delete a given post is by clicking on the post's MoreIcon and the OptionsDialog box opens, then click on the Delete button. That is, if the post belongs to the current user. If the post doesn't belong to the user, the Delete button won't be shown
+- **Create a DELETE_POST mutation:**
+  - In src/graphql/mutations.js file:
+    - The deletePost mutation performs 4 operations: delete_posts(), delete_likes(), delete_saved_posts(), and delete_notifications()
+    - When a post is deleted, it also deletes all the associated likes, comments, notifications, and saved_posts of the post
+    ```js
+    export const DELETE_POST = gql`
+      mutation deletePost($postId: uuid!, $userId: uuid!) {
+        delete_posts(where: { id: { _eq: $postId }, user_id: { _eq: $userId } }) {
+          affected_rows
+        }
+        delete_likes(where: { post_id: { _eq: $postId } }) {
+          affected_rows
+        }
+        delete_comments(where: { post_id: { _eq: $postId } }) {
+          affected_rows
+        }
+        delete_saved_posts(where: { post_id: { _eq: $postId } }) {
+          affected_rows
+        }
+        delete_notifications(where: { post_id: { _eq: $postId } }) {
+          affected_rows
+        }
+      }
+    `;
+    ```
+- **Perform a DELETE_POST mutation in OptionsDialog component:**
+  - To delete a post, we need the currentUserId from UserContext and the postId which the OptionsDialog component receives as props
+  - In the post OptionsDialog box, we only want to show the Delete post button if the current user is the owner. If the post belongs to a user who the current user is following, we want to show the Unfollow button instead. If those two conditions aren't true (!isOwner && !isFollowing), then we don't show an extra button in the OptionsDialog box
+  - In src/components/post/Post.js file and in the *Post component*:
+    - Pass down the post id as postId props and the user id as authorId props to the OptionsDialog child component
+    ```js
+    {showOptionsDialog && (
+      <OptionsDialog
+        postId={id}
+        authorId={user.id}
+        onClose={() => setOptionsDialog(false)}
+      />
+    )}
+    ```
+  - In src/components/shared/OptionsDialog.js file:
+    - Receive the postId and authorId props from the Post parent component
+    - Import the DELETE_POST and UNFOLLOW_USER mutations
+    - Write a handleDeletePost function that
+      - executes the deletePost() mutation function. We need to collect the postId and userId variables object
+      - closes the dialog box after the mutation is done
+      - redirects user to the feed page
+      - and reloads the page
+    - Write a handleUnfollowUser function that
+      - executes the unfollowUser() mutation function. We need to collect the userIdToFollow and currentUserId variables object
+      - closes the dialog box after the mutation is done
+      ```js
+      import React, { useContext } from 'react';
+      import { useHistory } from 'react-router-dom';
+      import { useMutation } from '@apollo/client';
+      import { UserContext } from '../../App';
+      import { DELETE_POST, UNFOLLOW_USER } from '../../graphql/mutations';
+
+      function OptionsDialog({ onClose, postId, authorId }) {
+        const { currentUserId, followingIds } = useContext(UserContext);
+        const isOwner = authorId === currentUserId;
+        const buttonText = isOwner ? 'Delete' : 'Unfollow';
+        const onClick = isOwner ? handleDeletePost : handleUnfollowUser;
+        const isFollowing = followingIds.some((id) => id === authorId);
+        const isUnrelatedUser = !isOwner && !isFollowing;
+        const [unfollowUser] = useMutation(UNFOLLOW_USER);
+        const [deletePost] = useMutation(DELETE_POST);
+        const history = useHistory();
+
+        async function handleDeletePost() {
+          const variables = {
+            postId,
+            userId: currentUserId
+          };
+          await deletePost({ variables });
+          onClose();
+          history.push('/');
+          window.location.reload();
+        }
+
+        async function handleUnfollowUser() {
+          const variables = {
+            userIdToFollow: authorId,
+            currentUserId
+          };
+          await unfollowUser({ variables });
+          onClose();
+        }
+
+        return (
+          <Dialog>
+            {!isUnrelatedUser && (
+              <Button onClick={onClick} className={classes.redButton}>
+                {buttonText}
+              </Button>
+            )}
+          </Dialog>
+        );
+      }
+      ```
+
+
+
 
 
 
