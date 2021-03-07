@@ -1,4 +1,4 @@
-import { format, formatDistanceStrict, isThisYear } from 'date-fns';
+import { format, formatDistanceStrict, isThisYear, formatDistanceToNow } from 'date-fns';
 
 // If date is not in current year, include the year
 // If date is in current year, include the month and day only
@@ -28,4 +28,8 @@ export function formatDateToNowShort(date) {
 			// join an array back to a string
 			.join('')
 	);
+}
+
+export function formatDateToNow(date) {
+  return formatDistanceToNow(new Date(date), {addSuffix: true}).toUpperCase()
 }

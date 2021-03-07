@@ -4376,6 +4376,61 @@
     }, [isPageBottom, data, feedIds, fetchMore, handleUpdateQuery]);
     ```
 
+### 79. Updating the feed post data and improving post appearance:
+- **Destructure more post data from post object in FeedPost component:**
+  - In src/components/feed/FeedPost.js file and in the *FeedPost component*:
+    - Destructure more post data from post object
+    - Create a likesCount variable that stores the likes_aggregate count
+    - Create a commentsCount variable that stores the comments_aggregate count
+    - In the return section:
+      - Pass down the location as props to the UserCard component
+      - Pass down the post id as postId props and the user.id as authorId props to the OptionsDialog component
+      - Render the likesCount and commentsCount
+      - Display a date from the created_at timestamp. For this, we're going to use the `date-fns` library to help us formatting the date. For example, if the post was created 5 days ago, we want to display '5 DAYS AGO'
+      - Import the formatDateToNow function
+      - Call formatDateToNow() and pass in the created_at date as an argument
+    ```js
+    import { formatDateToNow } from '../../utils/formatDate';
+
+    const {
+      id,
+      media,
+      likes,
+      likes_aggregate,
+      saved_posts,
+      location,
+      created_at,
+      user,
+      caption,
+      comments,
+      comments_aggregate
+    } = post;
+    const likesCount = likes_aggregate.aggregate.count;
+    const commentsCount = comments_aggregate.aggregate.count;
+    ```
+  - In the src/components/shared/OptionsDialog.js file and in the *OptionsDialog component*:
+    - Receive the postId and authorId props from the FeedPost parent component
+    - In the return section, replace the defaultPost data with postId instead
+    - `<Link to={`/p/${postId}`}>Go to post</Link>`
+- **Format feed post date:**
+  - In src/utils/formatDate.js file:
+    - Import the formatDistanceToNow method from date-fns library
+    - Write a formatDateToNow function that formats the given date into how long ago it's been from that date
+      - Add the suffix 'ago' to the end of the date
+      - Transform the date to all uppercase
+    ```js
+    import { format, formatDistanceStrict, isThisYear, formatDistanceToNow } from 'date-fns';
+
+    export function formatDateToNow(date) {
+      return formatDistanceToNow(new Date(date), { addSuffix: true }).toUpperCase();
+    }
+    ```
+
+
+
+
+
+
 
 
 
@@ -4482,7 +4537,8 @@ function handleChange(event) {
   - Building a rich text editor for post caption
 - date-fns
   - Allows us to format dates
-
+- react-graceful-image
+  - Allows us to lazy-load our images, provides a placeholder, and allows us to retry loading if it failed
 
 **In vercel.json file:**
 ```js
