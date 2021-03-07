@@ -4168,8 +4168,131 @@
       ```
 
 
+## ADDING USER FEED WITH INFINITE SCROLL
 
+### 77. Querying feed posts and suggest users for feed page:
+- The next important feature we want to work on is displaying posts on the feed page. These posts are from users that the current user is following and posts that are from the current user themselves
+- So whenever we're querying posts for feed page, we want to include posts from following users and the current user
+- New posts from following users and current user will show up in feed page
+- **Pass down feedIds data in UserContext:**
+  - First, we should create another array used in UserContext to help us out whenever we're querying for feed posts. We need to have the followingIds and currentUserId
+  - In src/App.js file:
+    - Create a feedIds array which contains the existing followingIds and the currentUserId
+    - Pass it down as value props to UserContext.Provider
+    ```js
+  	const followingIds = me.following.map(({ user }) => user.id);
+    const feedIds = [...followingIds, currentUserId];
 
+		<UserContext.Provider value={{ me, currentUserId, followingIds, followerIds, feedIds }}>
+    ```
+- **Create a GET_FEED query:**
+  - In src/graphql/queries.js file:
+    - Querying the posts table for posts where the user_id includes in the provided feedIds array and where the created_at is later than a given timestamp
+    - Limit the number of posts by the provided limit value
+    - The posts is sorted by the created_at, latest first
+    ```js
+    export const GET_FEED = gql`
+      query getFeed($limit: Int!, $feedIds: [uuid!]!, $lastTimestamp: timestamptz) {
+        posts(
+          limit: $limit
+          where: { user_id: { _in: $feedIds }, created_at: { _lt: $lastTimestamp } }
+          order_by: { created_at: desc }
+        ) {
+          id
+          caption
+          created_at
+          media
+          location
+          user {
+            id
+            username
+            name
+            profile_image
+          }
+          likes_aggregate {
+            aggregate {
+              count
+            }
+          }
+          likes {
+            id
+            user_id
+          }
+          saved_posts {
+            id
+            user_id
+          }
+          comments(order_by: { created_at: desc }, limit: 2) {
+            id
+            content
+            created_at
+            user {
+              username
+              profile_image
+            }
+          }
+          comments_aggregate {
+            aggregate {
+              count
+            }
+          }
+        }
+      }
+    `;
+    ```
+- **Perform a GET_FEED query in FeedPage component:**
+  - In src/pages/feed.js file and in the *FeedPage component*:
+    - Import UserContext to get the me object and feedIds array
+    - Import the GET_FEED query
+    - Create a variables object that collects the necessary variables to make the GET_FEED query. We must provide the limit and feedIds
+    - Call useQuery() hook and pass in the GET_FEED query as 1st arg and the variables object as 2nd arg. We get back the data and loading properties
+    - Then instead of displaying dummy posts data, we can display the actual posts data that we got back on the feed page. Iterate over the `data.posts` array and display each post in the `<FeedPost />` component
+    ```js
+    import { UserContext } from '../App';
+    import { useQuery } from '@apollo/client';
+    import { GET_FEED } from '../graphql/queries';
+
+    const { me, feedIds } = useContext(UserContext);
+    const variables = { feedIds, limit: 2 };
+    const { data, loading } = useQuery(GET_FEED, { variables });
+
+    <div>
+      {data.posts.map((post, index) => (
+        <React.Suspense key={post.id} fallback={<FeedPostSkeleton />}>
+          <FeedPost index={index} post={post} />
+        </React.Suspense>
+      ))}
+    </div>
+    ```
+- **Perform a SUGGEST_USERS query in FeedSideSuggestions component:**
+  - On our feed page, we want to display an aside on the right of the feed posts of a list of suggested users. It has a follow/unfollow button next to each suggested users for current user to follow or unfollow
+  - In src/components/feed/FeedSideSuggestions.js file
+    - Import UserContext to get the me object and followerIds array
+    - Import the SUGGEST_USERS query
+    - Create a variables object that collects the necessary variables to make the SUGGEST_USERS query. We must provide the limit, followerIds, and created_at
+    - Call useQuery() hook and pass in the SUGGEST_USERS query as 1st arg and the variables object as 2nd arg. We get back the data and loading properties
+    - Then instead of displaying dummy users data, we can display the actual users data that we got back in the FeedSideSuggestions section. Iterate over the `data.users` array and display each suggested user in the `<UserCard />` component. Also we need to pass down the user.id as id props to the FollowButton child component
+    ```js
+    import { UserContext } from '../../App';
+    import { useQuery } from '@apollo/client';
+    import { SUGGEST_USERS } from '../../graphql/queries';
+
+    const classes = useFeedSideSuggestionsStyles();
+    const { me, followerIds } = useContext(UserContext);
+    const variables = { limit: 5, followerIds, created_at: me.created_at };
+    const { data, loading } = useQuery(SUGGEST_USERS, { variables });
+
+    {loading ? (
+      <LoadingIcon />
+    ) : (
+      data.users.map((user) => (
+        <div key={user.id} className={classes.card}>
+          <UserCard user={user} />
+          <FollowButton id={user.id} side />
+        </div>
+      ))
+    )}
+    ```
 
 
 

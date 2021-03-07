@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Paper, Typography } from '@material-ui/core';
 import { useFeedSideSuggestionsStyles } from '../../styles';
-import { getDefaultUser } from '../../data';
+// import { getDefaultUser } from '../../data';
 import UserCard from '../shared/UserCard';
 import FollowButton from '../shared/FollowButton';
 import { LoadingIcon } from '../../icons';
+import { UserContext } from '../../App';
+import { useQuery } from '@apollo/client';
+import { SUGGEST_USERS } from '../../graphql/queries';
 
 function FeedSideSuggestions() {
 	const classes = useFeedSideSuggestionsStyles();
+	const { me, followerIds } = useContext(UserContext);
+	const variables = { limit: 5, followerIds, created_at: me.created_at };
+	const { data, loading } = useQuery(SUGGEST_USERS, { variables });
 
-	let loading = false;
+	// let loading = false;
 
 	return (
 		<article className={classes.article}>
@@ -27,10 +33,10 @@ function FeedSideSuggestions() {
 				{loading ? (
 					<LoadingIcon />
 				) : (
-					Array.from({ length: 5 }, () => getDefaultUser()).map((user) => (
+					data.users.map((user) => (
 						<div key={user.id} className={classes.card}>
 							<UserCard user={user} />
-							<FollowButton side />
+							<FollowButton id={user.id} side />
 						</div>
 					))
 				)}
