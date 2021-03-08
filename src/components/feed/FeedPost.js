@@ -81,7 +81,7 @@ function FeedPost({ post, index }) {
 							<CommentIcon />
 						</Link>
 						<ShareIcon />
-						<SaveButton />
+						<SaveButton savedPosts={saved_posts} postId={id} />
 					</div>
 					<Typography className={classes.likes} variant='subtitle2'>
 						<span>{likesCount === 1 ? '1 like' : `${likesCount} likes`}</span>
@@ -219,20 +219,32 @@ function LikeButton({ likes, postId, authorId }) {
 	return <Icon onClick={onClick} className={className} />;
 }
 
-function SaveButton() {
+function SaveButton({ postId, savedPosts }) {
 	const classes = useFeedPostStyles();
-	const [saved, setSaved] = useState(false);
+	const { currentUserId } = useContext(UserContext);
+	const isAlreadySaved = savedPosts.some(
+		({ user_id }) => user_id === currentUserId
+	);
+	const [saved, setSaved] = useState(isAlreadySaved);
 	const Icon = saved ? RemoveIcon : SaveIcon;
 	const onClick = saved ? handleRemove : handleSave;
+	const [savePost] = useMutation(SAVE_POST);
+	const [unsavePost] = useMutation(UNSAVE_POST);
+	const variables = {
+		postId,
+		userId: currentUserId
+	};
 
 	function handleSave() {
-		console.log('save');
+		// console.log('save');
 		setSaved(true);
+		savePost({ variables });
 	}
 
 	function handleRemove() {
-		console.log('remove');
+		// console.log('remove');
 		setSaved(false);
+		unsavePost({ variables });
 	}
 
 	return <Icon onClick={onClick} className={classes.saveIcon} />;

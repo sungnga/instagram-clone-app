@@ -4545,6 +4545,61 @@
   - In src/graphql/mutations.js file:
     - In LIKE_POST and UNLIK_EPOST mutations, instead of returning `affected_rows`, replace it with `__typename` because we're deferring to updating the cache with the handleUpdate function
 
+### 82. Saving and unsaving a feed post in feed page:
+- When we click on the Save icon on a feed post, we should see the saved post in the Saved tab of our profile page
+- We don't need to update the cache when saving and unsaving a feed post
+- **Perform the SAVE_POST and UNSAVE_POST mutations in SaveButton component:**
+- In src/components/feed/FeedPost.js file:
+  - Import the SAVE_POST, UNSAVE_POST mutations
+  - Import the UserContext to get the currentUserId
+  - In the *FeedPost component*:
+    - Pass down the savedPosts and postId props to the SaveButton child component
+    - `<SaveButton savedPosts={saved_posts} postId={id} />`
+  - In the *SaveButton component*:
+    - Receive the savedPosts and postId props from the FeedPost parent component
+    - Call useMutation() hook and pass in the SAVE_POST mutation as an argument. We get back the savePost mutation
+    - Call useMutation() hook and pass in the UNSAVE_POST mutation as an argument. We get back the unsavePost mutation
+    - Create a variables object that collects the postId and userId variables
+    - Write a handleSave function that executes the savePost mutation
+    - Write a handleRemove function that executes the unsavePost mutation
+    ```js
+    import { UserContext } from '../../App';
+    import { useMutation } from '@apollo/client';
+    import { SAVE_POST, UNSAVE_POST } from '../../graphql/mutations';
+
+    function SaveButton({ postId, savedPosts }) {
+      const classes = useFeedPostStyles();
+      const { currentUserId } = useContext(UserContext);
+      const isAlreadySaved = savedPosts.some(
+        ({ user_id }) => user_id === currentUserId
+      );
+      const [saved, setSaved] = useState(isAlreadySaved);
+      const Icon = saved ? RemoveIcon : SaveIcon;
+      const onClick = saved ? handleRemove : handleSave;
+      const [savePost] = useMutation(SAVE_POST);
+      const [unsavePost] = useMutation(UNSAVE_POST);
+      const variables = {
+        postId,
+        userId: currentUserId
+      };
+
+      function handleSave() {
+        // console.log('save');
+        setSaved(true);
+        savePost({ variables });
+      }
+
+      function handleRemove() {
+        // console.log('remove');
+        setSaved(false);
+        unsavePost({ variables });
+      }
+
+      return <Icon onClick={onClick} className={classes.saveIcon} />;
+    }
+    ```
+
+
 
 
 
