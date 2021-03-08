@@ -88,7 +88,7 @@ export const CREATE_POST = gql`
 export const LIKE_POST = gql`
 	mutation likePost($postId: uuid!, $userId: uuid!, $profileId: uuid!) {
 		insert_likes(objects: { user_id: $userId, post_id: $postId }) {
-			affected_rows
+			__typename
 		}
 		insert_notifications(
 			objects: {
@@ -108,7 +108,7 @@ export const UNLIKE_POST = gql`
 		delete_likes(
 			where: { post_id: { _eq: $postId }, user_id: { _eq: $userId } }
 		) {
-			affected_rows
+			__typename
 		}
 		delete_notifications(
 			where: {

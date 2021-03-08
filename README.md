@@ -4442,7 +4442,108 @@
 - Do the same in Post component in src/components/post/Post.js file
 
 
+## LIKING, COMMENTING, SAVING FEED POSTS
+- The next feature we want to work on is the ability to like/unlike, comment, and save/unsave a feed post in feed page and be able to see the update immediately
+- Now, since our feed posts are queried and they're not a subscription, we need to update the cache manually to be able to see the like, comment, and save immediately. If working with a subscription it does it automatically
 
+### 81. Liking and unliking a feed post in feed page:
+- When we click on the like/unlike button, we want to see the toggle between the like and liked heart and also see the likesCount immediately increment or decrement according to the mutation we're performing
+- **Perform the LIKE_POST and UNLIKE_POST mutations in LikeButton component:**
+- In src/components/feed/FeedPost.js file:
+  - Import the SAVE_POST, UNSAVE_POST, LIKE_POST, UNLIKE_POST, and CREATE_COMMENT mutations
+  - Import the GET_FEED query
+  - Import the UserContext to get the currentUserId and feedIds
+  - In the *FeedPost component*:
+    - Pass down the likes, postId, authorId props to the LikeButton child component
+    - `<LikeButton likes={likes} postId={id} authorId={user.id} />`
+  - In the *LikeButton component*:
+    - Receive the likes, postId, and authorId props from the FeedPost parent component
+    - Get the currentUserId and FeedIds from UserContext
+    - Check to see if the current user is already liked the post. Compare if the user_id in likes array is equal to currentUserId. Assign the result to an isAlreadyLiked variable
+    - Set the isAlreadyLiked as the initial value for liked state
+    - Call useMutation() hook and pass in the LIKE_POST mutation as an argument and we get back the likePost mutation
+    - Do the same for the UNLIKE_POST mutation and we get back the unlikePost mutation function
+    - Create a variables object to collect the postId, userId, and profileId variables
+    - In the handleLike function, call the likePost() mutation and pass in the variables object as an argument
+    - In the handleUnlike function, call the unlikePost() mutation and pass in the variables object as an argument
+    - For both likePost and unlikePost mutations, when we're making the request, we need to provide an additional option to manually update the cache data. This option property is `update` and we can set it to handleUpdate function
+    - **Manually updating the cache data for likesCount:**
+    - Write a handleUpdate function that manually updates the cache data:
+      - This function takes a cache object and result object as arguments
+      - Create a variables object that contains the limit and feedIds variables
+      - Call cache.readQuery() to read the cache data. Pass in, as an object, the GET_FEED query and the variables object
+      - Go to a feed post in feed page and click on the like/unlike button. Console log the data and the result object to see its effect
+      - The `data.posts` array in the cache is what we want to update and specifically, we want to update the likesCount found in likes_aggregate.aggregate.count
+      - The `result.data` object contains the mutation operations being performed when the like/unlike button is clicked
+      - After we've updated the posts array with the new likes count, we want to call cache.writeQuery() to write the cache data. Pass in, as an object, the GET_FEED query and the data property set to the updated posts array
+    - Now when the like/unlike button is clicked, we can see the update on the likesCount immediately
+    ```js
+    import {
+      SAVE_POST,
+      UNSAVE_POST,
+      LIKE_POST,
+      UNLIKE_POST,
+      CREATE_COMMENT
+    } from '../../graphql/mutations';
+    import { GET_FEED } from '../../graphql/queries';
+    import { UserContext } from '../../App';
+
+    function LikeButton({ likes, postId, authorId }) {
+      const classes = useFeedPostStyles();
+      const { currentUserId, feedIds } = useContext(UserContext);
+      const isAlreadyLiked = likes.some(({ user_id }) => user_id === currentUserId);
+      const [liked, setLiked] = useState(isAlreadyLiked);
+      const Icon = liked ? UnlikeIcon : LikeIcon;
+      const className = liked ? classes.liked : classes.like;
+      const onClick = liked ? handleUnlike : handleLike;
+      const [likePost] = useMutation(LIKE_POST);
+      const [unlikePost] = useMutation(UNLIKE_POST);
+      const variables = {
+        postId,
+        userId: currentUserId,
+        profileId: authorId
+      };
+
+      function handleUpdate(cache, result) {
+        const variables = { limit: 2, feedIds };
+        const data = cache.readQuery({
+          query: GET_FEED,
+          variables
+        });
+        // console.log({ result, data });
+        const typename = result.data.insert_likes?.__typename;
+        const count = typename === 'likes_mutation_response' ? 1 : -1;
+        const posts = data.posts.map((post) => ({
+          ...post,
+          likes_aggregate: {
+            ...post.likes_aggregate,
+            aggregate: {
+              ...post.likes_aggregate.aggregate,
+              count: post.likes_aggregate.aggregate.count + count
+            }
+          }
+        }));
+        cache.writeQuery({ query: GET_FEED, data: { posts } });
+      }
+
+      function handleLike() {
+        // console.log('like');
+        setLiked(true);
+        likePost({ variables, update: handleUpdate });
+      }
+
+      function handleUnlike() {
+        // console.log('unlike');
+        setLiked(false);
+        unlikePost({ variables, update: handleUpdate });
+      }
+
+      return <Icon onClick={onClick} className={className} />;
+    }
+    ```
+- **Update the LIKE_POST and UNLIKE_POST mutations:**
+  - In src/graphql/mutations.js file:
+    - In LIKE_POST and UNLIK_EPOST mutations, instead of returning `affected_rows`, replace it with `__typename` because we're deferring to updating the cache with the handleUpdate function
 
 
 
