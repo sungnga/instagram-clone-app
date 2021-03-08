@@ -926,7 +926,7 @@
       - Wrap all the other components inside the `<AuthProvider />` component. However, this AuthProvider component is wrapped inside the `<ApolloProvider />` component
     - In src/App.js file:
       - Name import the AuthContext context from auth.js file
-      - Call React's useContext() hook and pass in AuthContext. When we get back are authState, signInWithGoogle, and signOut properties and we can destructure those
+      - Call React's useContext() hook and pass in AuthContext. What we get back are authState, signInWithGoogle, and signOut properties and we can destructure those
 
 ### 33. Signing up a user:
 **Steps to creating a new user:**
@@ -4698,12 +4698,45 @@
     ```
 
 
+## WRAPPING UP
 
+### 84. Catching errors with error boundary:
+- When users are using our app and something has gone wrong, they might see just a blank screen or even if they see the error they would not be able to make sense of it. A good way to prevent this behavior is by adding an error boundary. This takes care of catching an error and showing the user something else, like something about the app has failed
+- In src/index.js file:
+  - Writing an ErrorBoundary in a class component is the standard approach to catching errors with an error boundary
+    ```js
+    class ErrorBoundary extends Component {
+      state = { hasError: false };
 
+      static getDerivedStateFromError() {
+        return { hasError: true };
+      }
 
+      componentDidCatch(error, info) {
+        console.error(error, info);
+      }
 
+      render() {
+        if (this.state.hasError) {
+          return (
+            <Typography component='h1' variant='h6' align='center'>
+              Oops! Something went wrong.
+            </Typography>
+          );
+        }
+        return this.props.children;
+      }
+    }
 
-
+    ReactDOM.render(
+      <ErrorBoundary>
+        <ApolloProvider client={client}>
+          // the rest of the code here
+        </ApolloProvider>
+      </ErrorBoundary>,
+      document.getElementById('root')
+    );
+    ```
 
 
 
@@ -4776,6 +4809,7 @@ function handleChange(event) {
 }
 ```
 
+
 ## NPM PACKAGES USED
 - react-router-dom
   - Allows us to create routes for our pages
@@ -4783,7 +4817,6 @@ function handleChange(event) {
 - react-helmet
   - Enables us to change meta information
 - react-lines-ellipsis
-  - Import: `import HTMLEllipsis from 'react-lines-ellipsis/lib/html';`
   - Allows us to collapse long lines of text, such as the comment captions
 - @rooks/use-outside-click
   - The useOutsideClick hook allows us to hide the NotificationList when click anywhere on the page
@@ -4791,12 +4824,6 @@ function handleChange(event) {
   - Showing the progress while a page is loading or when a route changes
 - react-slick
   - Allows us to create a scroll left-right carousel
-  - Import:
-    ```js
-    import Slider from 'react-slick';
-    import 'slick-carousel/slick/slick.css';
-    import 'slick-carousel/slick/slick-theme.css';
-    ```
 - react-modal
   - Helps us build the PostModal component
 - React Apollo Client: @apollo/client
@@ -4809,57 +4836,3 @@ function handleChange(event) {
   - Allows us to format dates
 - react-graceful-image
   - Allows us to lazy-load our images, provides a placeholder, and allows us to retry loading if it failed
-
-**In vercel.json file:**
-```js
-{
-  "version": 2,
-  "name": "instagram",
-  "alias": "instagram-clone-app",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@now/static-build",
-      "config": {
-        "distDir": "build"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/static/(.*)",
-      "headers": {
-        "cache-control": "s-maxage=31536000,immutable"
-      },
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/favicon.ico",
-      "dest": "/favicon.ico"
-    },
-    {
-      "src": "/asset-manifest.json",
-      "dest": "/asset-manifest.json"
-    },
-    {
-      "src": "/manifest.json",
-      "dest": "/manifest.json"
-    },
-    {
-      "src": "/precache-manifest.(.*)",
-      "dest": "/precache-manifest.$1"
-    },
-    {
-      "src": "/service-worker.js",
-      "dest": "/service-worker.js"
-    },
-    {
-      "src": "/(.*)",
-      "headers": {
-        "cache-control": "s-maxage=0"
-      },
-      "dest": "/index.html"
-    }
-  ]
-}
-```
