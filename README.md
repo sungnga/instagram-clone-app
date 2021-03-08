@@ -4228,7 +4228,6 @@
             created_at
             user {
               username
-              profile_image
             }
           }
           comments_aggregate {
@@ -4486,6 +4485,7 @@
       CREATE_COMMENT
     } from '../../graphql/mutations';
     import { GET_FEED } from '../../graphql/queries';
+    import { useMutation } from '@apollo/client';
     import { UserContext } from '../../App';
 
     function LikeButton({ likes, postId, authorId }) {
@@ -4598,6 +4598,107 @@
       return <Icon onClick={onClick} className={classes.saveIcon} />;
     }
     ```
+
+### 83. Commenting on a feed post in feed page:
+- When creating a comment on a feed post, we need to manually update the cache data to be able to see the comment immediately
+- **Perform a CREATE_COMMENT mutation in Comment component:**
+- In src/components/feed/FeedPost.js file:
+  - Import the CREATE_COMMENT mutation
+  - Import the GET_FEED query
+  - Import the UserContext to get the currentUserId and feedIds
+  - In the *FeedPost component*:
+    - Pass down the postId props to the Comment child component
+    - `<Comment postId={id} />`
+  - In the *Comment component*:
+    - Receive the postId props from the FeedPost parent component
+    - Call useMutation() hook and pass in the CREATE_COMMENT mutation as an argument. We get back the createComment mutate function
+    - On the Post button element, add an onClick event handler and set it to handleAddComment
+    - Write a handleAddComment function that executes the createComment mutation
+      - When calling createComment(), in addition to passing in the variables object, we also need to pass in the `update` property and set it to handleUpdate. We want to update the cache data
+    - Write a handleUpdate function that updates the posts array in cache
+      - We specifically want to update the commentsCount and the comments array of a post
+      - The commentsCount is found at comments_aggregate.aggregate.count and we want to increment by 1
+      - Once the posts array has been updated with the new commentsCount and comments array, call cache.writeQuery() to update it in cache. Pass in, as an object, the GET_FEED query and the data object set to posts
+      - Finally, call setConent() and pass in an empty string. This will clear out the comment content in input field after the comment has been posted
+    ```js
+    import { UserContext } from '../../App';
+    import { useMutation } from '@apollo/client';
+    import { CREATE_COMMENT } from '../../graphql/mutations';
+    import { GET_FEED } from '../../graphql/queries';
+
+    function Comment({ postId }) {
+      const classes = useFeedPostStyles();
+      const { currentUserId, feedIds } = useContext(UserContext);
+      const [content, setContent] = useState('');
+      const [createComment] = useMutation(CREATE_COMMENT);
+
+      function handleUpdate(cache, result) {
+        const variables = { limit: 2, feedIds };
+        const data = cache.readQuery({
+          query: GET_FEED,
+          variables
+        });
+        // console.log({ result, data });
+        const oldComment = result.data.insert_comments.returning[0];
+        const newComment = {
+          ...oldComment,
+          user: { ...oldComment.user }
+        };
+        const posts = data.posts.map((post) => {
+          const newPost = {
+            ...post,
+            comments: [...post.comments, newComment],
+            comments_aggregate: {
+              ...post.comments_aggregate,
+              aggregate: {
+                ...post.comments_aggregate.aggregate,
+                count: post.comments_aggregate.aggregate.count + 1
+              }
+            }
+          };
+          return post.id === postId ? newPost : post;
+        });
+        cache.writeQuery({ query: GET_FEED, data: { posts } });
+        setContent('');
+      }
+
+      function handleAddComment() {
+        const variables = {
+          content,
+          postId,
+          userId: currentUserId
+        };
+        createComment({ variables, update: handleUpdate });
+      }
+    }
+    ```
+- **Update the CREATE_COMMENT mutation:**
+  - In src/graphql/mutations.js file:
+    - In CREATE_COMMENT mutation, instead of returning `affected_rows`, replace it with a `returning` field which contains the necessary comment data to add a new comment
+    - We can use the data from the `returning` field to update the post comments in cache
+    ```js
+    export const CREATE_COMMENT = gql`
+      mutation createComment($postId: uuid!, $userId: uuid!, $content: String!) {
+        insert_comments(
+          objects: { post_id: $postId, user_id: $userId, content: $content }
+        ) {
+          returning {
+            id
+            created_at
+            post_id
+            user_id
+            content
+            user {
+              username
+            }
+          }
+        }
+      }
+    `;
+    ```
+
+
+
 
 
 

@@ -151,7 +151,7 @@ function FeedPost({ post, index }) {
 				</div>
 				<Hidden xsDown>
 					<Divider />
-					<Comment />
+					<Comment postId={id} />
 				</Hidden>
 			</article>
 			{showFollowSuggestions && <FollowSuggestions />}
@@ -250,9 +250,50 @@ function SaveButton({ postId, savedPosts }) {
 	return <Icon onClick={onClick} className={classes.saveIcon} />;
 }
 
-function Comment() {
+function Comment({ postId }) {
 	const classes = useFeedPostStyles();
+	const { currentUserId, feedIds } = useContext(UserContext);
 	const [content, setContent] = useState('');
+	const [createComment] = useMutation(CREATE_COMMENT);
+
+	function handleUpdate(cache, result) {
+		const variables = { limit: 2, feedIds };
+		const data = cache.readQuery({
+			query: GET_FEED,
+			variables
+		});
+		// console.log({ result, data });
+		const oldComment = result.data.insert_comments.returning[0];
+		const newComment = {
+			...oldComment,
+			user: { ...oldComment.user }
+		};
+		const posts = data.posts.map((post) => {
+			const newPost = {
+				...post,
+				comments: [...post.comments, newComment],
+				comments_aggregate: {
+					...post.comments_aggregate,
+					aggregate: {
+						...post.comments_aggregate.aggregate,
+						count: post.comments_aggregate.aggregate.count + 1
+					}
+				}
+			};
+			return post.id === postId ? newPost : post;
+		});
+		cache.writeQuery({ query: GET_FEED, data: { posts } });
+		setContent('');
+	}
+
+	function handleAddComment() {
+		const variables = {
+			content,
+			postId,
+			userId: currentUserId
+		};
+		createComment({ variables, update: handleUpdate });
+	}
 
 	return (
 		<div className={classes.commentContainer}>
@@ -273,6 +314,7 @@ function Comment() {
 				}}
 			/>
 			<Button
+				onClick={handleAddComment}
 				color='primary'
 				className={classes.commentButton}
 				disabled={!content.trim()}
