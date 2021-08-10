@@ -1,37 +1,33 @@
-# NOTES WHILE BUILDING THIS WEB APP
+### How to use:
+Install the project dependencies by running: `npm install`
+To start up the Next.js dev server, run: `npm run dev`
 
-### 1. Breaking Down the Instagram-Clone UI
+
+## NOTES AND STEPS TO BUILDING THIS WEB APPLICATION
+The codebase for each step can be found in the commit link
+
+### [1. Breaking down the Instagram-Clone UI, establish file structure](https://github.com/sungnga/instagram-clone-app/commit/3e466b85204c16cc8b93683517d992e69d7575fc?ts=2)
 #### Routes
 - / (feed page)
 - Components:
-
   - FeedPost
   - FeedPostSkeleton
   - FeedSideSuggestions
 
 - /explore (explore page)
 - Components:
-
   - ExploreSuggestions
   - ExploreGrid
 
 - /p/:postId (post page)
 - Components:
-
   - Post
   - PostSkeleton
   - PostModal
   - MorePostsFromUser
 
-- notification
-- Components:
-
-  - NotificationList
-  - NotificationToolTip
-
 - /:username (profile page)
 - Components:
-
   - ProfileTabs
 
 - /accounts/edit (edit profile page)
@@ -42,8 +38,12 @@
 
 - `*` (not found page)
 
-#### Shared components
+#### Notification
+- Components:
+  - NotificationList
+  - NotificationToolTip
 
+#### Shared components
 - Navbar
 - FollowSuggestions
 - FollowButton
@@ -54,15 +54,16 @@
 - Layout
 - SEO
 
+
 ## BUILDING ACCOUNTS PAGES
 
-### 2. Creating routes for our pages:
+### [2. Creating routes for our pages](https://github.com/sungnga/instagram-clone-app/commit/320d17a297495f4c800e5b6a66fea15e3be5444e?ts=2)
 - In src/App.js file
   - Import: `import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';`
   - We begin by creating the individual routes that we've laid out. We're using the package react-router-dom to create the individual routes
   - There are a total of 8 routes
 
-### 3. Building the shared Layout and Navbar components:
+### [3. Building the shared Layout and Navbar components](https://github.com/sungnga/instagram-clone-app/commit/daf9fef158bca824bf2c78b611b944bb2f9c0af8?ts=2)
 - We start by building out the Layout component. The Layout is going to provide the basic structure to a great deal of pages in our application
 - For example, it's going to allow us to easily inject the Navbar component to many pages
 - In src/components/shared/Layout.js file:
@@ -79,13 +80,13 @@
   - The Navbar component renders the Instagram logo
   - When clicking on the IG logo, it'll take you to the homepage, which is the FeedPage
 
-### 4. Building the NotFoundPage component:
+### [4. Building the NotFoundPage component](https://github.com/sungnga/instagram-clone-app/commit/536072b201117a5819357cdc1f3fb4c7d05024ca?ts=2)
 - This is the default page when a route a user is try to visit doesn't match one of the routes we defined
 - In src/pages/not-found.js file:
   - Import and render the Layout component to create the page layout and add styling
   - It has a simple Navbar header with the Instagram logo and a page-not-found message to the user with a link that takes them back to homepage
 
-### 5. Building the LoginPage component:
+### [5. Building the LoginPage component](https://github.com/sungnga/instagram-clone-app/commit/da50b69dc17ab8949c336e45d01a7c0ddb681d2b?ts=2)
 - The route to LoginPage is: `/accounts/login`
 - The login page doesn't have the Navbar
 - The login form comprises of
@@ -99,7 +100,7 @@
     - Display the faceBookIcon color could either in white or blue
   - Render the LoginWithFacebook component inside the form element
 
-### 6. Building the SignUpPage component:
+### [6. Building the SignUpPage component](https://github.com/sungnga/instagram-clone-app/commit/3a57da97d4786c60dac5317b7f7a01f06a715a7c?ts=2)
 - The route to LoginPage is: `/accounts/emailsignup`
 - The signup page doesn't have the Navbar
 - In src/pages/signup.js file:
@@ -117,7 +118,7 @@
   - on the left of the page is a list of feed posts for this user and within it is a list of suggested users to follow
   - fixed to the right hand side is the sidebar which has some information about the authenticated user and below that is a list of suggested users to follow
 
-### 7. Building the FeedPage component:
+### [7. Building the FeedPage component](https://github.com/sungnga/instagram-clone-app/commit/5f30b6d0d269485f80cf0508a68e7592c92efa71?ts=2)
 - In src/pages/feed.js file:
   - Import and render the Layout component. This will provide the page structure and render the Navbar and SEO components
   - Now we will create more structure to the FeedPage
@@ -126,7 +127,7 @@
   - Import and render the FeedPost, UserCard, and FeedSideSuggestions components
   - At large-size screen we see the list FeedPost on the left and the sidebar on the right. At a small-size screen we want to hide the sidebar. To do this, Material UI has a Hidden component we can use
 
-### 8. Building the FeedPost component:
+### [8. Building the FeedPost component](https://github.com/sungnga/instagram-clone-app/commit/43a827460ab403f9956766cb04a3364926836592?ts=2)
 - The FeedPost component is rendered by the FeedPage parent component
 - The FeedPost component comprises of 3 parts:
   - The post header which has the UserCard and MoreIcon components
@@ -142,12 +143,12 @@
   - The FeedPost component receives the post object as props from FeedPage parent component. Destructure the properties of post props
   - Write the LikeButton, SaveButton, and Comment components and render static texts for each for now
 
-### 9. Building the UserCard component:
+### [9. Building the UserCard component](https://github.com/sungnga/instagram-clone-app/commit/2223bed30edbbf50e6e76ba356db4e66009102a8?ts=2)
 - The UserCard component receives the user object as props from the FeedPost parent component
 - Render the user's profile_image, username, and name
 - This component will be used in many places in our application. So the `username` is a link that redirects to that particular user's profile page
 
-### 10. Implementing the LikeButton, SaveButton, and Comment functionalities:
+### [10. Implementing the LikeButton, SaveButton, and Comment functionalities](https://github.com/sungnga/instagram-clone-app/commit/a96714d3eeac1888acd179c583ec6451ed5a2ce3?ts=2)
 - Let's enable a user to like a post, save a post, and be able to comment on a post
 - The LikeButton, SaveButton, and Comment components are rendered in the FeedPost component
 - In src/components/feed/FeedPost.js file:
@@ -164,7 +165,7 @@
     - The Post button is disabled if there's no content provided
     - Create a content state that keeps track of the content the user enters in the text input field
 
-### 11. Building the FeedSideSuggestions component:
+### [11. Building the FeedSideSuggestions component](https://github.com/sungnga/instagram-clone-app/commit/6d012db6d13dca442db943d92c4607533d11559f?ts=2)
 - The FeedSideSuggestions component is at the sidebar on the FeedPage component
 - It consists of:
   - a list of user suggestions with their profile image, username, and name
@@ -184,7 +185,7 @@
     - If isFollowing state is true, the followingButton is displayed
     - If isFollowing state is false, the followButton is displayed
 
-### 12. Creating Instagram-logo loading screen and loading icons:
+### [12. Creating Instagram-logo loading screen and loading icons](https://github.com/sungnga/instagram-clone-app/commit/51187df857a60e69cc06e2249fc4300838b80854?ts=2)
 - When we're fetching and loading posts data for the FeedPage, we see a brief loading screen with the Instagram logo on it
 - We also want to show the loading icon (loading spinner) when we're fetching suggested users on the sidebar of the FeedPage
 - The feed posts is an infinite scroll and when we reach the bottom of the posts, we want to show the loading icon indicating that more posts are being fetched
@@ -201,6 +202,7 @@
   - Create an isEndOfFeed state and initialize it to false
   - Write a conditional that if NOT isEndOfFeed, then render the LoadingLargeIcon component
 
+
 ## IMPROVING NAVBAR
 - Next step is we want to build out the Navbar component. Right now we just have an Instagram logo on it
 - We want to build out the search bar feature and 4 icons on the right that enable us to go to different routes and links
@@ -210,7 +212,7 @@
 - We also want to show a tooltip underneath the LikeIcon notification of how many likes they have on a given post or how many new followers
 - Lastly, we want to create a progress bar at the top of the Navbar that animates whenever our path/route changes
 
-### 13. More building on the Navbar component:
+### [13. More building on the Navbar component](https://github.com/sungnga/instagram-clone-app/commit/e23073bcb1e9a919d8625492cbf726a940693692?ts=2)
 - In src/components/shared/Navbar.js file:
   - The Navbar component renders the Logo, Search, and Links components
   - These 3 components are created in the Navbar.js file as they are used only in the Navbar component
@@ -230,7 +232,7 @@
       const path = history.location.pathname;
       ```
 
-### 14. Showing tooltips for Search bar:
+### [14. Showing tooltips for Search bar](https://github.com/sungnga/instagram-clone-app/commit/b18d0de696c4d879018feee8b21dd3a64f9774e1?ts=2)
 - We want to show a tooltip underneath the Search bar when a user starts typing something in the Search bar and we can show suggested search results
 - The search results are a list of users of their profile image, username and name
 - When clicking on one of the results, it'll redirect to that user's profile page and clear out the search input field
@@ -245,7 +247,7 @@
   - Also make each result item, when clicked, will redirect a user to that result user's profile page. The history object from useHistory hook has a `history.push()` method that we can use to redirect to a route
   - Once the redirect is successful we want to call the handleClearInput method to clear the input from Search bar
 
-### 15. Showing tooltips for notifications:
+### [15. Showing tooltips for notifications](https://github.com/sungnga/instagram-clone-app/commit/6e7758ee31924d820a17786ff9c32ff1a1f18c68?ts=2)
 - When there's a new notification available, a user can hover over the notification icon (the LikeIcon) and will see a dropdown RedTooltip showing a number of new likes and a number of new followers
 - When clicking on the LikeIcon, a NotificationList is displayed. The NotificationList shows a list of various users who either liked a post or started following the account
 - In src/components/shared/Navbar.js file and in Links component:
@@ -264,7 +266,7 @@
   - If clicking on the avatar post image, it'll redirect to the post page
   - If clicking on the notification user's username, it'll redirect to the user's profile page
 
-### 16. Animating the progress bar when route changes:
+### [16. Animating the progress bar when route changes](https://github.com/sungnga/instagram-clone-app/commit/ecac219a1aff83e65d38426d9908c0eecba7b253?ts=2)
 - We'll be using the package @tanem/react-nprogress to build the progress bar
 - We want to animate the progress bar when our application transitions to another route
 - In src/components/shared/Navbar.js file and in Navbar component:
@@ -282,11 +284,12 @@
     - Call the useNProgress() hook and pass in the isAnimating property. And what we get back from it are 3 values: animationDuration, isFinished, progress
     - Use these 3 values to render the progress bar
 
+
 ## POST AND EXPLORE PAGES
 - In the FeedPost list, we want to show a card carousel of a list of suggested users that the account user can follow
 - For each post there's a More button at the top right corner. When clicking on it, the OptionsDialog opens showing options for the post. Implement this More button functionality
 
-### 17. Displaying FollowSuggestions in FeedPost list:
+### [17. Displaying FollowSuggestions in FeedPost list](https://github.com/sungnga/instagram-clone-app/commit/be41e5813be3197ab5a63101df136e981d4921ca?ts=2)
 - We want to display a card view within the FeedPost list of a list of suggested followers to our account owner to follow. There's a left and right arrow to scroll through the list of suggested followers
 - This suggested card will be provided on the 3rd card on the FeedPost list
 - In src/pages/feed.js file and in FeedPage component:
@@ -313,7 +316,7 @@
     - Show their profile_image, username, and name
     - Lastly, import and render the `<FollowButton />` component. Set the side props to the value of false. This will render the Follow button with blue color background
 
-### 18. Implementing the More button functionality:
+### [18. Implementing the More button functionality](https://github.com/sungnga/instagram-clone-app/commit/7235e39637b655164e4636270734f19d549bf861?ts=2)
 - When clicking on the More button for a given post, we see an options dialog of what we can do with the post
 - The OptionsDialog is a shared component
 - In src/components/feed/FeedPost.js file and in FeedPost component:
@@ -328,7 +331,7 @@
   - The option buttons in the Dialog are: Unfollow, Go to post, Share to..., Copy Link, and Cancel
   - For Cancel, add an onClick event handler and set it to onClose
 
-### 19. Building the explore page:
+### [19. Building the explore page](https://github.com/sungnga/instagram-clone-app/commit/c61ec67bafd2e40742e0169449aea542d8c9b7f8?ts=2)
 - The route for the explore page is `/explore`
 - The explore page consists of 2 sections:
   - the Discover People section, which has a carousel with a list of suggested followers
@@ -351,7 +354,7 @@
     - Render the post images in a grid
     - There's an overlay over each post image and it displays the number of likes and comments
 
-### 20. Setting up Route for PostModal component:
+### [20. Setting up Route for PostModal component](https://github.com/sungnga/instagram-clone-app/commit/2df6283f2b840f26a0514174e65c3888c052143e?ts=2)
 - When we're on the explore page and click on one of the individual posts, a modal of the post pops up showing the details of the post
 - A thing to note is, when the PostModal is open, the route changes from `/explore` to `/p/:postId`
   - And when closing the PostModal or clicking anywhere outside the modal will close the modal, it will take us back to the `/explore` explore page route
@@ -442,7 +445,7 @@
   }
   ```
 
-### 21. Building the PostModal component:
+### [21. Building the PostModal component](https://github.com/sungnga/instagram-clone-app/commit/be0937fed0f9e6fdd57a7afdd2e434b556abf5f3?ts=2)
 - We will be using the react-modal package to help us build the PostModal component
 - In src/components/post/PostModal.js file:
   - Import the Modal component from react-modal
@@ -459,12 +462,12 @@
   - Inside the Modal component, import and render the Post component. Pass down the id props and set its value to postId: `<Post postId={postId} />`
   - Outside of and below the Modal component, import and render the CloseIcon component inside a div tag. Add an onClick event handler that will execute the `history.goBack()` method when the CloseIcon is clicked on
 
-### 22. Building the Post component:
+### [22. Building the Post component](https://github.com/sungnga/instagram-clone-app/commit/003f18ab00f882d76364c152333c7c77962d0580?ts=2)
 - In src/components/post/Post.js file:
   - The Post component contains very similar content as the FeedPost component. So we can use that as a starter code
   - For now, we're going to display the defaultPost coming from our data.js file. Name import the defaultPost object
 
-### 23. Building the post page:
+### [23. Building the post page](https://github.com/sungnga/instagram-clone-app/commit/2e9ab86205e8b3374c35026e3334a33c4da30271?ts=2)
 - The route to the post page is: `/p/:postId`
 - The post page consists of:
   - the Post component itself
@@ -489,7 +492,7 @@
 
 ## LOADING SKELETONS AND PROFILE PAGE
 
-### 24. Lazy loading on FeedPost component:
+### [24. Lazy loading on FeedPost component](https://github.com/sungnga/instagram-clone-app/commit/ed9e6d4f20a2f6c29a0c7774468d1a59783eba30?ts=2)
 - React has a feature called lazy loading to lazily load our components only when we need them. For example, we load the feed components only when we're on the feed route
 - Lazy loading is a 2-step process:
   - Use a different syntax pattern for importing the component that we want to lazily load
@@ -506,7 +509,7 @@
   </React.Suspense>;
   ```
 
-### 25. Building the FeedPostSkeleton and PostSkeleton components:
+### [25. Building the FeedPostSkeleton and PostSkeleton components](https://github.com/sungnga/instagram-clone-app/commit/c70e63363d884e6786c6f0f520b8bcabfc77b283?ts=2)
 - **Building the FeedPostSkeleton component:**
   - In src/components/feed/FeedPostSkeleton.js file:
     - Render the shimmer FeedPost skeleton and style using useFeedPostSkeletonStyle() hook
@@ -523,7 +526,7 @@
     - Write an if statement that if loading state is true, return and render the PostSkeleton component
     - To simulate a loading state, use setTimeout() and set the loading state to false after 2 seconds
 
-### 26. Building the profile page:
+### [26. Building the profile page](https://github.com/sungnga/instagram-clone-app/commit/f189908c6dc8964609296651f807e8dea2d6c8ea?ts=2)
 - The route to profile page is: `/:username`
 - **Building the ProfilePage component:**
   - In src/pages/profile.js file:
@@ -535,7 +538,7 @@
     - Inside the Layout component, render the ProfilePicture, ProfileNameSection, PostCountSection, and NameBioSection components inside a div container
     - At the bottom of the page, create the ProfileNameSection, PostCountSection, and the NameBioSection components. And render simple text as placeholder for now
 
-### 27. Building the profile header:
+### [27. Building the profile header](https://github.com/sungnga/instagram-clone-app/commit/16f2982dc2810d9f77de6113a6a2d9686bb0dd81?ts=2)
 - The profile header section consists of:
   - a ProfilePicture on left column. The profile image is smaller when screen-size is below small
   - a ProfileNameSection that has the user's username, an Edit Profile button and a Gear icon (if they're the owner of the profile)
@@ -543,7 +546,7 @@
   - a PostCountSection that has the count of number of posts, followers, and following for a given account
   - a NameBioSection that has the user's name, bio description, and link to their website
   - On small screen size and below, the PostCountSection shifts below the NameBioSection
-- **Building the ProfilePicture component:**
+- [**Building the ProfilePicture component:**](https://github.com/sungnga/instagram-clone-app/commit/16f2982dc2810d9f77de6113a6a2d9686bb0dd81?ts=2)
   - In src/pages/profile.js file:
     - Create an isOwner variable and set it to true
     - Pass down the isOwner value as isOwner props to both of the `<ProfilePicture />` child components in xsDown and smUp cards
@@ -553,7 +556,7 @@
     - Then pass down the size and isOwner properties to the useProfilePictureStyles() hook
     - For now, we're going to set a default image to the image property
     - Then in the return section, write a conditional that checks to see if there's an image provided to the image property. If there is, render that image. If there isn't, render a generic Material UI person icon
-- **Building the ProfileNameSection component:**
+- [**Building the ProfileNameSection component:**](https://github.com/sungnga/instagram-clone-app/commit/9353a2c775d3c900e106fddf179ad3bd66e66351?ts=2)
   - In src/pages/profile.js file:
   - In ProfilePage component:
     - Pass down the defaultCurrentUser object as user props and the isOwner value as isOwner props to the `<ProfileNameSection />` child component. Do this for both cardLarge and CardSmall cards
@@ -570,7 +573,7 @@
     - In the return section, write a conditional to check if isOwner is true
       - If it is, render the Edit Profile button and the Gear icon. Make the Edit Profile button link to the `/accounts/edit` page
       - If not, render one of the three follow buttons mentioned above. And hide the Edit Profile button and Gear icon
-- **Building the OptionsMenu dialog component:**
+- [**Building the OptionsMenu dialog component:**](https://github.com/sungnga/instagram-clone-app/commit/cd14006a46e816ea0c99119778ef69bff18ab8d9?ts=2)
   - In src/pages/profile.js file:
   - In the ProfilePage component:
     - The showOptionsMenu state is initialized to false, which means that when the profile page first loaded, the OptionsMenu component isn't triggered and the options menu dialog won't be open
@@ -590,7 +593,7 @@
     - The last item in the OptionsMenu dialog is the Cancel button. When this button is clicked the dialog is closed
     - The OptionsMenu component receives the handleCloseMenu function as props from the ProfilePage parent component. This handleCloseMenu function sets the showOptionsMenu state to false and therefore closes the OptionsMenu dialog
     - We can pass down this handleCloseMenu function as onClick props to a `<OptionsItem />` child component with the text props of Cancel
-- **Displaying the Unfollow dialog:**
+- [**Displaying the Unfollow dialog:**](https://github.com/sungnga/instagram-clone-app/commit/e30b7ce2757a772d2ac3d747e27bb2b67bce5710?ts=2)
   - When a user is following another profile user, it will show the Following button on that profile page. When a user decides to unfollow they can tap on the Following button again and a confirmation dialog box pops up asking to Unfollow or Cancel the request
   - In src/pages/profile.js file:
   - In the ProfileNameSection component:
@@ -603,7 +606,7 @@
     - Use the Material UI Dialog component to render the dialog box
     - In the Dialog component, render the user's profile_image, a question to unfollow this particular user, an Unfollow button, and a Cancel button
     - For the Cancel button element, add an onClick event handler that pass in the onClose function
-- **Building the PostCountSection component:**
+- [**Building the PostCountSection component:**](https://github.com/sungnga/instagram-clone-app/commit/1cb7d0fc987c91c755413d17329789de48384f03?ts=2)
   - In the post count section, we want to include the number of posts, number of followers, and number of following
   - In the ProfilePage component:
     - Pass down the defaultCurrentUser as user props to the PostCountSection and NameBioSection child components
@@ -613,13 +616,13 @@
     - Create an array containing the "posts", "followers", and "following" element and assign it to options variable
     - Then in the return section, map over the options array and for each option element, target that option property in the user object and chain on `.length` to get the total number in that option array
     - When screen size is small and below, these 3 items shift below the NameBioSection and dividers are added above and below them. And the texts are muted to grey tone
-- **Building the NameBioSection component:**
+- [**Building the NameBioSection component:**](https://github.com/sungnga/instagram-clone-app/commit/a9db4ec9dd5d509bef08d6f8198bbbaec8a339ce?ts=2)
   - In the NameBioSection component:
     - Receive the user props from the ProfilePage parent component
     - This section renders the user's name, bio, and website each on separate line
     - The website is optional but it's an anchor tag that takes you to their website
 
-### 28. Building the profile tabs section:
+### [28. Building the profile tabs section](https://github.com/sungnga/instagram-clone-app/commit/492cac28a0f8ab7478b8c2a934d8beb788747465?ts=2)
 - The profile tabs consists of these following tabs: Post, IGTV, Saved, and Tagged
 - When the screen size is small and below:
   - the tab text goes away
@@ -641,7 +644,7 @@
     - Use the Tab component from Material UI to render the individual tabs
     - for both small and large screen sizes, write a conditional that only if isOwner is true, then render the Saved tab
 
-### 29. Displaying the related content in profile tabs:
+### [29. Displaying the related content in profile tabs](https://github.com/sungnga/instagram-clone-app/commit/7a5c7971b5f8894ee40a115395c3e29eca7f2d54?ts=2)
 - We want to display related content for each tab in profile page. For example, for the Posts tab, we want to display the posts the user posted in a grid layout. For the Saved tab, we want to display all the posts the user has saved
 - The ProfilePosts component will display the user's posts in the Posts tab. The user's post is found in user.posts property. We can map over the user.posts array and render each post in GridPost component. If there aren't any posts, we'll display a no-content section element
 - The SavedPosts component will display the posts that the user has saved in the Saved tab. If there aren't any saved posts, we'll display a no-content section element
@@ -666,7 +669,7 @@
 
 ## EDIT PROFILE PAGE
 
-### 30. Building the edit profile page:
+### [30. Building the edit profile page](https://github.com/sungnga/instagram-clone-app/commit/c7d5fafc0dda0ec9132b76fc837a116d95ba5d75?ts=2)
 - The edit account route is: `/accounts/edit`
 - Once a user is logged in to their account and they visit their profile page, there's an Edit Profile button that takes them to the edit profile page
 - The edit account page consists of two parts:
@@ -717,7 +720,7 @@
     - set the open props to the showDrawer state
     - set the onClose props to the handleToggleDrawer function
   - Hide this Drawer component on small screen size
-- **Building the EditUserInfo form in main section:**
+- [**Building the EditUserInfo form in main section:**](https://github.com/sungnga/instagram-clone-app/commit/50ad8a222f9ee141074bd133ce73d688f7d2df33?ts=2)
 - We're going to build the edit user form in EditUserInfo component
 - In src/pages/edit-profile.js file:
   - Import defaultCurrentUser from data.js file
@@ -742,7 +745,7 @@
 
 ## PRODUCTION DEPLOYMENT
 
-### 31. Deploying app to Heroku:
+### [31. Deploying app to Heroku](https://github.com/sungnga/instagram-clone-app/commit/5a990d0be85d1fd3167fb54df1f483c5a419680a?ts=2)
 - https://github.com/mars/heroku-cra-node/blob/master/README.md?ts=2
 - **Configure web server:**
   - At the root of the project directory, create a static.json file
@@ -770,7 +773,7 @@
   - Make sure there's a heroku remote: `git remote -v`
   - Git add, git commit with a message, and push to: `git push heroku main`
 
-### 31. Deploying app to Vercel:
+### [31. Deploying app to Vercel](https://github.com/sungnga/instagram-clone-app/commit/30fa1bb825585ca59353dc67ec646eced6c87c55?ts=2)
 - **Setup configuration:**
   - At the root of the project directory, create a vercel.json file
   - In vercel.json file, configure our routes:
@@ -823,11 +826,11 @@
 
 ## SET UP AUTH, CREATE USERS
 
-### 32. Setting up authentication with Firebase:
+### [32. Setting up authentication with Firebase](https://github.com/sungnga/instagram-clone-app/commit/95bbb0a2c9507a3f3901acfc90c073804f22a74c)
 - Tutorial to set up Firebase with a Hasura app:
     - https://hasura.io/blog/authentication-and-authorization-using-hasura-and-firebase/
 
-#### Step 1: Deploy Hasura graphQL to Heroku:
+#### Step 1: Deploy Hasura graphQL to Heroku
   - **Run Hasura GraphQL engine on Heroku:**
     - https://hasura.io/docs/1.0/graphql/core/deployment/deployment-guides/heroku.html
     - Deploying Hasura with a new Postgres DB by clicking on the Deploy to Heroku button
@@ -839,7 +842,7 @@
     - Enter the ADMIN_SECRET password that we created
     - This will launch our project graphQL console. Click on the GRAPHQL tab at the top. Then copy the GraphQL Endpoint URI link. We will use this to hook up Apollo Client to GraphQL server later on
 
-#### Step 2: Add Firebase authentication:
+#### [Step 2: Add Firebase authentication](https://github.com/sungnga/instagram-clone-app/commit/e5dcb4a56d0088105a16b32d67e09ffe05eafc2a?ts=2)
   - Firebase website: https://firebase.google.com/
   - Sign in to Google Firebase and create a new project. Call it instagram-clone
   - On the Firebase project's dashboard, click on Authentication option on the left menu
@@ -860,7 +863,7 @@
   - Lastly, deploy our cloud function: `npx firebase deploy --only functions`
   - On the Firebase project's dashboard, click on Functions option on the left menu. We should see the `processSignUp` function been added to the list
 
-#### Step 3: Client-side React - hook up Apollo Client to graphQL:
+#### [Step 3: Client-side React - hook up Apollo Client to graphQL](https://github.com/sungnga/instagram-clone-app/commit/bfb418fc1996ec46f9feaab61779a00a07cfe465?ts=2)
   - Set up a GraphQL client with Apollo: https://hasura.io/learn/graphql/react/apollo-client/
   - **Configure Apollo Client:**
     - Install React Apollo hooks: `npm i @apollo/client graphql subscriptions-transport-ws`
@@ -928,7 +931,7 @@
       - Name import the AuthContext context from auth.js file
       - Call React's useContext() hook and pass in AuthContext. What we get back are authState, signInWithGoogle, and signOut properties and we can destructure those
 
-### 33. Signing up a user:
+### [33. Signing up a user, sign up with email and password](https://github.com/sungnga/instagram-clone-app/commit/8d472197e12a4695de088a5497667113053fd569?ts=2)
 **Steps to creating a new user:**
 - Create a users schema in Hasura GraphQL console. Define its properties and type
 - Write a CREATE_USER mutation in mutations.js file. Create a createUser mutation function that we can use to add a new user to the users database in Hasura
@@ -1080,7 +1083,7 @@
 - react-hook-form docs: https://react-hook-form.com/
 - validator docs: https://www.npmjs.com/package/validator
 
-### 34. Separating routes to authenticated and unauthenticated:
+### [34. Separating routes to authenticated and unauthenticated](https://github.com/sungnga/instagram-clone-app/commit/f2da578ca551d289da4144f756a75406447c1ff1?ts=2)
 - If a user is not authenticated, we want them to be able to visit pages/routes that are not authenticated. For example, the login page and the signup with email page. And if they try to access any of the authenticated route, they'll be redirected to the login page using the react-router-dom's Redirect component
 - Implement the signOut functionality when a user clicks Log Out in the profile options menu. This will set the authState.status === 'out'
 - In src/App.js file:
@@ -1112,7 +1115,7 @@
     - execute the signOut() method. This will set the authState.status === 'out'
     - call history.push() to redirect user to login page after signOut
 
-### 35. Client-side: validating signup form:
+### [35. Client-side: validating signup form](https://github.com/sungnga/instagram-clone-app/commit/82bda1f4e596b986a4f82c5ed4003950389ea485?ts=2)
 - react-hook-form docs: https://react-hook-form.com/
 - validator docs: https://www.npmjs.com/package/validator
 - Install: `npm i react-hook-form validator`
@@ -1147,7 +1150,7 @@
 	}
   ```
 
-### 36. Server-side: validating signup form:
+### [36. Server-side: validating signup form](https://github.com/sungnga/instagram-clone-app/commit/5fffba017f736c4cdf5fc557388d55a246855f48?ts=2)
 - Display error message coming from the server to the user
 - Validate that
   - password is at least 6 characters long. Display human-readable error message
@@ -1232,7 +1235,7 @@
 
 ## EMAIL LOGIN AND THIRD PARTY AUTH
 
-### 37. Client-side: validating email login form:
+### [37. Client-side: validating email login form](https://github.com/sungnga/instagram-clone-app/commit/753779b5859ee1eac324a1b6bad424b6ac9bdfcf?ts=2)
 - Validating the email login form is very similar to validating the signup form
 - When logging in, the user can provide either a username, email, or phone number and their password
 - When the user starts typing in their password, we want to display an endAdornment of Show button so that they can click see the password text. We want to toggle the Show and Hide password button
@@ -1256,7 +1259,7 @@
     - for the endAdornment, only display the Show adornment if hasPassword is true. Meaning, the user has typed something in the password field
   - For the Log In button, disable it if `!formState.isValid` or `formState.isSubmitting` 
 
-### 38. Implementing log in with email and password functionality:
+### [38. Implementing log in with email and password functionality](https://github.com/sungnga/instagram-clone-app/commit/29bd36b128f216d482639dcdd68a3735e6a0a6a5?ts=2)
 - In src/auth.js file:
   - Write an async logInWithEmailAndPassword function that signs in a user with the given email and password
     - This function accepts an email and password as parameters
@@ -1298,7 +1301,7 @@
     }
     ```
 
-### 39. Implementing log in with username or phone number functionality:
+### [39. Implementing log in with username or phone number functionality](https://github.com/sungnga/instagram-clone-app/commit/22f93970a5dd4eb8c797a846318073962def3a72?ts=2)
 - The next thing we want to do is allow users to log in with their username or phone number. The input they can provide are either username, email, or phone
 - For example, if the input they provide is not an email, we can write a users query on Hasura graphQL to look up a user's email based on the username or phone they provided
 - In src/graphql/queries.js file:
@@ -1385,7 +1388,7 @@
     }
     ```
 
-### 40. Server-side: handling auth errors and validating login form:
+### [40. Server-side: handling auth errors and validating login form](https://github.com/sungnga/instagram-clone-app/commit/c5e999b3446652fd42bbf64633548c9fca58a7a3?ts=2)
 - Right now if a valid password is not provided, we're going to get an uncaught promise from our backend. To handle that, we're going to use our AuthError component from signup.js file to display an error message on the login form
 - In src/pages/login.js file:
   - Name import the AuthError component from signup.js file
@@ -1433,7 +1436,7 @@
     <AuthError error={error} />
     ```
 
-### 41. Logging in with third party providers - Facebook:
+### [41. Logging in with third party providers - Facebook](https://github.com/sungnga/instagram-clone-app/commit/399e88a631a9cf9b1391a40080119be7e7b46401?ts=2)
 - We want our users to be able to log in to our application with a third party provider such as with Facebook or Google. To do this, we need to enable a third party auth in the Firebase Authentication console
 
 **Facebook login setup:**
@@ -1548,7 +1551,7 @@
 - Now that we've got authentication, we can focus on all of the routes that only logged in users can see
 - The first page that we'll work on is the Edit Profile page
 
-### 42. Creating a ME subscription and UserContext:
+### [42. Creating a ME subscription and UserContext](https://github.com/sungnga/instagram-clone-app/commit/e594c9201dade2cb36ace5d2a533cd7f6c00ce4b?ts=2)
 - Before that, we want to find the means to pass all of the current users information to any components or page in our app. A convenient means of doing that, like we've done in auth.js file is context. We created some context for authorization related information. Now we're going to create some context for the user information
 - The way we're going to get the currently logged in user's info is by getting the user's id and use it to perform a request in order to get the user's current info at that time from Hasura
 - Then we're going to provide the user data to all authenticated user routes/pages via user context provider
@@ -1629,7 +1632,7 @@
     );
     ```
 
-### 43. Getting edit user profile data:
+### [43. Getting edit user profile data](https://github.com/sungnga/instagram-clone-app/commit/25aedb49046affe516b8d9beb462b282fbbc8f55?ts=2)
 - Let's populate the user data in Edit User Profile form
 - To get the user data, we send a query to Hasura graphQL with the currentUserId
 - Once we get the data back we can pass it down to the EditUserInfo component
@@ -1685,7 +1688,7 @@
   </main>
   ```
 
-### 44. Client-side: Validating EditUserInfo form:
+### [44. Client-side: Validating EditUserInfo form](https://github.com/sungnga/instagram-clone-app/commit/3fc8cde886f26e3851d0149681f2943ab0d09b7e?ts=2)
 - Now that the user information is populated in the user edit profile form, the user can change them. However, we still need to validate the form. For example, we want to make sure that the username isn't one that's taken by another user already, the website is an actual URL, the bio isn't too long, the email isn't another user's email, and that the phone number is an actual real phone number
 - We'll be using the useForm hook from react-hook-form again to do the validation
 - In src/pages/edit-profile.js file and in *EditUserInfo component*:
@@ -1730,7 +1733,7 @@
     </form>
     ```
 
-### 45. Updating the EditUserInfo in Postgres database:
+### [45. Updating the EditUserInfo in Postgres database](https://github.com/sungnga/instagram-clone-app/commit/dc621494d6f089ebfa197b60bdd8325c6f4fbd98?ts=2)
 - The next step we need to do is to perform a mutation to update the user information in the Postgres(Hasura graphQL) database
 - **Perform an editUser mutation in Hasura console:**
   - The name of the mutation is `editUser`
@@ -1807,7 +1810,7 @@
     }
     ```
 
-### 46. Updating user email in Firebase auth:
+### [46. Updating user email in Firebase auth](https://github.com/sungnga/instagram-clone-app/commit/ca31184cdb03417e26b496768663710b591c6158?ts=2)
 - If the user decides to update their email address in EditUserInfo form, we need to update that in both the Postgress database and in Firebase Authentication. Firebase uses the email to authenticate a user when they log in or sign up. If the email is not updated in Firebase auth, the user won't be able to login with this updated email. For this, we need to write a separate function to update the user's email in Firebase auth
 - In src/auth.js file:
   - Write an async updateEmail function that updates user email in Firebase auth
@@ -1843,7 +1846,7 @@
     }
     ```
 
-### 47. Server-side: handling error and validating EditUserInfo form:
+### [47. Server-side: handling error and validating EditUserInfo form](https://github.com/sungnga/instagram-clone-app/commit/661fdce7191e131001eaf181ea4606fc1b9cfe4c?ts=2)
 - In src/pages/edit-profile.js file and in *EditUserInfo component*:
   - Create a piece of `error` state and specify the `type` of error and the error `message` and initialize them to empty strings
   - Write a handleError function that calls the setError() to update the error state. It's updating the error type and error message in error state
@@ -1887,7 +1890,7 @@
     }
     ``` 
 
-### 48. Showing success snackbar after form submission:
+### [48. Showing success snackbar after form submission](https://github.com/sungnga/instagram-clone-app/commit/306bebe59729f8c27b9b1089dfa76bcba4bb669b?ts=2)
 - Once the user info has been successfully updated, we want to show a snackbar to the user letting them know that their profile has been updated
 - The snackbar will display for 2 seconds and closes/disappears automatically
 - In src/pages/edit-profile.js file and in *EditUserInfo component*:
@@ -1921,7 +1924,7 @@
   - A pop-up dialog box will open and will enable a current user to select whatever image they want to upload
   - We will be using an image service called Cloudinary to upload and store the profile image. It will return to us a URL which we can then use to update the current user information
 
-### 49. Uploading image file to Cloudinary:
+### [49. Uploading image file to Cloudinary](https://github.com/sungnga/instagram-clone-app/commit/337a041a06301469912f66d5658d14c577a3b5d8?ts=2)
 - **Create upload preset in Cloudinary:**
   - In Cloudinary console and at the top menu bar, select the Settings icon
   - Then select the Upload tab at the top
@@ -2005,7 +2008,7 @@
     </label>
     ```
 
-### 50. Performing a mutation to update and display user avatar:
+### [50. Performing a mutation to update and display user avatar](https://github.com/sungnga/instagram-clone-app/commit/69abee18ecceb2d6775098b163e78fc44e5f2b15?ts=2)
 - To display the profile image that the user just uploaded as their avatar, we first need to update the user's profile_image property in the database with the URL we get back from Cloudinary. We do this by creating an update users mutation in Hasura that updates the user profile image based on the given user id
 - **Create an update EDIT_USER_AVATAR mutation:**
 - In src/graphql/mutations.js file:
@@ -2055,7 +2058,7 @@
   <ProfilePicture size={38} image={profileImage} />
   ```
 
-### 51. Implementing the search bar functionality:
+### [51. Implementing the search bar functionality](https://github.com/sungnga/instagram-clone-app/commit/6bfe367fa3153698d42ccd8bdab9afffbf0f5398?ts=2)
 - The next feature we want to implement is the ability to search for other users using the search bar. We can search by their name or username and search will give us a list of suggested users as we type
 - We perform a query operation in Hasura to get the users based on the query string
 - **Create a SEARCH_USERS query:**
@@ -2119,7 +2122,7 @@
     }, [query, data, searchUsers]);
     ```
 
-### 52. Displaying current user avatar in Navbar:
+### [52. Displaying current user avatar in Navbar](https://github.com/sungnga/instagram-clone-app/commit/180511c889e172c7272de8dd1a8b2a7ac9125a2c?ts=2)
 - In src/components/shared/Navbar.js file and in the *Links component*:
   - Name import the UserContext context
   - Call useContext() hook and pass in the UserContext as an argument. What we get back from it is the `me` object which contains the current user info
@@ -2142,7 +2145,7 @@
   - The media file that the user uploaded will be stored in Cloudinary
 - We will be creating a posts table in Hasura to store the posts data. We'll also setup relationships between the post and the user who created it
 
-### 53. Client-side: building the add new posts functionality:
+### [53. Client-side: building the add new posts functionality](https://github.com/sungnga/instagram-clone-app/commit/a77a5d8a3b767b4b090745ed95a54774e53b8be7?ts=2)
 - In src/components/shared/Navbar.js file and in the *Links component*:
   - Create a piece of state called media and initialize it to null. This keeps track of the media file the user uploaded to create a new post
   - Create a piece of state called showAddPostDialog and initialize it to false. This keeps track of whether the AddPostDialog screen is open or not
@@ -2201,7 +2204,7 @@
   export default AddPostDialog;
   ```
 
-### 54: Adding posts table and configure relationships in Hasura:
+### [54: Adding posts table and configure relationships in Hasura](https://github.com/sungnga/instagram-clone-app/commit/1f1b149980a9ee879f0aff5bd515c17065c17269?ts=2)
 - **Create posts table in Hasura graphQL:**
   - In Hasura console, click on the DATA tab at the top and click on Create Table button
   - Table Name: posts
@@ -2236,7 +2239,7 @@
     - To: id
     - Relationship: posts.user_id -> users.id
 
-### 55. Client-side: building the AddPostDialog box component:
+### [55. Client-side: building the AddPostDialog box component](https://github.com/sungnga/instagram-clone-app/commit/d19f93a91ab359f889e6ad870940d9db0d7df6ad?ts=2)
 - **Create a rich text editor for post caption using Slate library:**
   - Slate docs: https://docs.slatejs.org/walkthroughs/01-installing-slate
   - Import: `npm slate slate-react slate-history`
@@ -2353,7 +2356,7 @@
       }
       ```
 
-### 56. Server-side: Adding a new post to database and uploading media to Cloudinary 
+### [56. Server-side: Adding a new post to database and uploading media to Cloudinary](https://github.com/sungnga/instagram-clone-app/commit/3dc3bbb701fc86bfc1e33d94932b71fc6657e584?ts=2)
 - A few things take place on the backend when a user clicks the Share post button to add a new post
   - The handleImageUpload utility function gets executed with the provided media data. This uploads the media file to Cloudinary and it returns a URL. All uploaded images are resized to 500x500px by Cloudinary
   - The createPost mutation function gets executed with the provided post data. This creates a new post in the Postgres database. And this post has a reference to the user that created it
@@ -2483,7 +2486,7 @@
 - We first need to create the likes, saved_posts, and comments tables in Hasura. And configure relationships between the users, posts, likes, comments, and saved_posts tables
 - We create a post subscription in order to display realtime post data in our app
 
-### 57: Adding likes, saved_posts, and comments tables in Hasura, configure relationships:
+### [57: Adding likes, saved_posts, and comments tables in Hasura, configure relationships](https://github.com/sungnga/instagram-clone-app/commit/d48747ea75ebc59d39d592e236d049642dcc9fbe?ts=2)
 - **Create the likes table in Hasura graphQL:**
   - Table Name: likes
   - Columns:
@@ -2585,7 +2588,7 @@
     - From: post_id (from the post_id stored in comments)
     - To: id (to the id on posts table)
 
-### 58. Getting a post from Hasura database:
+### [58. Getting a post from Hasura database](https://github.com/sungnga/instagram-clone-app/commit/cdffe003dbbe4becc903b236d504b5ae771e6307?ts=2)
 - Next thing we want to do is querying for a post in Hasura database and display it in our app. We want to subscribe to a post, so that we'll always get a realtime post data when there's an update to the post
 - **Create a GET_POST subscription:**
 - In src/graphql/subscriptions.js file:
@@ -2651,7 +2654,7 @@
   const { id, media, likes, user, created_at, caption, comments } = data.posts_by_pk;
   ```
 
-### 59. Post component revisited: populating post data:
+### [59. Post component revisited: populating post data](https://github.com/sungnga/instagram-clone-app/commit/ad6384059e2f541efe72c621478b164d484621c1?ts=2)
 - **Populate post data in Post component:**
   - Now that we have the post data from the database, we can replace our existing dummy post data with the actual post data in Post component
   - The Post component is being rendered by the PostPage parent component. The change is reflected on the post page. Route: /p/:postId
@@ -2673,7 +2676,7 @@
     - the comment content
     - when the comment was made
 
-### 60. Implementing like and unlike a post:
+### [60. Implementing like and unlike a post](https://github.com/sungnga/instagram-clone-app/commit/f8e90e5cdc2162e43fb929f2dfb713d8c1f59513?ts=2)
 - When a user clicks the like button to like a post, we want to perform a LIKE_POST mutation in Hasura to insert a like instance to the likes table. A like instance contains a postId and userId properties
 - When a user clicks unlike button, we perform an UNLIKE_POST mutation in Hasura to delete a like instance to the likes table based on the postId and userId
 - We keep track of the liked state for the current user. So the user can toggle between like and unlike button and we display the correct UI button
@@ -2758,7 +2761,7 @@
   }
   ```
 
-### 61. Implementing save and unsave a post:
+### [61. Implementing save and unsave a post](https://github.com/sungnga/instagram-clone-app/commit/1ac0ef30cc1a851912502f920445263276dcce15?ts=2)
 - The process of implementing the save and unsave a post functionality is very similar to like and unlike a post
 - **Create a SAVE_POST mutation:**
   - In src/graphql/mutations.js file:
@@ -2824,7 +2827,7 @@
     }
     ```
 
-### 62. Implementing create comment on a post:
+### [62. Implementing create comment on a post](https://github.com/sungnga/instagram-clone-app/commit/1e9a449e350eccb6bbb9f26a3663430b6981a1d6?ts=2)
 - The steps to implementing create comment on a post is very much similar to like/unlike and save/unsave functionalities
 - **Create a CREATE_COMMENT mutation:**
   - In src/graphql/mutations.js file:
@@ -2877,7 +2880,7 @@
 
 ## CREATING AND DISPLAYING NOTIFICATIONS
 
-### 62. Performing like notification mutations:
+### [63. Performing like notification mutations](https://github.com/sungnga/instagram-clone-app/commit/d1843c97beb56cf120eb1e7814d7007f5c3cffcf?ts=2)
 - When a user likes a post, the owner of the post will get a notification about the like
 - To implement this feature, we need to create a notifications table in the database and perform notifications mutations of insert or delete a notification whenever a user likes or unlikes a post. The notification instance is associated with a postId, userId, and profileId and has a type of like. There are other types of notifications such as comment and follow, which we will work on later
 - **Create a notifications table in Hasura graphQL:**
@@ -2985,7 +2988,7 @@
       ```
 - Now whenever a user likes a post, a like notification instance is created in the notifications table. When a user unlike a post, the like notification instance gets deleted
 
-### 63. Displaying notifications in NotificationList and NotificationTooltip:
+### [64. Displaying notifications in NotificationList and NotificationTooltip](https://github.com/sungnga/instagram-clone-app/commit/9a7070408c2f039adf47efe2d58ea764bb1570db?ts=2)
 - **Update the ME subscription to include notifications:**
   - In src/graphql/subscriptions.js file:
     - Update the ME subscription to include the notifications field. Set the `order_by` property to created_at timestamp in descending order. This means that a user will get notifications on the most recent notification instances
@@ -3111,7 +3114,7 @@
     }
     ```
 
-### 64. Clearing out notifications:
+### [65. Clearing out notifications](https://github.com/sungnga/instagram-clone-app/commit/eee170402540a43e24ad851243cd099cf64a3f95?ts=2)
 - After the current user has viewed the new notifications by clicking on the heart icon on the Navbar, we want to clear the notifications. When there's a new notification, a red dot is shown underneath the heart icon
 - The way to clearing the new notifications is by updating the value of last_checked of the current user. At the moment it's always set to null. Whenever a current user clicks on the heart icon notifications, we want to set a timestamp to their last_checked field. If a notification created_at time is older than the last_checked time, then we don't show the notifications red dot. Since users is a subscription, any new notifications (the red dot) gets updated in realtime
 - We need to perform a mutation to update a users last_check field in the database
@@ -3172,7 +3175,7 @@
     </div>
     ```
 
-### 65. Formatting dates:
+### [66. Formatting dates](https://github.com/sungnga/instagram-clone-app/commit/ae41d248f589d62ed82b5f69aef3edd7fd61efe3?ts=2)
 - date-fns docs: https://date-fns.org/docs/
 - In src/utils/formatDate.js file:
   ```js
@@ -3232,7 +3235,7 @@
 
 ## USER PROFILE PAGE, PLUS FOLLOWING AND UNFOLLOWING USERS
 
-### 66. Adding following and followers tables in Hasura, configure relationships:
+### [67. Adding following and followers tables in Hasura, configure relationships](https://github.com/sungnga/instagram-clone-app/commit/53756471241519bd0f171face8c3b660b3b29e21?ts=2)
 - **Create a following table in Hasura graphQL:**
   - Table Name: following
   - Columns:
@@ -3280,7 +3283,7 @@
       - From: profile_id (from the profile_id stored in followers)
       - To: id (to the id on users table)
 
-### 67. Querying for a user profile data:
+### [68. Querying for a user profile data](https://github.com/sungnga/instagram-clone-app/commit/6e8ad1c6311e17a927bee4b0c6590de607c5f5a1?ts=2)
 - Query for a user profile data based on the username and display the data on a user profile page
 - **Create a GET_USER_PROFILE query:**
 - In src/graphql/queries.js file
@@ -3382,7 +3385,7 @@
     const isOwner = user.id === currentUserId;
     ```
 
-### 68. Editing the profile picture:
+### [69. Editing the profile picture](https://github.com/sungnga/instagram-clone-app/commit/487fbb160edd3e135bee22dfc375b2878aa66730?ts=2)
 - We want our current user to be able to edit their main profile picture by uploading a new image file. If successful, the avatar on the Navbar should sync up with the new profile picture
 - In src/components/shared/ProfilePicture.js file:
   - Receive the image and isOwner props from the ProfilePage parent component
@@ -3456,7 +3459,7 @@
     }
     ```
 
-### 69. Displaying saved_posts data in ProfileTabs component:
+### [70. Displaying saved_posts data in ProfileTabs component](https://github.com/sungnga/instagram-clone-app/commit/9dcc3f055fdd86e1176a9d4d918f14721baafe9b?ts=2)
 - In src/components/profile/ProfileTabs.js file and in the *SavedPosts component*:
   - Write an if statement that if the length of user.saved_posts array is equal to 0, return the "No saved posts found" text
   - If there are saved_posts, map over the user.saved_posts array and display each post data in the PostGrid component
@@ -3491,7 +3494,7 @@
   }
   ```
 
-### 70. Following and unfollowing a user:
+### [71. Following and unfollowing a user](https://github.com/sungnga/instagram-clone-app/commit/be1db590ae8383d3975df9a05df99d3a167454cd?ts=2)
 - The next feature we want to build is enable a user to follow or unfollow another user and send a notification to the user whose being followed
 - **Create a FOLLOW_USER mutation:**
   - In src/graphql/mutations.js file:
@@ -3725,7 +3728,7 @@
 
 ## FINISHING THE EXPLORE PAGE
 
-### 71. Tying up loose ends of our app:
+### [72. Tying up loose ends of our app](https://github.com/sungnga/instagram-clone-app/commit/08fef73835cd369cbd4b9d528abb899580b484ff?ts=2)
 - Added created_at column to users and saved_posts tables in Hasura
 - In GET_USER_PROFILE query in queries.js file, sort the returned saved_posts and posts in descending order, latest posts first. We display the latest post first in the posts grid and saved_posts grid
 - Our post media and the profile picture are distorted by trying to fit into the square 500x500px that we defined for upload image preset. We can modify our upload presets in Cloudinary to fix this problem
@@ -3740,7 +3743,7 @@
 - Another thing we can do to ensure that when we make a request we're always fetching from the network and not read from the cache is we can set the individual fetch policy for a given query
   - In the ProfilePage component, when we query for the GET_USER_PROFILE, we can pass in the fetchPolicy option and set it to 'no-cache'
 
-### 72. Suggesting users to the current user:
+### [73. Suggesting users to the current user](https://github.com/sungnga/instagram-clone-app/commit/f937e653bb88c6f6a431f2573faacd736f64c364?ts=2)
 - We're going use to the followerIds array and check to see if there are any followers. And if there are, we're going to display them as suggested users to our current user to follow them back. If a brand new user has no followers at the moment, we still want to show suggested users that have been created around the same time as the new user
 - Display the suggest users in a slider in explore page
 - **Create a SUGGEST_USERS query:**
@@ -3752,7 +3755,7 @@
     export const SUGGEST_USERS = gql`
       query suggestUsers(
         $limit: Int!
-        $followerIds: [uuid!]
+        $followerIds: [uuid!]!
         $created_at: timestamptz!
       ) {
         users(
@@ -3761,6 +3764,7 @@
             _or: [
               { id: { _in: $followerIds } }
               { created_at: { _gt: $created_at } }
+              { created_at: { _lt: $created_at } }
             ]
           }
         ) {
@@ -3806,7 +3810,7 @@
     ))}
     ```
 
-### 73. Following and unfollowing suggested users:
+### [74. Following and unfollowing suggested users](https://github.com/sungnga/instagram-clone-app/commit/67bd1496422c342f7ad51db1d72b8609234f21ce?ts=2)
 - Enable a current user to follow and unfollow suggested users
 - In src/components/shared/FollowSuggestions.js file and in the *FollowSuggestionsItem component*:
   - Pass down the user id as id props to the FollowButton child component
@@ -3872,7 +3876,7 @@
     }
     ```
 
-### 74. Displaying explore posts in explore page:
+### [75. Displaying explore posts in explore page](https://github.com/sungnga/instagram-clone-app/commit/97e6dad82fdd44436d9ef92b230a4f0357d286dc?ts=2)
 - We want to display explore posts in the explore page to our current user. These explore posts are from users that our current user isn't following. This helps our current user explore posts from users that they don't know about yet and help them find other followers and other sources of content
 - These explore posts should be popular posts where they have lots of likes and comments and we should display them in descending order with the most likes and comments go at the top
 - **Create an EXPLORE_POSTS query:**
@@ -3882,14 +3886,14 @@
     // Newest to oldest
     // Where the posts are NOT from users the current user is following
     export const EXPLORE_POSTS = gql`
-      query explorePosts($followingIds: [uuid!]!) {
+      query explorePosts($feedIds: [uuid!]!) {
         posts(
           order_by: {
             likes_aggregate: { count: desc }
             comments_aggregate: { count: desc }
             created_at: desc
           }
-          where: { id: { _nin: $followingIds } }
+          where: { id: { _nin: $feedIds } }
         ) {
           id
           media
@@ -3910,8 +3914,8 @@
 - **Perform a EXPLORE_POSTS query in the ExploreGrid component:**
   - In src/components/explore/ExploreGrid.js file and in the *ExploreGrid component*:
     - Import the EXPLORE_POSTS query
-    - Call useContext() hook and pass in the UserContext as an argument. We get back the followingIds
-    - Create a variables object that contains the data for the followingIds variable
+    - Call useContext() hook and pass in the UserContext as an argument. We get back the feedIds
+    - Create a variables object that contains the data for the feedIds variable
     - Call useQuery() hook and pass in the EXPLORE_POSTS query as 1st arg and the variables object as 2nd arg. We get back the data and loading properties
     - Instead of rendering the dummy posts data from getDefaultPost array, we can replace it with data.posts array. Iterate over the array and display each post in the `<GridPost />` component 
     ```js
@@ -3919,8 +3923,8 @@
     import { EXPLORE_POSTS } from '../../graphql/queries';
     import { useQuery } from '@apollo/client';
 
-    const { followingIds } = useContext(UserContext);
-    const variables = { followingIds };
+    const { feedIds } = useContext(UserContext);
+    const variables = { feedIds };
     const { data, loading } = useQuery(EXPLORE_POSTS, { variables });
 
     {data.posts.map((post) => (
@@ -3931,7 +3935,7 @@
 
 ## GETTING MORE POSTS FROM USER AND DELETING POSTS
 
-### 75. Querying to get more posts from a given user:
+### [76. Querying to get more posts from a given user](https://github.com/sungnga/instagram-clone-app/commit/a28009722bf79195a22094d4d02b83c372ed0f68?ts=2)
 - When visiting an individual post page, we want to display more posts from that given user at the bottom of the page. This area is limited to 6 additional posts
 - **Create a GET_MORE_POSTS_FROM_USER query:**
   - In src/graphql/queries.js file:
@@ -4065,7 +4069,7 @@
     }
     ```
 
-### 76. Deleting a post:
+### [77. Deleting a post](https://github.com/sungnga/instagram-clone-app/commit/47cfcd35b6aa9bbf74c18cd31c6d88864f968d8a?ts=2)
 - One way to delete a given post is by clicking on the post's MoreIcon and the OptionsDialog box opens, then click on the Delete button. That is, if the post belongs to the current user. If the post doesn't belong to the user, the Delete button won't be shown
 - **Create a DELETE_POST mutation:**
   - In src/graphql/mutations.js file:
@@ -4170,7 +4174,7 @@
 
 ## ADDING USER FEED WITH INFINITE SCROLL
 
-### 77. Querying feed posts and suggest users for feed page:
+### [78. Querying feed posts and suggest users for feed page](https://github.com/sungnga/instagram-clone-app/commit/f46c4f73bb1ce4af5bcd4ddc699bb84f07b4ff07?ts=2)
 - The next important feature we want to work on is displaying posts on the feed page. These posts are from users that the current user is following and posts that are from the current user themselves
 - So whenever we're querying posts for feed page, we want to include posts from following users and the current user
 - New posts from following users and current user will show up in feed page
@@ -4293,7 +4297,7 @@
     )}
     ```
 
-### 78. Implementing the infinite scroll and fetching more posts:
+### [79. Implementing the infinite scroll and fetching more posts](https://github.com/sungnga/instagram-clone-app/commit/b2e055f3b23480598f7c92a31f6817c2b3b94f9a?ts=2)
 - We will be using the infinite scroll functionality in multiple places across our app. So it's useful to have this as a separate utility function (a hook) that detects when we hit the bottom of the page when we're scrolling
 - **Create an infinite scroll hook:**
   - In src/utils/usePageBottom.js file:
@@ -4375,7 +4379,7 @@
     }, [isPageBottom, data, feedIds, fetchMore, handleUpdateQuery]);
     ```
 
-### 79. Updating the feed post data and improving post appearance:
+### [80. Updating the feed post data and improving post appearance](https://github.com/sungnga/instagram-clone-app/commit/7006f3101df62d76ff281f496d81000d3a623db2?ts=2)
 - **Destructure more post data from post object in FeedPost component:**
   - In src/components/feed/FeedPost.js file and in the *FeedPost component*:
     - Destructure more post data from post object
@@ -4425,7 +4429,7 @@
     }
     ```
 
-### 80. Improving image loading performance:
+### [81. Improving image loading performance](https://github.com/sungnga/instagram-clone-app/commit/27e5150dae306751bd4290b0d659a0d3e63d02dd?ts=2)
 - We're going to use a library called React Graceful Image that will allows us to optionally lazy-load our images and gives us a placeholder and allows us to retry loading our images if they failed
 - React Graceful Image docs: https://www.npmjs.com/package/react-graceful-image
 - Install: `npm i react-graceful-image`
@@ -4445,7 +4449,7 @@
 - The next feature we want to work on is the ability to like/unlike, comment, and save/unsave a feed post in feed page and be able to see the update immediately
 - Now, since our feed posts are queried and they're not a subscription, we need to update the cache manually to be able to see the like, comment, and save immediately. If working with a subscription it does it automatically
 
-### 81. Liking and unliking a feed post in feed page:
+### [82. Liking and unliking a feed post in feed page](https://github.com/sungnga/instagram-clone-app/commit/a3d4913311dc101531338ce3bbb127681f569413?ts=2)
 - When we click on the like/unlike button, we want to see the toggle between the like and liked heart and also see the likesCount immediately increment or decrement according to the mutation we're performing
 - **Perform the LIKE_POST and UNLIKE_POST mutations in LikeButton component:**
 - In src/components/feed/FeedPost.js file:
@@ -4545,7 +4549,7 @@
   - In src/graphql/mutations.js file:
     - In LIKE_POST and UNLIK_EPOST mutations, instead of returning `affected_rows`, replace it with `__typename` because we're deferring to updating the cache with the handleUpdate function
 
-### 82. Saving and unsaving a feed post in feed page:
+### [83. Saving and unsaving a feed post in feed page](https://github.com/sungnga/instagram-clone-app/commit/f9760587cf329a23332f8b411718c13999ddc63a?ts=2)
 - When we click on the Save icon on a feed post, we should see the saved post in the Saved tab of our profile page
 - We don't need to update the cache when saving and unsaving a feed post
 - **Perform the SAVE_POST and UNSAVE_POST mutations in SaveButton component:**
@@ -4599,7 +4603,7 @@
     }
     ```
 
-### 83. Commenting on a feed post in feed page:
+### [84. Commenting on a feed post in feed page](https://github.com/sungnga/instagram-clone-app/commit/965f7388f0b71c07eaa3db0fbf1430eb26ecb41c?ts=2)
 - When creating a comment on a feed post, we need to manually update the cache data to be able to see the comment immediately
 - **Perform a CREATE_COMMENT mutation in Comment component:**
 - In src/components/feed/FeedPost.js file:
@@ -4700,7 +4704,7 @@
 
 ## WRAPPING UP
 
-### 84. Catching errors with error boundary:
+### [85. Catching errors with error boundary](https://github.com/sungnga/instagram-clone-app/commit/2f75b02162517a00012c30bf966b89a22f50b6e4?ts=2)
 - When users are using our app and something has gone wrong, they might see just a blank screen or even if they see the error they would not be able to make sense of it. A good way to prevent this behavior is by adding an error boundary. This takes care of catching an error and showing the user something else, like something about the app has failed
 - In src/index.js file:
   - Writing an ErrorBoundary in a class component is the standard approach to catching errors with an error boundary
@@ -4810,7 +4814,7 @@ function handleChange(event) {
 ```
 
 
-## NPM PACKAGES USED
+## NPM PACKAGES USED IN THIS PROJECT
 - react-router-dom
   - Allows us to create routes for our pages
   - Use the Link component to link to another page
